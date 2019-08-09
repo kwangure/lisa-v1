@@ -1,0 +1,107 @@
+import { terser } from 'rollup-plugin-terser'
+import builtins from 'rollup-plugin-node-builtins'
+import commonjs from 'rollup-plugin-commonjs'
+import globals from 'rollup-plugin-node-globals'
+import resolve from 'rollup-plugin-node-resolve'
+import svelte from 'rollup-plugin-svelte'
+
+const production = !process.env.ROLLUP_WATCH
+
+export default [
+	{
+		input: `src/main/main.js`,
+		output: {
+			file: `package/js/bundle.js`,
+			format: 'iife',
+			sourcemap: true,
+		},
+		plugins: [
+			svelte({
+				// enable run-time checks when not in production
+				dev: !production,
+				css: css => {
+					css.write(`package/css/bundle.css`)
+				},
+				hydratable: true,
+			}),
+			// If you have external dependencies installed from
+			// npm, you'll most likely need these plugins. In
+			// some cases you'll need additional configuration —
+			// consult the documentation for details:
+			// https://github.com/rollup/rollup-plugin-commonjs
+			resolve({
+				browser: true,
+				dedupe: importee => importee === 'svelte' || importee.startsWith('svelte/')
+			}),
+			commonjs(),
+			// If we're building for production (npm run build
+			// instead of npm run dev), minify
+			production && terser()
+		]
+	},
+	{
+		input: `src/background/main.js`,
+		output: {
+			file: `package/js/background.js`,
+			format: 'iife',
+			sourcemap: true,
+		},
+		plugins: [
+			// If you have external dependencies installed from
+			// npm, you'll most likely need these plugins. In
+			// some cases you'll need additional configuration —
+			// consult the documentation for details:
+			// https://github.com/rollup/rollup-plugin-commonjs
+			resolve({
+				browser: true,
+				preferBuiltins: true
+			}),
+			commonjs(),
+			globals(),
+			builtins(),
+			// If we're building for production (npm run build
+			// instead of npm run dev), minify
+			production && terser()
+		],
+		onwarn: function (message, warn) {
+			if (message.code === 'CIRCULAR_DEPENDENCY') {
+				return;
+			}
+			warn(message);
+		}
+	},
+	{
+		input: `src/options/main.js`,
+		output: {
+			file: `package/js/options.js`,
+			format: 'iife',
+			sourcemap: true,
+		},
+		plugins: [
+			svelte({
+				// enable run-time checks when not in production
+				dev: !production,
+				css: css => {
+					css.write(`package/css/options.css`)
+				},
+				hydratable: true,
+			}),
+			// If you have external dependencies installed from
+			// npm, you'll most likely need these plugins. In
+			// some cases you'll need additional configuration —
+			// consult the documentation for details:
+			// https://github.com/rollup/rollup-plugin-commonjs
+			resolve({
+				browser: true,
+				dedupe: importee => importee === 'svelte' || importee.startsWith('svelte/'),
+				preferBuiltins: true 
+			}),
+			commonjs(),
+			globals(),
+			builtins(),
+			// If we're building for production (npm run build
+			// instead of npm run dev), minify
+			production && terser()
+		]
+	},
+]
