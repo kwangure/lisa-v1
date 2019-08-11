@@ -366,6 +366,9 @@ class Messages
   min_suffix(count) {
     return chrome.i18n.getMessage('min_suffix', [count]);
   }
+  get minute() {
+    return chrome.i18n.getMessage('minute', []);
+  }
   get minutes() {
     return chrome.i18n.getMessage('minutes', []);
   }
