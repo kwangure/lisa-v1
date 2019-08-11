@@ -137,6 +137,10 @@
     "message": "Duration:",
     "description": "Timer duration label. Shown on the settings page."
   },
+  "minute": {
+    "message": "minute",
+    "description": "Minute label for timer duration. Shown on the settings page."
+  },
   "minutes": {
     "message": "minutes",
     "description": "Minutes label for timer duration. Shown on the settings page."
