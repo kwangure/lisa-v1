@@ -44,9 +44,6 @@
             ? assign({}, assign(ctx.$$scope.changed || {}, definition[1](fn ? fn(changed) : {})))
             : ctx.$$scope.changed || {};
     }
-    function null_to_empty(value) {
-        return value == null ? '' : value;
-    }
 
     function append(target, node) {
         target.appendChild(node);
@@ -166,6 +163,9 @@
     function add_render_callback(fn) {
         render_callbacks.push(fn);
     }
+    function add_flush_callback(fn) {
+        flush_callbacks.push(fn);
+    }
     function flush() {
         const seen_callbacks = new Set();
         do {
@@ -241,6 +241,13 @@
             });
             block.o(local);
         }
+    }
+
+    function bind(component, name, callback) {
+        if (component.$$.props.indexOf(name) === -1)
+            return;
+        component.$$.bound[name] = callback;
+        callback(component.$$.ctx[name]);
     }
     function mount_component(component, target, anchor) {
         const { fragment, on_mount, on_destroy, after_update } = component.$$;
@@ -983,6 +990,9 @@
       }
       min_suffix(count) {
         return chrome.i18n.getMessage('min_suffix', [count]);
+      }
+      get minute() {
+        return chrome.i18n.getMessage('minute', []);
       }
       get minutes() {
         return chrome.i18n.getMessage('minutes', []);
@@ -2568,8 +2578,8 @@
 
     const file$1 = "src/main/components/Input.svelte";
 
-    // (23:4) {#if label}
-    function create_if_block_1(ctx) {
+    // (24:4) {#if label && type !== 'checkbox' && type !== 'radio'}
+    function create_if_block_2(ctx) {
     	var div, t_value = ctx.label.length? ctx.label : ctx.placeholder, t;
 
     	return {
@@ -2589,8 +2599,8 @@
     		},
 
     		h: function hydrate() {
-    			attr(div, "class", "label svelte-1p1cr39");
-    			add_location(div, file$1, 23, 8, 575);
+    			attr(div, "class", "label svelte-1eayeua");
+    			add_location(div, file$1, 24, 8, 725);
     		},
 
     		m: function mount(target, anchor) {
@@ -2612,8 +2622,8 @@
     	};
     }
 
-    // (26:4) {#if icon}
-    function create_if_block(ctx) {
+    // (27:4) {#if icon}
+    function create_if_block_1(ctx) {
     	var span, current;
 
     	var icon_1 = new Icon({
@@ -2638,8 +2648,8 @@
     		},
 
     		h: function hydrate() {
-    			attr(span, "class", "input-prefix svelte-1p1cr39");
-    			add_location(span, file$1, 26, 8, 669);
+    			attr(span, "class", "input-prefix svelte-1eayeua");
+    			add_location(span, file$1, 27, 8, 819);
     		},
 
     		m: function mount(target, anchor) {
@@ -2676,12 +2686,58 @@
     	};
     }
 
+    // (37:4) {#if label && (type === 'checkbox' || type === 'radio')}
+    function create_if_block(ctx) {
+    	var span, t_value = ctx.label.length? ctx.label : ctx.placeholder, t;
+
+    	return {
+    		c: function create() {
+    			span = element("span");
+    			t = text(t_value);
+    			this.h();
+    		},
+
+    		l: function claim(nodes) {
+    			span = claim_element(nodes, "SPAN", { class: true }, false);
+    			var span_nodes = children(span);
+
+    			t = claim_text(span_nodes, t_value);
+    			span_nodes.forEach(detach);
+    			this.h();
+    		},
+
+    		h: function hydrate() {
+    			attr(span, "class", "label svelte-1eayeua");
+    			add_location(span, file$1, 37, 8, 1270);
+    		},
+
+    		m: function mount(target, anchor) {
+    			insert(target, span, anchor);
+    			append(span, t);
+    		},
+
+    		p: function update(changed, ctx) {
+    			if ((changed.label || changed.placeholder) && t_value !== (t_value = ctx.label.length? ctx.label : ctx.placeholder)) {
+    				set_data(t, t_value);
+    			}
+    		},
+
+    		d: function destroy(detaching) {
+    			if (detaching) {
+    				detach(span);
+    			}
+    		}
+    	};
+    }
+
     function create_fragment$1(ctx) {
-    	var label_1, t0, t1, input, input_class_value, current, dispose;
+    	var label_1, t0, t1, input, input_class_value, t2, label_1_class_value, current, dispose;
 
-    	var if_block0 = (ctx.label) && create_if_block_1(ctx);
+    	var if_block0 = (ctx.label && ctx.type !== 'checkbox' && ctx.type !== 'radio') && create_if_block_2(ctx);
 
-    	var if_block1 = (ctx.icon) && create_if_block(ctx);
+    	var if_block1 = (ctx.icon) && create_if_block_1(ctx);
+
+    	var if_block2 = (ctx.label && (ctx.type === 'checkbox' || ctx.type === 'radio')) && create_if_block(ctx);
 
     	return {
     		c: function create() {
@@ -2691,6 +2747,8 @@
     			if (if_block1) if_block1.c();
     			t1 = space();
     			input = element("input");
+    			t2 = space();
+    			if (if_block2) if_block2.c();
     			this.h();
     		},
 
@@ -2703,10 +2761,12 @@
     			if (if_block1) if_block1.l(label_1_nodes);
     			t1 = claim_text(label_1_nodes, "\n    ");
 
-    			input = claim_element(label_1_nodes, "INPUT", { min: true, max: true, type: true, name: true, placeholder: true, value: true, disabled: true, autofocus: true, class: true }, false);
+    			input = claim_element(label_1_nodes, "INPUT", { min: true, max: true, type: true, name: true, placeholder: true, value: true, disabled: true, checked: true, autofocus: true, class: true }, false);
     			var input_nodes = children(input);
 
     			input_nodes.forEach(detach);
+    			t2 = claim_text(label_1_nodes, "\n    ");
+    			if (if_block2) if_block2.l(label_1_nodes);
     			label_1_nodes.forEach(detach);
     			this.h();
     		},
@@ -2719,11 +2779,13 @@
     			attr(input, "placeholder", ctx.placeholder);
     			input.value = ctx.value;
     			input.disabled = ctx.disabled;
+    			input.checked = ctx.checked;
     			input.autofocus = true;
-    			attr(input, "class", input_class_value = "" + null_to_empty((ctx.icon? 'input-icon': '')) + " svelte-1p1cr39");
-    			add_location(input, file$1, 30, 4, 760);
-    			attr(label_1, "class", "input-wrapper svelte-1p1cr39");
-    			add_location(label_1, file$1, 21, 0, 521);
+    			attr(input, "class", input_class_value = "" + (ctx.type === 'checkbox'? 'checkbox':'') + " " + (ctx.type === 'radio'? 'radio':'') + " svelte-1eayeua");
+    			toggle_class(input, "icon", ctx.icon);
+    			add_location(input, file$1, 31, 4, 910);
+    			attr(label_1, "class", label_1_class_value = "input-wrapper " + (ctx.type === 'checkbox'? 'checkbox':'') + " " + (ctx.type === 'radio'? 'radio':'') + " svelte-1eayeua");
+    			add_location(label_1, file$1, 22, 0, 560);
 
     			dispose = [
     				listen(input, "blur", ctx.blur_handler),
@@ -2743,16 +2805,18 @@
     			if (if_block1) if_block1.m(label_1, null);
     			append(label_1, t1);
     			append(label_1, input);
+    			append(label_1, t2);
+    			if (if_block2) if_block2.m(label_1, null);
     			current = true;
     			input.focus();
     		},
 
     		p: function update(changed, ctx) {
-    			if (ctx.label) {
+    			if (ctx.label && ctx.type !== 'checkbox' && ctx.type !== 'radio') {
     				if (if_block0) {
     					if_block0.p(changed, ctx);
     				} else {
-    					if_block0 = create_if_block_1(ctx);
+    					if_block0 = create_if_block_2(ctx);
     					if_block0.c();
     					if_block0.m(label_1, t0);
     				}
@@ -2766,7 +2830,7 @@
     					if_block1.p(changed, ctx);
     					transition_in(if_block1, 1);
     				} else {
-    					if_block1 = create_if_block(ctx);
+    					if_block1 = create_if_block_1(ctx);
     					if_block1.c();
     					transition_in(if_block1, 1);
     					if_block1.m(label_1, t1);
@@ -2807,8 +2871,33 @@
     				input.disabled = ctx.disabled;
     			}
 
-    			if ((!current || changed.icon) && input_class_value !== (input_class_value = "" + null_to_empty((ctx.icon? 'input-icon': '')) + " svelte-1p1cr39")) {
+    			if (!current || changed.checked) {
+    				input.checked = ctx.checked;
+    			}
+
+    			if ((!current || changed.type) && input_class_value !== (input_class_value = "" + (ctx.type === 'checkbox'? 'checkbox':'') + " " + (ctx.type === 'radio'? 'radio':'') + " svelte-1eayeua")) {
     				attr(input, "class", input_class_value);
+    			}
+
+    			if ((changed.type || changed.icon)) {
+    				toggle_class(input, "icon", ctx.icon);
+    			}
+
+    			if (ctx.label && (ctx.type === 'checkbox' || ctx.type === 'radio')) {
+    				if (if_block2) {
+    					if_block2.p(changed, ctx);
+    				} else {
+    					if_block2 = create_if_block(ctx);
+    					if_block2.c();
+    					if_block2.m(label_1, null);
+    				}
+    			} else if (if_block2) {
+    				if_block2.d(1);
+    				if_block2 = null;
+    			}
+
+    			if ((!current || changed.type) && label_1_class_value !== (label_1_class_value = "input-wrapper " + (ctx.type === 'checkbox'? 'checkbox':'') + " " + (ctx.type === 'radio'? 'radio':'') + " svelte-1eayeua")) {
+    				attr(label_1, "class", label_1_class_value);
     			}
     		},
 
@@ -2830,13 +2919,14 @@
 
     			if (if_block0) if_block0.d();
     			if (if_block1) if_block1.d();
+    			if (if_block2) if_block2.d();
     			run_all(dispose);
     		}
     	};
     }
 
     function instance$1($$self, $$props, $$invalidate) {
-    	let { type = 'text', name = '', label = '', placeholder = '', icon = '', min = null, max = null, value = '', disabled = false, autofocus } = $$props;
+    	let { type = 'text', name = '', label = '', placeholder = '', icon = '', checked = false, min = null, max = null, value = '', disabled = false, autofocus = false } = $$props;
 
         // Update value manually since Svelte does not allow data  
         // binding if input type is dynamic (and for good reason)
@@ -2844,7 +2934,7 @@
             $$invalidate('value', value=e.target.value);
         }
 
-    	const writable_props = ['type', 'name', 'label', 'placeholder', 'icon', 'min', 'max', 'value', 'disabled', 'autofocus'];
+    	const writable_props = ['type', 'name', 'label', 'placeholder', 'icon', 'checked', 'min', 'max', 'value', 'disabled', 'autofocus'];
     	Object.keys($$props).forEach(key => {
     		if (!writable_props.includes(key) && !key.startsWith('$$')) console.warn(`<Input> was created with unknown prop '${key}'`);
     	});
@@ -2879,6 +2969,7 @@
     		if ('label' in $$props) $$invalidate('label', label = $$props.label);
     		if ('placeholder' in $$props) $$invalidate('placeholder', placeholder = $$props.placeholder);
     		if ('icon' in $$props) $$invalidate('icon', icon = $$props.icon);
+    		if ('checked' in $$props) $$invalidate('checked', checked = $$props.checked);
     		if ('min' in $$props) $$invalidate('min', min = $$props.min);
     		if ('max' in $$props) $$invalidate('max', max = $$props.max);
     		if ('value' in $$props) $$invalidate('value', value = $$props.value);
@@ -2892,6 +2983,7 @@
     		label,
     		placeholder,
     		icon,
+    		checked,
     		min,
     		max,
     		value,
@@ -2910,13 +3002,7 @@
     class Input extends SvelteComponentDev {
     	constructor(options) {
     		super(options);
-    		init(this, options, instance$1, create_fragment$1, safe_not_equal, ["type", "name", "label", "placeholder", "icon", "min", "max", "value", "disabled", "autofocus"]);
-
-    		const { ctx } = this.$$;
-    		const props = options.props || {};
-    		if (ctx.autofocus === undefined && !('autofocus' in props)) {
-    			console.warn("<Input> was created without expected prop 'autofocus'");
-    		}
+    		init(this, options, instance$1, create_fragment$1, safe_not_equal, ["type", "name", "label", "placeholder", "icon", "checked", "min", "max", "value", "disabled", "autofocus"]);
     	}
 
     	get type() {
@@ -2956,6 +3042,14 @@
     	}
 
     	set icon(value) {
+    		throw new Error("<Input>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	get checked() {
+    		throw new Error("<Input>: Props cannot be read directly from the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
+    	}
+
+    	set checked(value) {
     		throw new Error("<Input>: Props cannot be set directly on the component instance unless compiling with 'accessors: true' or '<svelte:options accessors/>'");
     	}
 
@@ -3117,80 +3211,156 @@
     	return child_ctx;
     }
 
-    // (125:4) {#if settings}
+    // (127:4) {#if settings}
     function create_if_block$1(ctx) {
-    	var div4, h20, t0_value = M.focus, t0, t1, div0, span0, t2_value = M.duration, t2, t3, t4, span1, t5_value = M.minutes, t5, t6, div1, p0, t7_value = M.timer_sound_label, t7, t8, select0, option0, t9_value = M.none, t9, optgroup0, optgroup0_label_value, optgroup1, option1, t10_value = M.brown_noise, t10, option2, t11_value = M.pink_noise, t11, option3, t12_value = M.white_noise, t12, optgroup1_label_value, t13, t14, div2, t15, p1, t16_value = M.when_complete, t16, t17, div3, label0, input1, t18, span2, t19_value = M.show_desktop_notification, t19, t20, label1, input2, t21, span3, t22_value = M.show_new_tab_notification, t22, t23, label2, span4, t24_value = M.play_audio_notification, t24, t25, select1, option4, t26_value = M.none, t26, t27, div6, h21, t28_value = M.short_break, t28, t29, p2, label3, span5, t30_value = M.duration, t30, t31, input3, input3_bindvalue_value, t32, span6, t33_value = M.minutes, t33, t34, p3, t35_value = M.when_complete, t35, t36, div5, p4, label4, input4, input4_bindvalue_value, t37, span7, t38_value = M.show_desktop_notification, t38, t39, p5, label5, input5, input5_bindvalue_value, t40, span8, t41_value = M.show_new_tab_notification, t41, t42, p6, label6, span9, t43_value = M.play_audio_notification, t43, t44, select2, option5, t45_value = M.none, t45, select2_bindvalue_value, t46, div8, h22, t47_value = M.long_break, t47, t48, p7, label7, span10, t49_value = M.take_a_long_break_setting, t49, t50, select3, option6, t51_value = M.never, t51, option7, t52_value = M.every_2nd_break, t52, option8, t53_value = M.every_3rd_break, t53, option9, t54_value = M.every_4th_break, t54, option10, t55_value = M.every_5th_break, t55, option11, t56_value = M.every_6th_break, t56, option12, t57_value = M.every_7th_break, t57, option13, t58_value = M.every_8th_break, t58, option14, t59_value = M.every_9th_break, t59, option15, t60_value = M.every_10th_break, t60, select3_bindvalue_value, t61, fieldset, p8, label8, span11, t62_value = M.duration, t62, t63, input6, input6_bindvalue_value, t64, span12, t65_value = M.minutes, t65, t66, p9, t67_value = M.when_complete, t67, t68, div7, p10, label9, input7, input7_bindvalue_value, t69, span13, t70_value = M.show_desktop_notification, t70, t71, p11, label10, input8, input8_bindvalue_value, t72, span14, t73_value = M.show_new_tab_notification, t73, t74, p12, label11, span15, t75_value = M.play_audio_notification, t75, t76, select4, option16, t77_value = M.none, t77, select4_bindvalue_value, t78, div9, h23, t79_value = M.autostart_title, t79, t80, p13, t81_value = M.autostart_description, t81, t82, p14, label12, span16, t83_value = M.time, t83, t84, input9, input9_bindvalue_value, t85, if_block2_anchor, current, dispose;
+    	var div28, div27, div12, div0, t0_value = M.focus, t0, t1, div2, span0, t2_value = M.duration, t2, t3, div1, updating_value, t4, span1, t5_value = ctx.settings.focus.duration == 1 ? M.minute: M.minutes, t5, t6, div4, span2, t7_value = M.timer_sound_label, t7, t8, div3, select0, option0, t9_value = M.none, t9, optgroup0, optgroup0_label_value, optgroup1, option1, t10_value = M.brown_noise, t10, option2, t11_value = M.pink_noise, t11, option3, t12_value = M.white_noise, t12, optgroup1_label_value, t13, span3, t14_value = M.during_focus_label, t14, t15, t16, t17, div5, t18, div6, t19_value = M.when_complete, t19, t20, div11, div7, updating_checked, t21, div8, updating_checked_1, t22, div10, span4, t23_value = M.play_audio_notification, t23, t24, div9, select1, option4, t25_value = M.none, t25, t26, div22, div13, t27_value = M.short_break, t27, t28, div15, span5, t29_value = M.duration, t29, t30, div14, updating_value_1, t31, span6, t32_value = ctx.settings.shortBreak.duration == 1 ? M.minute: M.minutes, t32, t33, div16, t34_value = M.when_complete, t34, t35, div21, div17, updating_checked_2, t36, div18, updating_checked_3, t37, div20, span7, t38_value = M.play_audio_notification, t38, t39, div19, select2, option5, t40_value = M.none, t40, t41, div26, div23, t42_value = M.long_break, t42, t43, div25, span8, t44_value = M.take_a_long_break_setting, t44, t45, div24, select3, option6, t46_value = M.never, t46, option7, t47_value = M.every_2nd_break, t47, option8, t48_value = M.every_3rd_break, t48, option9, t49_value = M.every_4th_break, t49, option10, t50_value = M.every_5th_break, t50, option11, t51_value = M.every_6th_break, t51, option12, t52_value = M.every_7th_break, t52, option13, t53_value = M.every_8th_break, t53, option14, t54_value = M.every_9th_break, t54, option15, t55_value = M.every_10th_break, t55, t56, t57, current, dispose;
 
-    	var input0 = new Input({
-    		props: { type: "number", bindvalue: ctx.settings.focus.duration },
-    		$$inline: true
-    	});
-    	input0.$on("blur", blur_handler);
+    	function input0_value_binding(value) {
+    		ctx.input0_value_binding.call(null, value);
+    		updating_value = true;
+    		add_flush_callback(() => updating_value = false);
+    	}
+
+    	let input0_props = { type: "number", min: "1", max: "999" };
+    	if (ctx.settings.focus.duration !== void 0) {
+    		input0_props.value = ctx.settings.focus.duration;
+    	}
+    	var input0 = new Input({ props: input0_props, $$inline: true });
+
+    	binding_callbacks.push(() => bind(input0, 'value', input0_value_binding));
 
     	var each_value_3 = ctx.timerSounds;
 
-    	var each_blocks_3 = [];
+    	var each_blocks_2 = [];
 
     	for (var i = 0; i < each_value_3.length; i += 1) {
-    		each_blocks_3[i] = create_each_block_3(get_each_context_3(ctx, each_value_3, i));
+    		each_blocks_2[i] = create_each_block_3(get_each_context_3(ctx, each_value_3, i));
     	}
 
-    	var if_block0 = (ctx.canPlayTimerSound) && create_if_block_3(ctx);
+    	var if_block0 = (ctx.canPlayTimerSound) && create_if_block_4(ctx);
 
-    	var if_block1 = (ctx.focusTimerBPM != null) && create_if_block_2(ctx);
+    	var if_block1 = (ctx.focusTimerBPM != null) && create_if_block_3(ctx);
+
+    	function input1_checked_binding(value_1) {
+    		ctx.input1_checked_binding.call(null, value_1);
+    		updating_checked = true;
+    		add_flush_callback(() => updating_checked = false);
+    	}
+
+    	let input1_props = { type: "checkbox", label: M.show_desktop_notification };
+    	if (ctx.settings.focus.notifications.desktop !== void 0) {
+    		input1_props.checked = ctx.settings.focus.notifications.desktop;
+    	}
+    	var input1 = new Input({ props: input1_props, $$inline: true });
+
+    	binding_callbacks.push(() => bind(input1, 'checked', input1_checked_binding));
+
+    	function input2_checked_binding(value_2) {
+    		ctx.input2_checked_binding.call(null, value_2);
+    		updating_checked_1 = true;
+    		add_flush_callback(() => updating_checked_1 = false);
+    	}
+
+    	let input2_props = { type: "checkbox", label: M.show_new_tab_notification };
+    	if (ctx.settings.focus.notifications.tab !== void 0) {
+    		input2_props.checked = ctx.settings.focus.notifications.tab;
+    	}
+    	var input2 = new Input({ props: input2_props, $$inline: true });
+
+    	binding_callbacks.push(() => bind(input2, 'checked', input2_checked_binding));
 
     	var each_value_2 = ctx.notificationSounds;
 
-    	var each_blocks_2 = [];
+    	var each_blocks_1 = [];
 
     	for (var i = 0; i < each_value_2.length; i += 1) {
-    		each_blocks_2[i] = create_each_block_2(get_each_context_2(ctx, each_value_2, i));
+    		each_blocks_1[i] = create_each_block_2(get_each_context_2(ctx, each_value_2, i));
     	}
+
+    	function input3_value_binding(value_3) {
+    		ctx.input3_value_binding.call(null, value_3);
+    		updating_value_1 = true;
+    		add_flush_callback(() => updating_value_1 = false);
+    	}
+
+    	let input3_props = { type: "number", min: "1", max: "999" };
+    	if (ctx.settings.shortBreak.duration !== void 0) {
+    		input3_props.value = ctx.settings.shortBreak.duration;
+    	}
+    	var input3 = new Input({ props: input3_props, $$inline: true });
+
+    	binding_callbacks.push(() => bind(input3, 'value', input3_value_binding));
+
+    	function input4_checked_binding(value_4) {
+    		ctx.input4_checked_binding.call(null, value_4);
+    		updating_checked_2 = true;
+    		add_flush_callback(() => updating_checked_2 = false);
+    	}
+
+    	let input4_props = { type: "checkbox", label: M.show_desktop_notification };
+    	if (ctx.settings.shortBreak.notifications.desktop !== void 0) {
+    		input4_props.checked = ctx.settings.shortBreak.notifications.desktop;
+    	}
+    	var input4 = new Input({ props: input4_props, $$inline: true });
+
+    	binding_callbacks.push(() => bind(input4, 'checked', input4_checked_binding));
+
+    	function input5_checked_binding(value_5) {
+    		ctx.input5_checked_binding.call(null, value_5);
+    		updating_checked_3 = true;
+    		add_flush_callback(() => updating_checked_3 = false);
+    	}
+
+    	let input5_props = { type: "checkbox", label: M.show_new_tab_notification };
+    	if (ctx.settings.shortBreak.notifications.tab !== void 0) {
+    		input5_props.checked = ctx.settings.shortBreak.notifications.tab;
+    	}
+    	var input5 = new Input({ props: input5_props, $$inline: true });
+
+    	binding_callbacks.push(() => bind(input5, 'checked', input5_checked_binding));
 
     	var each_value_1 = ctx.notificationSounds;
 
-    	var each_blocks_1 = [];
-
-    	for (var i = 0; i < each_value_1.length; i += 1) {
-    		each_blocks_1[i] = create_each_block_1(get_each_context_1(ctx, each_value_1, i));
-    	}
-
-    	var each_value = ctx.notificationSounds;
-
     	var each_blocks = [];
 
-    	for (var i = 0; i < each_value.length; i += 1) {
-    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+    	for (var i = 0; i < each_value_1.length; i += 1) {
+    		each_blocks[i] = create_each_block_1(get_each_context_1(ctx, each_value_1, i));
     	}
 
-    	var if_block2 = (ctx.showSettingsSaved) && create_if_block_1$1(ctx);
+    	var if_block2 = (ctx.settings.longBreak.interval != 0) && create_if_block_2$1(ctx);
+
+    	var if_block3 = (ctx.showSettingsSaved) && create_if_block_1$1(ctx);
 
     	return {
     		c: function create() {
-    			div4 = element("div");
-    			h20 = element("h2");
+    			div28 = element("div");
+    			div27 = element("div");
+    			div12 = element("div");
+    			div0 = element("div");
     			t0 = text(t0_value);
     			t1 = space();
-    			div0 = element("div");
+    			div2 = element("div");
     			span0 = element("span");
     			t2 = text(t2_value);
     			t3 = space();
+    			div1 = element("div");
     			input0.$$.fragment.c();
     			t4 = space();
     			span1 = element("span");
     			t5 = text(t5_value);
     			t6 = space();
-    			div1 = element("div");
-    			p0 = element("p");
+    			div4 = element("div");
+    			span2 = element("span");
     			t7 = text(t7_value);
     			t8 = space();
+    			div3 = element("div");
     			select0 = element("select");
     			option0 = element("option");
     			t9 = text(t9_value);
     			optgroup0 = element("optgroup");
 
-    			for (var i = 0; i < each_blocks_3.length; i += 1) {
-    				each_blocks_3[i].c();
+    			for (var i = 0; i < each_blocks_2.length; i += 1) {
+    				each_blocks_2[i].c();
     			}
 
     			optgroup1 = element("optgroup");
@@ -3201,224 +3371,173 @@
     			option3 = element("option");
     			t12 = text(t12_value);
     			t13 = space();
+    			span3 = element("span");
+    			t14 = text(t14_value);
+    			t15 = text(" ");
+    			t16 = space();
     			if (if_block0) if_block0.c();
-    			t14 = space();
-    			div2 = element("div");
-    			if (if_block1) if_block1.c();
-    			t15 = space();
-    			p1 = element("p");
-    			t16 = text(t16_value);
     			t17 = space();
-    			div3 = element("div");
-    			label0 = element("label");
-    			input1 = element("input");
+    			div5 = element("div");
+    			if (if_block1) if_block1.c();
     			t18 = space();
-    			span2 = element("span");
+    			div6 = element("div");
     			t19 = text(t19_value);
     			t20 = space();
-    			label1 = element("label");
-    			input2 = element("input");
+    			div11 = element("div");
+    			div7 = element("div");
+    			input1.$$.fragment.c();
     			t21 = space();
-    			span3 = element("span");
-    			t22 = text(t22_value);
-    			t23 = space();
-    			label2 = element("label");
+    			div8 = element("div");
+    			input2.$$.fragment.c();
+    			t22 = space();
+    			div10 = element("div");
     			span4 = element("span");
-    			t24 = text(t24_value);
-    			t25 = space();
+    			t23 = text(t23_value);
+    			t24 = space();
+    			div9 = element("div");
     			select1 = element("select");
     			option4 = element("option");
-    			t26 = text(t26_value);
-
-    			for (var i = 0; i < each_blocks_2.length; i += 1) {
-    				each_blocks_2[i].c();
-    			}
-
-    			t27 = space();
-    			div6 = element("div");
-    			h21 = element("h2");
-    			t28 = text(t28_value);
-    			t29 = space();
-    			p2 = element("p");
-    			label3 = element("label");
-    			span5 = element("span");
-    			t30 = text(t30_value);
-    			t31 = space();
-    			input3 = element("input");
-    			t32 = space();
-    			span6 = element("span");
-    			t33 = text(t33_value);
-    			t34 = space();
-    			p3 = element("p");
-    			t35 = text(t35_value);
-    			t36 = space();
-    			div5 = element("div");
-    			p4 = element("p");
-    			label4 = element("label");
-    			input4 = element("input");
-    			t37 = space();
-    			span7 = element("span");
-    			t38 = text(t38_value);
-    			t39 = space();
-    			p5 = element("p");
-    			label5 = element("label");
-    			input5 = element("input");
-    			t40 = space();
-    			span8 = element("span");
-    			t41 = text(t41_value);
-    			t42 = space();
-    			p6 = element("p");
-    			label6 = element("label");
-    			span9 = element("span");
-    			t43 = text(t43_value);
-    			t44 = space();
-    			select2 = element("select");
-    			option5 = element("option");
-    			t45 = text(t45_value);
+    			t25 = text(t25_value);
 
     			for (var i = 0; i < each_blocks_1.length; i += 1) {
     				each_blocks_1[i].c();
     			}
 
-    			t46 = space();
-    			div8 = element("div");
-    			h22 = element("h2");
-    			t47 = text(t47_value);
-    			t48 = space();
-    			p7 = element("p");
-    			label7 = element("label");
-    			span10 = element("span");
-    			t49 = text(t49_value);
-    			t50 = space();
-    			select3 = element("select");
-    			option6 = element("option");
-    			t51 = text(t51_value);
-    			option7 = element("option");
-    			t52 = text(t52_value);
-    			option8 = element("option");
-    			t53 = text(t53_value);
-    			option9 = element("option");
-    			t54 = text(t54_value);
-    			option10 = element("option");
-    			t55 = text(t55_value);
-    			option11 = element("option");
-    			t56 = text(t56_value);
-    			option12 = element("option");
-    			t57 = text(t57_value);
-    			option13 = element("option");
-    			t58 = text(t58_value);
-    			option14 = element("option");
-    			t59 = text(t59_value);
-    			option15 = element("option");
-    			t60 = text(t60_value);
-    			t61 = space();
-    			fieldset = element("fieldset");
-    			p8 = element("p");
-    			label8 = element("label");
-    			span11 = element("span");
-    			t62 = text(t62_value);
-    			t63 = space();
-    			input6 = element("input");
-    			t64 = space();
-    			span12 = element("span");
-    			t65 = text(t65_value);
-    			t66 = space();
-    			p9 = element("p");
-    			t67 = text(t67_value);
-    			t68 = space();
-    			div7 = element("div");
-    			p10 = element("p");
-    			label9 = element("label");
-    			input7 = element("input");
-    			t69 = space();
-    			span13 = element("span");
-    			t70 = text(t70_value);
-    			t71 = space();
-    			p11 = element("p");
-    			label10 = element("label");
-    			input8 = element("input");
-    			t72 = space();
-    			span14 = element("span");
-    			t73 = text(t73_value);
-    			t74 = space();
-    			p12 = element("p");
-    			label11 = element("label");
-    			span15 = element("span");
-    			t75 = text(t75_value);
-    			t76 = space();
-    			select4 = element("select");
-    			option16 = element("option");
-    			t77 = text(t77_value);
+    			t26 = space();
+    			div22 = element("div");
+    			div13 = element("div");
+    			t27 = text(t27_value);
+    			t28 = space();
+    			div15 = element("div");
+    			span5 = element("span");
+    			t29 = text(t29_value);
+    			t30 = space();
+    			div14 = element("div");
+    			input3.$$.fragment.c();
+    			t31 = space();
+    			span6 = element("span");
+    			t32 = text(t32_value);
+    			t33 = space();
+    			div16 = element("div");
+    			t34 = text(t34_value);
+    			t35 = space();
+    			div21 = element("div");
+    			div17 = element("div");
+    			input4.$$.fragment.c();
+    			t36 = space();
+    			div18 = element("div");
+    			input5.$$.fragment.c();
+    			t37 = space();
+    			div20 = element("div");
+    			span7 = element("span");
+    			t38 = text(t38_value);
+    			t39 = space();
+    			div19 = element("div");
+    			select2 = element("select");
+    			option5 = element("option");
+    			t40 = text(t40_value);
 
     			for (var i = 0; i < each_blocks.length; i += 1) {
     				each_blocks[i].c();
     			}
 
-    			t78 = space();
-    			div9 = element("div");
-    			h23 = element("h2");
-    			t79 = text(t79_value);
-    			t80 = space();
-    			p13 = element("p");
-    			t81 = text(t81_value);
-    			t82 = space();
-    			p14 = element("p");
-    			label12 = element("label");
-    			span16 = element("span");
-    			t83 = text(t83_value);
-    			t84 = space();
-    			input9 = element("input");
-    			t85 = space();
+    			t41 = space();
+    			div26 = element("div");
+    			div23 = element("div");
+    			t42 = text(t42_value);
+    			t43 = space();
+    			div25 = element("div");
+    			span8 = element("span");
+    			t44 = text(t44_value);
+    			t45 = space();
+    			div24 = element("div");
+    			select3 = element("select");
+    			option6 = element("option");
+    			t46 = text(t46_value);
+    			option7 = element("option");
+    			t47 = text(t47_value);
+    			option8 = element("option");
+    			t48 = text(t48_value);
+    			option9 = element("option");
+    			t49 = text(t49_value);
+    			option10 = element("option");
+    			t50 = text(t50_value);
+    			option11 = element("option");
+    			t51 = text(t51_value);
+    			option12 = element("option");
+    			t52 = text(t52_value);
+    			option13 = element("option");
+    			t53 = text(t53_value);
+    			option14 = element("option");
+    			t54 = text(t54_value);
+    			option15 = element("option");
+    			t55 = text(t55_value);
+    			t56 = space();
     			if (if_block2) if_block2.c();
-    			if_block2_anchor = empty();
+    			t57 = space();
+    			if (if_block3) if_block3.c();
     			this.h();
     		},
 
     		l: function claim(nodes) {
-    			div4 = claim_element(nodes, "DIV", { class: true }, false);
-    			var div4_nodes = children(div4);
+    			div28 = claim_element(nodes, "DIV", { class: true }, false);
+    			var div28_nodes = children(div28);
 
-    			h20 = claim_element(div4_nodes, "H2", {}, false);
-    			var h20_nodes = children(h20);
+    			div27 = claim_element(div28_nodes, "DIV", { class: true }, false);
+    			var div27_nodes = children(div27);
 
-    			t0 = claim_text(h20_nodes, t0_value);
-    			h20_nodes.forEach(detach);
-    			t1 = claim_text(div4_nodes, "\n            ");
+    			div12 = claim_element(div27_nodes, "DIV", { class: true }, false);
+    			var div12_nodes = children(div12);
 
-    			div0 = claim_element(div4_nodes, "DIV", {}, false);
+    			div0 = claim_element(div12_nodes, "DIV", { class: true }, false);
     			var div0_nodes = children(div0);
 
-    			span0 = claim_element(div0_nodes, "SPAN", {}, false);
+    			t0 = claim_text(div0_nodes, t0_value);
+    			div0_nodes.forEach(detach);
+    			t1 = claim_text(div12_nodes, "\n                    ");
+
+    			div2 = claim_element(div12_nodes, "DIV", { class: true }, false);
+    			var div2_nodes = children(div2);
+
+    			span0 = claim_element(div2_nodes, "SPAN", {}, false);
     			var span0_nodes = children(span0);
 
     			t2 = claim_text(span0_nodes, t2_value);
     			span0_nodes.forEach(detach);
-    			t3 = claim_text(div0_nodes, "\n                ");
-    			input0.$$.fragment.l(div0_nodes);
-    			t4 = claim_text(div0_nodes, " \n                ");
+    			t3 = claim_text(div2_nodes, "\n                        ");
 
-    			span1 = claim_element(div0_nodes, "SPAN", {}, false);
+    			div1 = claim_element(div2_nodes, "DIV", { class: true }, false);
+    			var div1_nodes = children(div1);
+
+    			input0.$$.fragment.l(div1_nodes);
+    			div1_nodes.forEach(detach);
+    			t4 = claim_text(div2_nodes, "\n                        ");
+
+    			span1 = claim_element(div2_nodes, "SPAN", {}, false);
     			var span1_nodes = children(span1);
 
     			t5 = claim_text(span1_nodes, t5_value);
     			span1_nodes.forEach(detach);
-    			div0_nodes.forEach(detach);
-    			t6 = claim_text(div4_nodes, "\n            ");
+    			div2_nodes.forEach(detach);
+    			t6 = claim_text(div12_nodes, "\n                    ");
 
-    			div1 = claim_element(div4_nodes, "DIV", {}, false);
-    			var div1_nodes = children(div1);
+    			div4 = claim_element(div12_nodes, "DIV", { class: true }, false);
+    			var div4_nodes = children(div4);
 
-    			p0 = claim_element(div1_nodes, "P", {}, false);
-    			var p0_nodes = children(p0);
+    			span2 = claim_element(div4_nodes, "SPAN", {}, false);
+    			var span2_nodes = children(span2);
 
-    			t7 = claim_text(p0_nodes, t7_value);
-    			p0_nodes.forEach(detach);
-    			t8 = claim_text(div1_nodes, "\n                ");
+    			t7 = claim_text(span2_nodes, t7_value);
+    			span2_nodes.forEach(detach);
+    			t8 = claim_text(div4_nodes, "\n                        ");
 
-    			select0 = claim_element(div1_nodes, "SELECT", {}, false);
+    			div3 = claim_element(div4_nodes, "DIV", { class: true }, false);
+    			var div3_nodes = children(div3);
+
+    			select0 = claim_element(div3_nodes, "SELECT", { class: true }, false);
     			var select0_nodes = children(select0);
 
-    			option0 = claim_element(select0_nodes, "OPTION", { value: true }, false);
+    			option0 = claim_element(select0_nodes, "OPTION", { value: true, class: true }, false);
     			var option0_nodes = children(option0);
 
     			t9 = claim_text(option0_nodes, t9_value);
@@ -3427,8 +3546,8 @@
     			optgroup0 = claim_element(select0_nodes, "OPTGROUP", { label: true }, false);
     			var optgroup0_nodes = children(optgroup0);
 
-    			for (var i = 0; i < each_blocks_3.length; i += 1) {
-    				each_blocks_3[i].l(optgroup0_nodes);
+    			for (var i = 0; i < each_blocks_2.length; i += 1) {
+    				each_blocks_2[i].l(optgroup0_nodes);
     			}
 
     			optgroup0_nodes.forEach(detach);
@@ -3436,697 +3555,481 @@
     			optgroup1 = claim_element(select0_nodes, "OPTGROUP", { label: true }, false);
     			var optgroup1_nodes = children(optgroup1);
 
-    			option1 = claim_element(optgroup1_nodes, "OPTION", { value: true }, false);
+    			option1 = claim_element(optgroup1_nodes, "OPTION", { value: true, class: true }, false);
     			var option1_nodes = children(option1);
 
     			t10 = claim_text(option1_nodes, t10_value);
     			option1_nodes.forEach(detach);
 
-    			option2 = claim_element(optgroup1_nodes, "OPTION", { value: true }, false);
+    			option2 = claim_element(optgroup1_nodes, "OPTION", { value: true, class: true }, false);
     			var option2_nodes = children(option2);
 
     			t11 = claim_text(option2_nodes, t11_value);
     			option2_nodes.forEach(detach);
 
-    			option3 = claim_element(optgroup1_nodes, "OPTION", { value: true }, false);
+    			option3 = claim_element(optgroup1_nodes, "OPTION", { value: true, class: true }, false);
     			var option3_nodes = children(option3);
 
     			t12 = claim_text(option3_nodes, t12_value);
     			option3_nodes.forEach(detach);
     			optgroup1_nodes.forEach(detach);
     			select0_nodes.forEach(detach);
-    			t13 = claim_text(div1_nodes, "\n                ");
-    			if (if_block0) if_block0.l(div1_nodes);
-    			div1_nodes.forEach(detach);
-    			t14 = claim_text(div4_nodes, "\n            ");
+    			div3_nodes.forEach(detach);
+    			t13 = claim_text(div4_nodes, "\n                        ");
 
-    			div2 = claim_element(div4_nodes, "DIV", {}, false);
-    			var div2_nodes = children(div2);
-
-    			if (if_block1) if_block1.l(div2_nodes);
-    			div2_nodes.forEach(detach);
-    			t15 = claim_text(div4_nodes, "\n            ");
-
-    			p1 = claim_element(div4_nodes, "P", {}, false);
-    			var p1_nodes = children(p1);
-
-    			t16 = claim_text(p1_nodes, t16_value);
-    			p1_nodes.forEach(detach);
-    			t17 = claim_text(div4_nodes, "\n            ");
-
-    			div3 = claim_element(div4_nodes, "DIV", { class: true }, false);
-    			var div3_nodes = children(div3);
-
-    			label0 = claim_element(div3_nodes, "LABEL", {}, false);
-    			var label0_nodes = children(label0);
-
-    			input1 = claim_element(label0_nodes, "INPUT", { type: true }, false);
-    			var input1_nodes = children(input1);
-
-    			input1_nodes.forEach(detach);
-    			t18 = claim_text(label0_nodes, "\n                    ");
-
-    			span2 = claim_element(label0_nodes, "SPAN", {}, false);
-    			var span2_nodes = children(span2);
-
-    			t19 = claim_text(span2_nodes, t19_value);
-    			span2_nodes.forEach(detach);
-    			label0_nodes.forEach(detach);
-    			t20 = claim_text(div3_nodes, "\n                ");
-
-    			label1 = claim_element(div3_nodes, "LABEL", {}, false);
-    			var label1_nodes = children(label1);
-
-    			input2 = claim_element(label1_nodes, "INPUT", { type: true }, false);
-    			var input2_nodes = children(input2);
-
-    			input2_nodes.forEach(detach);
-    			t21 = claim_text(label1_nodes, "\n                    ");
-
-    			span3 = claim_element(label1_nodes, "SPAN", {}, false);
+    			span3 = claim_element(div4_nodes, "SPAN", {}, false);
     			var span3_nodes = children(span3);
 
-    			t22 = claim_text(span3_nodes, t22_value);
+    			t14 = claim_text(span3_nodes, t14_value);
+    			t15 = claim_text(span3_nodes, " ");
     			span3_nodes.forEach(detach);
-    			label1_nodes.forEach(detach);
-    			t23 = claim_text(div3_nodes, "\n                ");
+    			t16 = claim_text(div4_nodes, "\n                        ");
+    			if (if_block0) if_block0.l(div4_nodes);
+    			div4_nodes.forEach(detach);
+    			t17 = claim_text(div12_nodes, "\n                    ");
 
-    			label2 = claim_element(div3_nodes, "LABEL", {}, false);
-    			var label2_nodes = children(label2);
+    			div5 = claim_element(div12_nodes, "DIV", { class: true }, false);
+    			var div5_nodes = children(div5);
 
-    			span4 = claim_element(label2_nodes, "SPAN", {}, false);
+    			if (if_block1) if_block1.l(div5_nodes);
+    			div5_nodes.forEach(detach);
+    			t18 = claim_text(div12_nodes, "\n                    ");
+
+    			div6 = claim_element(div12_nodes, "DIV", { class: true }, false);
+    			var div6_nodes = children(div6);
+
+    			t19 = claim_text(div6_nodes, t19_value);
+    			div6_nodes.forEach(detach);
+    			t20 = claim_text(div12_nodes, "\n                    ");
+
+    			div11 = claim_element(div12_nodes, "DIV", { class: true }, false);
+    			var div11_nodes = children(div11);
+
+    			div7 = claim_element(div11_nodes, "DIV", { class: true }, false);
+    			var div7_nodes = children(div7);
+
+    			input1.$$.fragment.l(div7_nodes);
+    			div7_nodes.forEach(detach);
+    			t21 = claim_text(div11_nodes, "\n                        ");
+
+    			div8 = claim_element(div11_nodes, "DIV", { class: true }, false);
+    			var div8_nodes = children(div8);
+
+    			input2.$$.fragment.l(div8_nodes);
+    			div8_nodes.forEach(detach);
+    			t22 = claim_text(div11_nodes, "\n                        ");
+
+    			div10 = claim_element(div11_nodes, "DIV", { class: true }, false);
+    			var div10_nodes = children(div10);
+
+    			span4 = claim_element(div10_nodes, "SPAN", {}, false);
     			var span4_nodes = children(span4);
 
-    			t24 = claim_text(span4_nodes, t24_value);
+    			t23 = claim_text(span4_nodes, t23_value);
     			span4_nodes.forEach(detach);
-    			t25 = claim_text(label2_nodes, "\n                    ");
+    			t24 = claim_text(div10_nodes, "\n                            ");
 
-    			select1 = claim_element(label2_nodes, "SELECT", {}, false);
+    			div9 = claim_element(div10_nodes, "DIV", { class: true }, false);
+    			var div9_nodes = children(div9);
+
+    			select1 = claim_element(div9_nodes, "SELECT", { class: true }, false);
     			var select1_nodes = children(select1);
 
-    			option4 = claim_element(select1_nodes, "OPTION", { value: true }, false);
+    			option4 = claim_element(select1_nodes, "OPTION", { value: true, class: true }, false);
     			var option4_nodes = children(option4);
 
-    			t26 = claim_text(option4_nodes, t26_value);
+    			t25 = claim_text(option4_nodes, t25_value);
     			option4_nodes.forEach(detach);
 
-    			for (var i = 0; i < each_blocks_2.length; i += 1) {
-    				each_blocks_2[i].l(select1_nodes);
+    			for (var i = 0; i < each_blocks_1.length; i += 1) {
+    				each_blocks_1[i].l(select1_nodes);
     			}
 
     			select1_nodes.forEach(detach);
-    			label2_nodes.forEach(detach);
-    			div3_nodes.forEach(detach);
-    			div4_nodes.forEach(detach);
-    			t27 = claim_text(nodes, "\n        ");
+    			div9_nodes.forEach(detach);
+    			div10_nodes.forEach(detach);
+    			div11_nodes.forEach(detach);
+    			div12_nodes.forEach(detach);
+    			t26 = claim_text(div27_nodes, "\n                ");
 
-    			div6 = claim_element(nodes, "DIV", { class: true }, false);
-    			var div6_nodes = children(div6);
+    			div22 = claim_element(div27_nodes, "DIV", { class: true }, false);
+    			var div22_nodes = children(div22);
 
-    			h21 = claim_element(div6_nodes, "H2", {}, false);
-    			var h21_nodes = children(h21);
+    			div13 = claim_element(div22_nodes, "DIV", { class: true }, false);
+    			var div13_nodes = children(div13);
 
-    			t28 = claim_text(h21_nodes, t28_value);
-    			h21_nodes.forEach(detach);
-    			t29 = claim_text(div6_nodes, "\n        ");
+    			t27 = claim_text(div13_nodes, t27_value);
+    			div13_nodes.forEach(detach);
+    			t28 = claim_text(div22_nodes, "\n                    ");
 
-    			p2 = claim_element(div6_nodes, "P", { class: true }, false);
-    			var p2_nodes = children(p2);
+    			div15 = claim_element(div22_nodes, "DIV", { class: true }, false);
+    			var div15_nodes = children(div15);
 
-    			label3 = claim_element(p2_nodes, "LABEL", {}, false);
-    			var label3_nodes = children(label3);
-
-    			span5 = claim_element(label3_nodes, "SPAN", {}, false);
+    			span5 = claim_element(div15_nodes, "SPAN", {}, false);
     			var span5_nodes = children(span5);
 
-    			t30 = claim_text(span5_nodes, t30_value);
+    			t29 = claim_text(span5_nodes, t29_value);
     			span5_nodes.forEach(detach);
-    			t31 = claim_text(label3_nodes, "\n            ");
+    			t30 = claim_text(div15_nodes, "\n                        ");
 
-    			input3 = claim_element(label3_nodes, "INPUT", { type: true, min: true, max: true, class: true, bindvalue: true }, false);
-    			var input3_nodes = children(input3);
+    			div14 = claim_element(div15_nodes, "DIV", { class: true }, false);
+    			var div14_nodes = children(div14);
 
-    			input3_nodes.forEach(detach);
-    			t32 = claim_text(label3_nodes, "\n            ");
+    			input3.$$.fragment.l(div14_nodes);
+    			div14_nodes.forEach(detach);
+    			t31 = claim_text(div15_nodes, "\n                        ");
 
-    			span6 = claim_element(label3_nodes, "SPAN", {}, false);
+    			span6 = claim_element(div15_nodes, "SPAN", {}, false);
     			var span6_nodes = children(span6);
 
-    			t33 = claim_text(span6_nodes, t33_value);
+    			t32 = claim_text(span6_nodes, t32_value);
     			span6_nodes.forEach(detach);
-    			label3_nodes.forEach(detach);
-    			p2_nodes.forEach(detach);
-    			t34 = claim_text(div6_nodes, "\n        ");
+    			div15_nodes.forEach(detach);
+    			t33 = claim_text(div22_nodes, "\n                    ");
 
-    			p3 = claim_element(div6_nodes, "P", {}, false);
-    			var p3_nodes = children(p3);
+    			div16 = claim_element(div22_nodes, "DIV", { class: true }, false);
+    			var div16_nodes = children(div16);
 
-    			t35 = claim_text(p3_nodes, t35_value);
-    			p3_nodes.forEach(detach);
-    			t36 = claim_text(div6_nodes, "\n        ");
+    			t34 = claim_text(div16_nodes, t34_value);
+    			div16_nodes.forEach(detach);
+    			t35 = claim_text(div22_nodes, "\n                    ");
 
-    			div5 = claim_element(div6_nodes, "DIV", { class: true }, false);
-    			var div5_nodes = children(div5);
+    			div21 = claim_element(div22_nodes, "DIV", { class: true }, false);
+    			var div21_nodes = children(div21);
 
-    			p4 = claim_element(div5_nodes, "P", { class: true }, false);
-    			var p4_nodes = children(p4);
+    			div17 = claim_element(div21_nodes, "DIV", { class: true }, false);
+    			var div17_nodes = children(div17);
 
-    			label4 = claim_element(p4_nodes, "LABEL", {}, false);
-    			var label4_nodes = children(label4);
+    			input4.$$.fragment.l(div17_nodes);
+    			div17_nodes.forEach(detach);
+    			t36 = claim_text(div21_nodes, "\n                        ");
 
-    			input4 = claim_element(label4_nodes, "INPUT", { type: true, bindvalue: true }, false);
-    			var input4_nodes = children(input4);
+    			div18 = claim_element(div21_nodes, "DIV", { class: true }, false);
+    			var div18_nodes = children(div18);
 
-    			input4_nodes.forEach(detach);
-    			t37 = claim_text(label4_nodes, "\n                ");
+    			input5.$$.fragment.l(div18_nodes);
+    			div18_nodes.forEach(detach);
+    			t37 = claim_text(div21_nodes, "\n                        ");
 
-    			span7 = claim_element(label4_nodes, "SPAN", {}, false);
+    			div20 = claim_element(div21_nodes, "DIV", { class: true }, false);
+    			var div20_nodes = children(div20);
+
+    			span7 = claim_element(div20_nodes, "SPAN", {}, false);
     			var span7_nodes = children(span7);
 
     			t38 = claim_text(span7_nodes, t38_value);
     			span7_nodes.forEach(detach);
-    			label4_nodes.forEach(detach);
-    			p4_nodes.forEach(detach);
-    			t39 = claim_text(div5_nodes, "\n            ");
+    			t39 = claim_text(div20_nodes, "\n                            ");
 
-    			p5 = claim_element(div5_nodes, "P", { class: true }, false);
-    			var p5_nodes = children(p5);
+    			div19 = claim_element(div20_nodes, "DIV", { class: true }, false);
+    			var div19_nodes = children(div19);
 
-    			label5 = claim_element(p5_nodes, "LABEL", {}, false);
-    			var label5_nodes = children(label5);
-
-    			input5 = claim_element(label5_nodes, "INPUT", { type: true, bindvalue: true }, false);
-    			var input5_nodes = children(input5);
-
-    			input5_nodes.forEach(detach);
-    			t40 = claim_text(label5_nodes, "\n                ");
-
-    			span8 = claim_element(label5_nodes, "SPAN", {}, false);
-    			var span8_nodes = children(span8);
-
-    			t41 = claim_text(span8_nodes, t41_value);
-    			span8_nodes.forEach(detach);
-    			label5_nodes.forEach(detach);
-    			p5_nodes.forEach(detach);
-    			t42 = claim_text(div5_nodes, "\n            ");
-
-    			p6 = claim_element(div5_nodes, "P", { class: true }, false);
-    			var p6_nodes = children(p6);
-
-    			label6 = claim_element(p6_nodes, "LABEL", {}, false);
-    			var label6_nodes = children(label6);
-
-    			span9 = claim_element(label6_nodes, "SPAN", {}, false);
-    			var span9_nodes = children(span9);
-
-    			t43 = claim_text(span9_nodes, t43_value);
-    			span9_nodes.forEach(detach);
-    			t44 = claim_text(label6_nodes, "\n                ");
-
-    			select2 = claim_element(label6_nodes, "SELECT", { bindvalue: true }, false);
+    			select2 = claim_element(div19_nodes, "SELECT", { class: true }, false);
     			var select2_nodes = children(select2);
 
-    			option5 = claim_element(select2_nodes, "OPTION", { value: true }, false);
+    			option5 = claim_element(select2_nodes, "OPTION", { value: true, class: true }, false);
     			var option5_nodes = children(option5);
 
-    			t45 = claim_text(option5_nodes, t45_value);
+    			t40 = claim_text(option5_nodes, t40_value);
     			option5_nodes.forEach(detach);
 
-    			for (var i = 0; i < each_blocks_1.length; i += 1) {
-    				each_blocks_1[i].l(select2_nodes);
+    			for (var i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].l(select2_nodes);
     			}
 
     			select2_nodes.forEach(detach);
-    			label6_nodes.forEach(detach);
-    			p6_nodes.forEach(detach);
-    			div5_nodes.forEach(detach);
-    			div6_nodes.forEach(detach);
-    			t46 = claim_text(nodes, "\n        ");
+    			div19_nodes.forEach(detach);
+    			div20_nodes.forEach(detach);
+    			div21_nodes.forEach(detach);
+    			div22_nodes.forEach(detach);
+    			t41 = claim_text(div27_nodes, "\n                ");
 
-    			div8 = claim_element(nodes, "DIV", { class: true }, false);
-    			var div8_nodes = children(div8);
+    			div26 = claim_element(div27_nodes, "DIV", { class: true }, false);
+    			var div26_nodes = children(div26);
 
-    			h22 = claim_element(div8_nodes, "H2", {}, false);
-    			var h22_nodes = children(h22);
+    			div23 = claim_element(div26_nodes, "DIV", { class: true }, false);
+    			var div23_nodes = children(div23);
 
-    			t47 = claim_text(h22_nodes, t47_value);
-    			h22_nodes.forEach(detach);
-    			t48 = claim_text(div8_nodes, "\n        ");
+    			t42 = claim_text(div23_nodes, t42_value);
+    			div23_nodes.forEach(detach);
+    			t43 = claim_text(div26_nodes, "\n                    ");
 
-    			p7 = claim_element(div8_nodes, "P", { class: true }, false);
-    			var p7_nodes = children(p7);
+    			div25 = claim_element(div26_nodes, "DIV", { class: true }, false);
+    			var div25_nodes = children(div25);
 
-    			label7 = claim_element(p7_nodes, "LABEL", {}, false);
-    			var label7_nodes = children(label7);
+    			span8 = claim_element(div25_nodes, "SPAN", {}, false);
+    			var span8_nodes = children(span8);
 
-    			span10 = claim_element(label7_nodes, "SPAN", {}, false);
-    			var span10_nodes = children(span10);
+    			t44 = claim_text(span8_nodes, t44_value);
+    			span8_nodes.forEach(detach);
+    			t45 = claim_text(div25_nodes, "\n                        ");
 
-    			t49 = claim_text(span10_nodes, t49_value);
-    			span10_nodes.forEach(detach);
-    			t50 = claim_text(label7_nodes, "\n            ");
+    			div24 = claim_element(div25_nodes, "DIV", { class: true }, false);
+    			var div24_nodes = children(div24);
 
-    			select3 = claim_element(label7_nodes, "SELECT", { bindvalue: true }, false);
+    			select3 = claim_element(div24_nodes, "SELECT", { class: true }, false);
     			var select3_nodes = children(select3);
 
-    			option6 = claim_element(select3_nodes, "OPTION", { value: true }, false);
+    			option6 = claim_element(select3_nodes, "OPTION", { value: true, class: true }, false);
     			var option6_nodes = children(option6);
 
-    			t51 = claim_text(option6_nodes, t51_value);
+    			t46 = claim_text(option6_nodes, t46_value);
     			option6_nodes.forEach(detach);
 
-    			option7 = claim_element(select3_nodes, "OPTION", { value: true }, false);
+    			option7 = claim_element(select3_nodes, "OPTION", { value: true, class: true }, false);
     			var option7_nodes = children(option7);
 
-    			t52 = claim_text(option7_nodes, t52_value);
+    			t47 = claim_text(option7_nodes, t47_value);
     			option7_nodes.forEach(detach);
 
-    			option8 = claim_element(select3_nodes, "OPTION", { value: true }, false);
+    			option8 = claim_element(select3_nodes, "OPTION", { value: true, class: true }, false);
     			var option8_nodes = children(option8);
 
-    			t53 = claim_text(option8_nodes, t53_value);
+    			t48 = claim_text(option8_nodes, t48_value);
     			option8_nodes.forEach(detach);
 
-    			option9 = claim_element(select3_nodes, "OPTION", { value: true }, false);
+    			option9 = claim_element(select3_nodes, "OPTION", { value: true, class: true }, false);
     			var option9_nodes = children(option9);
 
-    			t54 = claim_text(option9_nodes, t54_value);
+    			t49 = claim_text(option9_nodes, t49_value);
     			option9_nodes.forEach(detach);
 
-    			option10 = claim_element(select3_nodes, "OPTION", { value: true }, false);
+    			option10 = claim_element(select3_nodes, "OPTION", { value: true, class: true }, false);
     			var option10_nodes = children(option10);
 
-    			t55 = claim_text(option10_nodes, t55_value);
+    			t50 = claim_text(option10_nodes, t50_value);
     			option10_nodes.forEach(detach);
 
-    			option11 = claim_element(select3_nodes, "OPTION", { value: true }, false);
+    			option11 = claim_element(select3_nodes, "OPTION", { value: true, class: true }, false);
     			var option11_nodes = children(option11);
 
-    			t56 = claim_text(option11_nodes, t56_value);
+    			t51 = claim_text(option11_nodes, t51_value);
     			option11_nodes.forEach(detach);
 
-    			option12 = claim_element(select3_nodes, "OPTION", { value: true }, false);
+    			option12 = claim_element(select3_nodes, "OPTION", { value: true, class: true }, false);
     			var option12_nodes = children(option12);
 
-    			t57 = claim_text(option12_nodes, t57_value);
+    			t52 = claim_text(option12_nodes, t52_value);
     			option12_nodes.forEach(detach);
 
-    			option13 = claim_element(select3_nodes, "OPTION", { value: true }, false);
+    			option13 = claim_element(select3_nodes, "OPTION", { value: true, class: true }, false);
     			var option13_nodes = children(option13);
 
-    			t58 = claim_text(option13_nodes, t58_value);
+    			t53 = claim_text(option13_nodes, t53_value);
     			option13_nodes.forEach(detach);
 
-    			option14 = claim_element(select3_nodes, "OPTION", { value: true }, false);
+    			option14 = claim_element(select3_nodes, "OPTION", { value: true, class: true }, false);
     			var option14_nodes = children(option14);
 
-    			t59 = claim_text(option14_nodes, t59_value);
+    			t54 = claim_text(option14_nodes, t54_value);
     			option14_nodes.forEach(detach);
 
-    			option15 = claim_element(select3_nodes, "OPTION", { value: true }, false);
+    			option15 = claim_element(select3_nodes, "OPTION", { value: true, class: true }, false);
     			var option15_nodes = children(option15);
 
-    			t60 = claim_text(option15_nodes, t60_value);
+    			t55 = claim_text(option15_nodes, t55_value);
     			option15_nodes.forEach(detach);
     			select3_nodes.forEach(detach);
-    			label7_nodes.forEach(detach);
-    			p7_nodes.forEach(detach);
-    			t61 = claim_text(div8_nodes, "\n        ");
-
-    			fieldset = claim_element(div8_nodes, "FIELDSET", { ":disabled": true }, false);
-    			var fieldset_nodes = children(fieldset);
-
-    			p8 = claim_element(fieldset_nodes, "P", { class: true }, false);
-    			var p8_nodes = children(p8);
-
-    			label8 = claim_element(p8_nodes, "LABEL", {}, false);
-    			var label8_nodes = children(label8);
-
-    			span11 = claim_element(label8_nodes, "SPAN", {}, false);
-    			var span11_nodes = children(span11);
-
-    			t62 = claim_text(span11_nodes, t62_value);
-    			span11_nodes.forEach(detach);
-    			t63 = claim_text(label8_nodes, "\n                ");
-
-    			input6 = claim_element(label8_nodes, "INPUT", { type: true, min: true, max: true, class: true, bindvalue: true }, false);
-    			var input6_nodes = children(input6);
-
-    			input6_nodes.forEach(detach);
-    			t64 = claim_text(label8_nodes, "\n                ");
-
-    			span12 = claim_element(label8_nodes, "SPAN", {}, false);
-    			var span12_nodes = children(span12);
-
-    			t65 = claim_text(span12_nodes, t65_value);
-    			span12_nodes.forEach(detach);
-    			label8_nodes.forEach(detach);
-    			p8_nodes.forEach(detach);
-    			t66 = claim_text(fieldset_nodes, "\n            ");
-
-    			p9 = claim_element(fieldset_nodes, "P", {}, false);
-    			var p9_nodes = children(p9);
-
-    			t67 = claim_text(p9_nodes, t67_value);
-    			p9_nodes.forEach(detach);
-    			t68 = claim_text(fieldset_nodes, "\n            ");
-
-    			div7 = claim_element(fieldset_nodes, "DIV", { class: true }, false);
-    			var div7_nodes = children(div7);
-
-    			p10 = claim_element(div7_nodes, "P", { class: true }, false);
-    			var p10_nodes = children(p10);
-
-    			label9 = claim_element(p10_nodes, "LABEL", {}, false);
-    			var label9_nodes = children(label9);
-
-    			input7 = claim_element(label9_nodes, "INPUT", { type: true, bindvalue: true }, false);
-    			var input7_nodes = children(input7);
-
-    			input7_nodes.forEach(detach);
-    			t69 = claim_text(label9_nodes, "\n                ");
-
-    			span13 = claim_element(label9_nodes, "SPAN", {}, false);
-    			var span13_nodes = children(span13);
-
-    			t70 = claim_text(span13_nodes, t70_value);
-    			span13_nodes.forEach(detach);
-    			label9_nodes.forEach(detach);
-    			p10_nodes.forEach(detach);
-    			t71 = claim_text(div7_nodes, "\n            ");
-
-    			p11 = claim_element(div7_nodes, "P", { class: true }, false);
-    			var p11_nodes = children(p11);
-
-    			label10 = claim_element(p11_nodes, "LABEL", {}, false);
-    			var label10_nodes = children(label10);
-
-    			input8 = claim_element(label10_nodes, "INPUT", { type: true, bindvalue: true }, false);
-    			var input8_nodes = children(input8);
-
-    			input8_nodes.forEach(detach);
-    			t72 = claim_text(label10_nodes, "\n                ");
-
-    			span14 = claim_element(label10_nodes, "SPAN", {}, false);
-    			var span14_nodes = children(span14);
-
-    			t73 = claim_text(span14_nodes, t73_value);
-    			span14_nodes.forEach(detach);
-    			label10_nodes.forEach(detach);
-    			p11_nodes.forEach(detach);
-    			t74 = claim_text(div7_nodes, "\n            ");
-
-    			p12 = claim_element(div7_nodes, "P", { class: true }, false);
-    			var p12_nodes = children(p12);
-
-    			label11 = claim_element(p12_nodes, "LABEL", {}, false);
-    			var label11_nodes = children(label11);
-
-    			span15 = claim_element(label11_nodes, "SPAN", {}, false);
-    			var span15_nodes = children(span15);
-
-    			t75 = claim_text(span15_nodes, t75_value);
-    			span15_nodes.forEach(detach);
-    			t76 = claim_text(label11_nodes, "\n                ");
-
-    			select4 = claim_element(label11_nodes, "SELECT", { bindvalue: true }, false);
-    			var select4_nodes = children(select4);
-
-    			option16 = claim_element(select4_nodes, "OPTION", { value: true }, false);
-    			var option16_nodes = children(option16);
-
-    			t77 = claim_text(option16_nodes, t77_value);
-    			option16_nodes.forEach(detach);
-
-    			for (var i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].l(select4_nodes);
-    			}
-
-    			select4_nodes.forEach(detach);
-    			label11_nodes.forEach(detach);
-    			p12_nodes.forEach(detach);
-    			div7_nodes.forEach(detach);
-    			fieldset_nodes.forEach(detach);
-    			div8_nodes.forEach(detach);
-    			t78 = claim_text(nodes, "\n        ");
-
-    			div9 = claim_element(nodes, "DIV", { class: true }, false);
-    			var div9_nodes = children(div9);
-
-    			h23 = claim_element(div9_nodes, "H2", {}, false);
-    			var h23_nodes = children(h23);
-
-    			t79 = claim_text(h23_nodes, t79_value);
-    			h23_nodes.forEach(detach);
-    			t80 = claim_text(div9_nodes, "\n        ");
-
-    			p13 = claim_element(div9_nodes, "P", {}, false);
-    			var p13_nodes = children(p13);
-
-    			t81 = claim_text(p13_nodes, t81_value);
-    			p13_nodes.forEach(detach);
-    			t82 = claim_text(div9_nodes, "\n        ");
-
-    			p14 = claim_element(div9_nodes, "P", { class: true }, false);
-    			var p14_nodes = children(p14);
-
-    			label12 = claim_element(p14_nodes, "LABEL", {}, false);
-    			var label12_nodes = children(label12);
-
-    			span16 = claim_element(label12_nodes, "SPAN", {}, false);
-    			var span16_nodes = children(span16);
-
-    			t83 = claim_text(span16_nodes, t83_value);
-    			span16_nodes.forEach(detach);
-    			t84 = claim_text(label12_nodes, "\n            ");
-
-    			input9 = claim_element(label12_nodes, "INPUT", { type: true, bindvalue: true, class: true, id: true }, false);
-    			var input9_nodes = children(input9);
-
-    			input9_nodes.forEach(detach);
-    			label12_nodes.forEach(detach);
-    			p14_nodes.forEach(detach);
-    			div9_nodes.forEach(detach);
-    			t85 = claim_text(nodes, "\n        ");
-    			if (if_block2) if_block2.l(nodes);
-    			if_block2_anchor = empty();
+    			div24_nodes.forEach(detach);
+    			div25_nodes.forEach(detach);
+    			t56 = claim_text(div26_nodes, "\n                    ");
+    			if (if_block2) if_block2.l(div26_nodes);
+    			div26_nodes.forEach(detach);
+    			t57 = claim_text(div27_nodes, "\n                ");
+    			if (if_block3) if_block3.l(div27_nodes);
+    			div27_nodes.forEach(detach);
+    			div28_nodes.forEach(detach);
     			this.h();
     		},
 
     		h: function hydrate() {
-    			add_location(h20, file$3, 126, 12, 3699);
-    			add_location(span0, file$3, 128, 16, 3752);
-    			add_location(span1, file$3, 133, 16, 3952);
-    			add_location(div0, file$3, 127, 12, 3730);
-    			add_location(p0, file$3, 136, 16, 4032);
+    			attr(div0, "class", "section-header svelte-4a9i7k");
+    			add_location(div0, file$3, 130, 20, 3878);
+    			add_location(span0, file$3, 132, 24, 3994);
+    			attr(div1, "class", "input-wrapper svelte-4a9i7k");
+    			add_location(div1, file$3, 133, 24, 4046);
+    			add_location(span1, file$3, 140, 24, 4363);
+    			attr(div2, "class", "section-field svelte-4a9i7k");
+    			add_location(div2, file$3, 131, 20, 3942);
+    			add_location(span2, file$3, 143, 24, 4531);
     			option0.__value = "null";
     			option0.value = option0.__value;
-    			add_location(option0, file$3, 138, 20, 4137);
+    			attr(option0, "class", "svelte-4a9i7k");
+    			add_location(option0, file$3, 146, 32, 4718);
     			attr(optgroup0, "label", optgroup0_label_value = M.periodic_beat);
-    			add_location(optgroup0, file$3, 139, 20, 4198);
+    			add_location(optgroup0, file$3, 147, 32, 4791);
     			option1.__value = "'brown-noise'";
     			option1.value = option1.__value;
-    			add_location(option1, file$3, 145, 20, 4502);
+    			attr(option1, "class", "svelte-4a9i7k");
+    			add_location(option1, file$3, 153, 32, 5167);
     			option2.__value = "'pink-noise'";
     			option2.value = option2.__value;
-    			add_location(option2, file$3, 146, 20, 4579);
+    			attr(option2, "class", "svelte-4a9i7k");
+    			add_location(option2, file$3, 154, 32, 5256);
     			option3.__value = "'white-noise'";
     			option3.value = option3.__value;
-    			add_location(option3, file$3, 147, 20, 4654);
+    			attr(option3, "class", "svelte-4a9i7k");
+    			add_location(option3, file$3, 155, 32, 5343);
     			attr(optgroup1, "label", optgroup1_label_value = M.noise);
-    			add_location(optgroup1, file$3, 144, 20, 4453);
+    			add_location(optgroup1, file$3, 152, 32, 5106);
     			if (ctx.focusTimerSound === void 0) add_render_callback(() => ctx.select0_change_handler.call(select0));
-    			add_location(select0, file$3, 137, 16, 4079);
-    			add_location(div1, file$3, 135, 12, 4010);
-    			add_location(div2, file$3, 158, 12, 5195);
-    			add_location(p1, file$3, 172, 12, 5728);
-    			attr(input1, "type", "checkbox");
-    			add_location(input1, file$3, 175, 20, 5830);
-    			add_location(span2, file$3, 176, 20, 5924);
-    			add_location(label0, file$3, 174, 16, 5802);
-    			attr(input2, "type", "checkbox");
-    			add_location(input2, file$3, 179, 20, 6038);
-    			add_location(span3, file$3, 180, 20, 6128);
-    			add_location(label1, file$3, 178, 16, 6010);
-    			add_location(span4, file$3, 183, 20, 6242);
+    			attr(select0, "class", "svelte-4a9i7k");
+    			add_location(select0, file$3, 145, 28, 4648);
+    			attr(div3, "class", "input-wrapper svelte-4a9i7k");
+    			add_location(div3, file$3, 144, 24, 4592);
+    			add_location(span3, file$3, 159, 24, 5537);
+    			attr(div4, "class", "section-field svelte-4a9i7k");
+    			add_location(div4, file$3, 142, 20, 4479);
+    			attr(div5, "class", "section-field svelte-4a9i7k");
+    			add_location(div5, file$3, 169, 20, 6066);
+    			attr(div6, "class", "section-field svelte-4a9i7k");
+    			add_location(div6, file$3, 181, 20, 6633);
+    			attr(div7, "class", "section-field svelte-4a9i7k");
+    			add_location(div7, file$3, 185, 24, 6809);
+    			attr(div8, "class", "section-field svelte-4a9i7k");
+    			add_location(div8, file$3, 191, 24, 7132);
+    			add_location(span4, file$3, 198, 28, 7506);
     			option4.__value = "null";
     			option4.value = option4.__value;
-    			add_location(option4, file$3, 187, 24, 6485);
+    			attr(option4, "class", "svelte-4a9i7k");
+    			add_location(option4, file$3, 203, 36, 7853);
     			if (ctx.settings.focus.notifications.sound === void 0) add_render_callback(() => ctx.select1_change_handler.call(select1));
-    			add_location(select1, file$3, 184, 20, 6305);
-    			add_location(label2, file$3, 182, 16, 6214);
-    			attr(div3, "class", "group");
-    			add_location(div3, file$3, 173, 12, 5766);
-    			attr(div4, "class", "main svelte-1q4yxn8");
-    			add_location(div4, file$3, 125, 8, 3668);
-    			add_location(h21, file$3, 196, 8, 6824);
-    			add_location(span5, file$3, 199, 12, 6909);
-    			attr(input3, "type", "number");
-    			attr(input3, "min", "1");
-    			attr(input3, "max", "999");
-    			attr(input3, "class", "duration");
-    			attr(input3, "bindvalue", input3_bindvalue_value = ctx.settings.shortBreak.duration);
-    			add_location(input3, file$3, 200, 12, 6949);
-    			add_location(span6, file$3, 206, 12, 7139);
-    			add_location(label3, file$3, 198, 12, 6889);
-    			attr(p2, "class", "field");
-    			add_location(p2, file$3, 197, 8, 6859);
-    			add_location(p3, file$3, 209, 8, 7208);
-    			attr(input4, "type", "checkbox");
-    			attr(input4, "bindvalue", input4_bindvalue_value = ctx.settings.shortBreak.notifications.desktop);
-    			add_location(input4, file$3, 213, 16, 7329);
-    			add_location(span7, file$3, 214, 16, 7423);
-    			add_location(label4, file$3, 212, 12, 7305);
-    			attr(p4, "class", "field");
-    			add_location(p4, file$3, 211, 12, 7275);
-    			attr(input5, "type", "checkbox");
-    			attr(input5, "bindvalue", input5_bindvalue_value = ctx.settings.shortBreak.notifications.tab);
-    			add_location(input5, file$3, 219, 16, 7572);
-    			add_location(span8, file$3, 220, 16, 7662);
-    			add_location(label5, file$3, 218, 12, 7548);
-    			attr(p5, "class", "field");
-    			add_location(p5, file$3, 217, 12, 7518);
-    			add_location(span9, file$3, 225, 16, 7811);
+    			attr(select1, "class", "svelte-4a9i7k");
+    			add_location(select1, file$3, 200, 32, 7637);
+    			attr(div9, "class", "input-wrapper svelte-4a9i7k");
+    			add_location(div9, file$3, 199, 28, 7577);
+    			attr(div10, "class", "section-field svelte-4a9i7k");
+    			add_location(div10, file$3, 197, 24, 7450);
+    			attr(div11, "class", "section-field-group svelte-4a9i7k");
+    			add_location(div11, file$3, 184, 20, 6751);
+    			attr(div12, "class", "section svelte-4a9i7k");
+    			add_location(div12, file$3, 129, 16, 3836);
+    			attr(div13, "class", "section-header svelte-4a9i7k");
+    			add_location(div13, file$3, 213, 20, 8318);
+    			add_location(span5, file$3, 215, 24, 8442);
+    			attr(div14, "class", "input-wrapper svelte-4a9i7k");
+    			add_location(div14, file$3, 216, 24, 8494);
+    			add_location(span6, file$3, 223, 24, 8816);
+    			attr(div15, "class", "section-field svelte-4a9i7k");
+    			add_location(div15, file$3, 214, 20, 8390);
+    			attr(div16, "class", "section-field svelte-4a9i7k");
+    			add_location(div16, file$3, 225, 20, 8936);
+    			attr(div17, "class", "section-field svelte-4a9i7k");
+    			add_location(div17, file$3, 227, 24, 9067);
+    			attr(div18, "class", "section-field svelte-4a9i7k");
+    			add_location(div18, file$3, 233, 24, 9394);
+    			add_location(span7, file$3, 240, 28, 9775);
     			option5.__value = "null";
     			option5.value = option5.__value;
-    			add_location(option5, file$3, 229, 24, 8054);
-    			attr(select2, "bindvalue", select2_bindvalue_value = ctx.settings.shortBreak.notifications.sound);
-    			add_location(select2, file$3, 226, 16, 7870);
-    			add_location(label6, file$3, 224, 12, 7787);
-    			attr(p6, "class", "field");
-    			add_location(p6, file$3, 223, 12, 7757);
-    			attr(div5, "class", "group");
-    			add_location(div5, file$3, 210, 8, 7243);
-    			attr(div6, "class", "section");
-    			add_location(div6, file$3, 195, 8, 6794);
-    			add_location(h22, file$3, 239, 8, 8402);
-    			add_location(span10, file$3, 242, 12, 8486);
+    			attr(option5, "class", "svelte-4a9i7k");
+    			add_location(option5, file$3, 245, 36, 10127);
+    			if (ctx.settings.shortBreak.notifications.sound === void 0) add_render_callback(() => ctx.select2_change_handler.call(select2));
+    			attr(select2, "class", "svelte-4a9i7k");
+    			add_location(select2, file$3, 242, 32, 9906);
+    			attr(div19, "class", "input-wrapper svelte-4a9i7k");
+    			add_location(div19, file$3, 241, 28, 9846);
+    			attr(div20, "class", "section-field svelte-4a9i7k");
+    			add_location(div20, file$3, 239, 24, 9719);
+    			attr(div21, "class", "section-field-group svelte-4a9i7k");
+    			add_location(div21, file$3, 226, 20, 9009);
+    			attr(div22, "class", "section svelte-4a9i7k");
+    			add_location(div22, file$3, 212, 16, 8276);
+    			attr(div23, "class", "section-header svelte-4a9i7k");
+    			add_location(div23, file$3, 255, 20, 10592);
+    			add_location(span8, file$3, 257, 24, 10715);
     			option6.__value = "0";
     			option6.value = option6.__value;
-    			add_location(option6, file$3, 244, 16, 8608);
+    			attr(option6, "class", "svelte-4a9i7k");
+    			add_location(option6, file$3, 260, 32, 10922);
     			option7.__value = "2";
     			option7.value = option7.__value;
-    			add_location(option7, file$3, 245, 16, 8663);
+    			attr(option7, "class", "svelte-4a9i7k");
+    			add_location(option7, file$3, 261, 32, 10993);
     			option8.__value = "3";
     			option8.value = option8.__value;
-    			add_location(option8, file$3, 246, 16, 8728);
+    			attr(option8, "class", "svelte-4a9i7k");
+    			add_location(option8, file$3, 262, 32, 11074);
     			option9.__value = "4";
     			option9.value = option9.__value;
-    			add_location(option9, file$3, 247, 16, 8793);
+    			attr(option9, "class", "svelte-4a9i7k");
+    			add_location(option9, file$3, 263, 32, 11155);
     			option10.__value = "5";
     			option10.value = option10.__value;
-    			add_location(option10, file$3, 248, 16, 8858);
+    			attr(option10, "class", "svelte-4a9i7k");
+    			add_location(option10, file$3, 264, 32, 11236);
     			option11.__value = "6";
     			option11.value = option11.__value;
-    			add_location(option11, file$3, 249, 16, 8923);
+    			attr(option11, "class", "svelte-4a9i7k");
+    			add_location(option11, file$3, 265, 32, 11317);
     			option12.__value = "7";
     			option12.value = option12.__value;
-    			add_location(option12, file$3, 250, 16, 8988);
+    			attr(option12, "class", "svelte-4a9i7k");
+    			add_location(option12, file$3, 266, 32, 11398);
     			option13.__value = "8";
     			option13.value = option13.__value;
-    			add_location(option13, file$3, 251, 16, 9053);
+    			attr(option13, "class", "svelte-4a9i7k");
+    			add_location(option13, file$3, 267, 32, 11479);
     			option14.__value = "9";
     			option14.value = option14.__value;
-    			add_location(option14, file$3, 252, 16, 9118);
+    			attr(option14, "class", "svelte-4a9i7k");
+    			add_location(option14, file$3, 268, 32, 11560);
     			option15.__value = "10";
     			option15.value = option15.__value;
-    			add_location(option15, file$3, 253, 16, 9183);
-    			attr(select3, "bindvalue", select3_bindvalue_value = ctx.settings.longBreak.interval);
-    			add_location(select3, file$3, 243, 12, 8543);
-    			add_location(label7, file$3, 241, 12, 8466);
-    			attr(p7, "class", "field");
-    			add_location(p7, file$3, 240, 8, 8436);
-    			add_location(span11, file$3, 260, 16, 9420);
-    			attr(input6, "type", "number");
-    			attr(input6, "min", "1");
-    			attr(input6, "max", "999");
-    			attr(input6, "class", "duration");
-    			attr(input6, "bindvalue", input6_bindvalue_value = ctx.settings.longBreak.duration);
-    			add_location(input6, file$3, 261, 16, 9464);
-    			add_location(span12, file$3, 267, 16, 9657);
-    			add_location(label8, file$3, 259, 12, 9396);
-    			attr(p8, "class", "field");
-    			add_location(p8, file$3, 258, 12, 9366);
-    			add_location(p9, file$3, 270, 12, 9734);
-    			attr(input7, "type", "checkbox");
-    			attr(input7, "bindvalue", input7_bindvalue_value = ctx.settings.longBreak.notifications.desktop);
-    			add_location(input7, file$3, 274, 16, 9863);
-    			add_location(span13, file$3, 275, 16, 9956);
-    			add_location(label9, file$3, 273, 16, 9839);
-    			attr(p10, "class", "field");
-    			add_location(p10, file$3, 272, 12, 9805);
-    			attr(input8, "type", "checkbox");
-    			attr(input8, "bindvalue", input8_bindvalue_value = ctx.settings.longBreak.notifications.tab);
-    			add_location(input8, file$3, 280, 16, 10113);
-    			add_location(span14, file$3, 281, 16, 10202);
-    			add_location(label10, file$3, 279, 16, 10089);
-    			attr(p11, "class", "field");
-    			add_location(p11, file$3, 278, 12, 10055);
-    			add_location(span15, file$3, 286, 16, 10359);
-    			option16.__value = "null";
-    			option16.value = option16.__value;
-    			add_location(option16, file$3, 290, 24, 10601);
-    			attr(select4, "bindvalue", select4_bindvalue_value = ctx.settings.longBreak.notifications.sound);
-    			add_location(select4, file$3, 287, 16, 10418);
-    			add_location(label11, file$3, 285, 16, 10335);
-    			attr(p12, "class", "field");
-    			add_location(p12, file$3, 284, 12, 10301);
-    			attr(div7, "class", "group");
-    			add_location(div7, file$3, 271, 12, 9773);
-    			attr(fieldset, ":disabled", "settings.longBreak.interval == 0");
-    			add_location(fieldset, file$3, 257, 8, 9298);
-    			attr(div8, "class", "section");
-    			add_location(div8, file$3, 238, 8, 8372);
-    			add_location(h23, file$3, 301, 8, 10987);
-    			add_location(p13, file$3, 302, 8, 11026);
-    			add_location(span16, file$3, 305, 12, 11119);
-    			attr(input9, "type", "time");
-    			attr(input9, "bindvalue", input9_bindvalue_value = ctx.settings.autostart.time);
-    			attr(input9, "class", "time");
-    			attr(input9, "id", "autostart-time");
-    			add_location(input9, file$3, 306, 12, 11155);
-    			add_location(label12, file$3, 304, 12, 11099);
-    			attr(p14, "class", "field");
-    			add_location(p14, file$3, 303, 8, 11069);
-    			attr(div9, "class", "section autostart");
-    			add_location(div9, file$3, 300, 8, 10947);
+    			attr(option15, "class", "svelte-4a9i7k");
+    			add_location(option15, file$3, 269, 32, 11641);
+    			if (ctx.settings.longBreak.interval === void 0) add_render_callback(() => ctx.select3_change_handler.call(select3));
+    			attr(select3, "class", "svelte-4a9i7k");
+    			add_location(select3, file$3, 259, 28, 10840);
+    			attr(div24, "class", "input-wrapper svelte-4a9i7k");
+    			add_location(div24, file$3, 258, 24, 10784);
+    			attr(div25, "class", "section-field svelte-4a9i7k");
+    			add_location(div25, file$3, 256, 20, 10663);
+    			attr(div26, "class", "section svelte-4a9i7k");
+    			add_location(div26, file$3, 254, 16, 10550);
+    			attr(div27, "class", "content-wrapper svelte-4a9i7k");
+    			add_location(div27, file$3, 128, 12, 3790);
+    			attr(div28, "class", "main svelte-4a9i7k");
+    			add_location(div28, file$3, 127, 8, 3759);
 
     			dispose = [
     				listen(select0, "change", ctx.select0_change_handler),
-    				listen(input1, "change", ctx.input1_change_handler),
-    				listen(input2, "change", ctx.input2_change_handler),
     				listen(select1, "change", ctx.select1_change_handler),
     				listen(select1, "input", ctx.input_handler),
+    				listen(select2, "change", ctx.select2_change_handler),
     				listen(select2, "input", ctx.input_handler_1),
-    				listen(select4, "input", ctx.input_handler_2)
+    				listen(select3, "change", ctx.select3_change_handler)
     			];
     		},
 
     		m: function mount(target, anchor) {
-    			insert(target, div4, anchor);
-    			append(div4, h20);
-    			append(h20, t0);
-    			append(div4, t1);
-    			append(div4, div0);
-    			append(div0, span0);
+    			insert(target, div28, anchor);
+    			append(div28, div27);
+    			append(div27, div12);
+    			append(div12, div0);
+    			append(div0, t0);
+    			append(div12, t1);
+    			append(div12, div2);
+    			append(div2, span0);
     			append(span0, t2);
-    			append(div0, t3);
-    			mount_component(input0, div0, null);
-    			append(div0, t4);
-    			append(div0, span1);
+    			append(div2, t3);
+    			append(div2, div1);
+    			mount_component(input0, div1, null);
+    			append(div2, t4);
+    			append(div2, span1);
     			append(span1, t5);
-    			append(div4, t6);
-    			append(div4, div1);
-    			append(div1, p0);
-    			append(p0, t7);
-    			append(div1, t8);
-    			append(div1, select0);
+    			append(div12, t6);
+    			append(div12, div4);
+    			append(div4, span2);
+    			append(span2, t7);
+    			append(div4, t8);
+    			append(div4, div3);
+    			append(div3, select0);
     			append(select0, option0);
     			append(option0, t9);
     			append(select0, optgroup0);
 
-    			for (var i = 0; i < each_blocks_3.length; i += 1) {
-    				each_blocks_3[i].m(optgroup0, null);
+    			for (var i = 0; i < each_blocks_2.length; i += 1) {
+    				each_blocks_2[i].m(optgroup0, null);
     			}
 
     			append(select0, optgroup1);
@@ -4139,192 +4042,132 @@
 
     			select_option(select0, ctx.focusTimerSound);
 
-    			append(div1, t13);
-    			if (if_block0) if_block0.m(div1, null);
-    			append(div4, t14);
-    			append(div4, div2);
-    			if (if_block1) if_block1.m(div2, null);
-    			append(div4, t15);
-    			append(div4, p1);
-    			append(p1, t16);
-    			append(div4, t17);
-    			append(div4, div3);
-    			append(div3, label0);
-    			append(label0, input1);
-
-    			input1.value = ctx.settings.focus.notifications.desktop;
-
-    			append(label0, t18);
-    			append(label0, span2);
-    			append(span2, t19);
-    			append(div3, t20);
-    			append(div3, label1);
-    			append(label1, input2);
-
-    			input2.value = ctx.settings.focus.notifications.tab;
-
-    			append(label1, t21);
-    			append(label1, span3);
-    			append(span3, t22);
-    			append(div3, t23);
-    			append(div3, label2);
-    			append(label2, span4);
-    			append(span4, t24);
-    			append(label2, t25);
-    			append(label2, select1);
+    			append(div4, t13);
+    			append(div4, span3);
+    			append(span3, t14);
+    			append(span3, t15);
+    			append(div4, t16);
+    			if (if_block0) if_block0.m(div4, null);
+    			append(div12, t17);
+    			append(div12, div5);
+    			if (if_block1) if_block1.m(div5, null);
+    			append(div12, t18);
+    			append(div12, div6);
+    			append(div6, t19);
+    			append(div12, t20);
+    			append(div12, div11);
+    			append(div11, div7);
+    			mount_component(input1, div7, null);
+    			append(div11, t21);
+    			append(div11, div8);
+    			mount_component(input2, div8, null);
+    			append(div11, t22);
+    			append(div11, div10);
+    			append(div10, span4);
+    			append(span4, t23);
+    			append(div10, t24);
+    			append(div10, div9);
+    			append(div9, select1);
     			append(select1, option4);
-    			append(option4, t26);
+    			append(option4, t25);
 
-    			for (var i = 0; i < each_blocks_2.length; i += 1) {
-    				each_blocks_2[i].m(select1, null);
+    			for (var i = 0; i < each_blocks_1.length; i += 1) {
+    				each_blocks_1[i].m(select1, null);
     			}
 
     			select_option(select1, ctx.settings.focus.notifications.sound);
 
-    			insert(target, t27, anchor);
-    			insert(target, div6, anchor);
-    			append(div6, h21);
-    			append(h21, t28);
-    			append(div6, t29);
-    			append(div6, p2);
-    			append(p2, label3);
-    			append(label3, span5);
-    			append(span5, t30);
-    			append(label3, t31);
-    			append(label3, input3);
-    			append(label3, t32);
-    			append(label3, span6);
-    			append(span6, t33);
-    			append(div6, t34);
-    			append(div6, p3);
-    			append(p3, t35);
-    			append(div6, t36);
-    			append(div6, div5);
-    			append(div5, p4);
-    			append(p4, label4);
-    			append(label4, input4);
-    			append(label4, t37);
-    			append(label4, span7);
+    			append(div27, t26);
+    			append(div27, div22);
+    			append(div22, div13);
+    			append(div13, t27);
+    			append(div22, t28);
+    			append(div22, div15);
+    			append(div15, span5);
+    			append(span5, t29);
+    			append(div15, t30);
+    			append(div15, div14);
+    			mount_component(input3, div14, null);
+    			append(div15, t31);
+    			append(div15, span6);
+    			append(span6, t32);
+    			append(div22, t33);
+    			append(div22, div16);
+    			append(div16, t34);
+    			append(div22, t35);
+    			append(div22, div21);
+    			append(div21, div17);
+    			mount_component(input4, div17, null);
+    			append(div21, t36);
+    			append(div21, div18);
+    			mount_component(input5, div18, null);
+    			append(div21, t37);
+    			append(div21, div20);
+    			append(div20, span7);
     			append(span7, t38);
-    			append(div5, t39);
-    			append(div5, p5);
-    			append(p5, label5);
-    			append(label5, input5);
-    			append(label5, t40);
-    			append(label5, span8);
-    			append(span8, t41);
-    			append(div5, t42);
-    			append(div5, p6);
-    			append(p6, label6);
-    			append(label6, span9);
-    			append(span9, t43);
-    			append(label6, t44);
-    			append(label6, select2);
+    			append(div20, t39);
+    			append(div20, div19);
+    			append(div19, select2);
     			append(select2, option5);
-    			append(option5, t45);
-
-    			for (var i = 0; i < each_blocks_1.length; i += 1) {
-    				each_blocks_1[i].m(select2, null);
-    			}
-
-    			insert(target, t46, anchor);
-    			insert(target, div8, anchor);
-    			append(div8, h22);
-    			append(h22, t47);
-    			append(div8, t48);
-    			append(div8, p7);
-    			append(p7, label7);
-    			append(label7, span10);
-    			append(span10, t49);
-    			append(label7, t50);
-    			append(label7, select3);
-    			append(select3, option6);
-    			append(option6, t51);
-    			append(select3, option7);
-    			append(option7, t52);
-    			append(select3, option8);
-    			append(option8, t53);
-    			append(select3, option9);
-    			append(option9, t54);
-    			append(select3, option10);
-    			append(option10, t55);
-    			append(select3, option11);
-    			append(option11, t56);
-    			append(select3, option12);
-    			append(option12, t57);
-    			append(select3, option13);
-    			append(option13, t58);
-    			append(select3, option14);
-    			append(option14, t59);
-    			append(select3, option15);
-    			append(option15, t60);
-    			append(div8, t61);
-    			append(div8, fieldset);
-    			append(fieldset, p8);
-    			append(p8, label8);
-    			append(label8, span11);
-    			append(span11, t62);
-    			append(label8, t63);
-    			append(label8, input6);
-    			append(label8, t64);
-    			append(label8, span12);
-    			append(span12, t65);
-    			append(fieldset, t66);
-    			append(fieldset, p9);
-    			append(p9, t67);
-    			append(fieldset, t68);
-    			append(fieldset, div7);
-    			append(div7, p10);
-    			append(p10, label9);
-    			append(label9, input7);
-    			append(label9, t69);
-    			append(label9, span13);
-    			append(span13, t70);
-    			append(div7, t71);
-    			append(div7, p11);
-    			append(p11, label10);
-    			append(label10, input8);
-    			append(label10, t72);
-    			append(label10, span14);
-    			append(span14, t73);
-    			append(div7, t74);
-    			append(div7, p12);
-    			append(p12, label11);
-    			append(label11, span15);
-    			append(span15, t75);
-    			append(label11, t76);
-    			append(label11, select4);
-    			append(select4, option16);
-    			append(option16, t77);
+    			append(option5, t40);
 
     			for (var i = 0; i < each_blocks.length; i += 1) {
-    				each_blocks[i].m(select4, null);
+    				each_blocks[i].m(select2, null);
     			}
 
-    			insert(target, t78, anchor);
-    			insert(target, div9, anchor);
-    			append(div9, h23);
-    			append(h23, t79);
-    			append(div9, t80);
-    			append(div9, p13);
-    			append(p13, t81);
-    			append(div9, t82);
-    			append(div9, p14);
-    			append(p14, label12);
-    			append(label12, span16);
-    			append(span16, t83);
-    			append(label12, t84);
-    			append(label12, input9);
-    			insert(target, t85, anchor);
-    			if (if_block2) if_block2.m(target, anchor);
-    			insert(target, if_block2_anchor, anchor);
+    			select_option(select2, ctx.settings.shortBreak.notifications.sound);
+
+    			append(div27, t41);
+    			append(div27, div26);
+    			append(div26, div23);
+    			append(div23, t42);
+    			append(div26, t43);
+    			append(div26, div25);
+    			append(div25, span8);
+    			append(span8, t44);
+    			append(div25, t45);
+    			append(div25, div24);
+    			append(div24, select3);
+    			append(select3, option6);
+    			append(option6, t46);
+    			append(select3, option7);
+    			append(option7, t47);
+    			append(select3, option8);
+    			append(option8, t48);
+    			append(select3, option9);
+    			append(option9, t49);
+    			append(select3, option10);
+    			append(option10, t50);
+    			append(select3, option11);
+    			append(option11, t51);
+    			append(select3, option12);
+    			append(option12, t52);
+    			append(select3, option13);
+    			append(option13, t53);
+    			append(select3, option14);
+    			append(option14, t54);
+    			append(select3, option15);
+    			append(option15, t55);
+
+    			select_option(select3, ctx.settings.longBreak.interval);
+
+    			append(div26, t56);
+    			if (if_block2) if_block2.m(div26, null);
+    			append(div27, t57);
+    			if (if_block3) if_block3.m(div27, null);
     			current = true;
     		},
 
     		p: function update(changed, ctx) {
     			var input0_changes = {};
-    			if (changed.settings) input0_changes.bindvalue = ctx.settings.focus.duration;
+    			if (!updating_value && changed.settings) {
+    				input0_changes.value = ctx.settings.focus.duration;
+    			}
     			input0.$set(input0_changes);
+
+    			if ((!current || changed.settings) && t5_value !== (t5_value = ctx.settings.focus.duration == 1 ? M.minute: M.minutes)) {
+    				set_data(t5, t5_value);
+    			}
 
     			if (changed.timerSounds) {
     				each_value_3 = ctx.timerSounds;
@@ -4332,19 +4175,19 @@
     				for (var i = 0; i < each_value_3.length; i += 1) {
     					const child_ctx = get_each_context_3(ctx, each_value_3, i);
 
-    					if (each_blocks_3[i]) {
-    						each_blocks_3[i].p(changed, child_ctx);
+    					if (each_blocks_2[i]) {
+    						each_blocks_2[i].p(changed, child_ctx);
     					} else {
-    						each_blocks_3[i] = create_each_block_3(child_ctx);
-    						each_blocks_3[i].c();
-    						each_blocks_3[i].m(optgroup0, null);
+    						each_blocks_2[i] = create_each_block_3(child_ctx);
+    						each_blocks_2[i].c();
+    						each_blocks_2[i].m(optgroup0, null);
     					}
     				}
 
-    				for (; i < each_blocks_3.length; i += 1) {
-    					each_blocks_3[i].d(1);
+    				for (; i < each_blocks_2.length; i += 1) {
+    					each_blocks_2[i].d(1);
     				}
-    				each_blocks_3.length = each_value_3.length;
+    				each_blocks_2.length = each_value_3.length;
     			}
 
     			if (changed.focusTimerSound) select_option(select0, ctx.focusTimerSound);
@@ -4352,14 +4195,19 @@
     			if (ctx.canPlayTimerSound) {
     				if (if_block0) {
     					if_block0.p(changed, ctx);
+    					transition_in(if_block0, 1);
     				} else {
-    					if_block0 = create_if_block_3(ctx);
+    					if_block0 = create_if_block_4(ctx);
     					if_block0.c();
-    					if_block0.m(div1, null);
+    					transition_in(if_block0, 1);
+    					if_block0.m(div4, null);
     				}
     			} else if (if_block0) {
-    				if_block0.d(1);
-    				if_block0 = null;
+    				group_outros();
+    				transition_out(if_block0, 1, 1, () => {
+    					if_block0 = null;
+    				});
+    				check_outros();
     			}
 
     			if (ctx.focusTimerBPM != null) {
@@ -4367,10 +4215,10 @@
     					if_block1.p(changed, ctx);
     					transition_in(if_block1, 1);
     				} else {
-    					if_block1 = create_if_block_2(ctx);
+    					if_block1 = create_if_block_3(ctx);
     					if_block1.c();
     					transition_in(if_block1, 1);
-    					if_block1.m(div2, null);
+    					if_block1.m(div5, null);
     				}
     			} else if (if_block1) {
     				group_outros();
@@ -4380,8 +4228,19 @@
     				check_outros();
     			}
 
-    			if (changed.settings) input1.value = ctx.settings.focus.notifications.desktop;
-    			if (changed.settings) input2.value = ctx.settings.focus.notifications.tab;
+    			var input1_changes = {};
+    			if (changed.M) input1_changes.label = M.show_desktop_notification;
+    			if (!updating_checked && changed.settings) {
+    				input1_changes.checked = ctx.settings.focus.notifications.desktop;
+    			}
+    			input1.$set(input1_changes);
+
+    			var input2_changes = {};
+    			if (changed.M) input2_changes.label = M.show_new_tab_notification;
+    			if (!updating_checked_1 && changed.settings) {
+    				input2_changes.checked = ctx.settings.focus.notifications.tab;
+    			}
+    			input2.$set(input2_changes);
 
     			if (changed.notificationSounds) {
     				each_value_2 = ctx.notificationSounds;
@@ -4389,34 +4248,46 @@
     				for (var i = 0; i < each_value_2.length; i += 1) {
     					const child_ctx = get_each_context_2(ctx, each_value_2, i);
 
-    					if (each_blocks_2[i]) {
-    						each_blocks_2[i].p(changed, child_ctx);
+    					if (each_blocks_1[i]) {
+    						each_blocks_1[i].p(changed, child_ctx);
     					} else {
-    						each_blocks_2[i] = create_each_block_2(child_ctx);
-    						each_blocks_2[i].c();
-    						each_blocks_2[i].m(select1, null);
+    						each_blocks_1[i] = create_each_block_2(child_ctx);
+    						each_blocks_1[i].c();
+    						each_blocks_1[i].m(select1, null);
     					}
     				}
 
-    				for (; i < each_blocks_2.length; i += 1) {
-    					each_blocks_2[i].d(1);
+    				for (; i < each_blocks_1.length; i += 1) {
+    					each_blocks_1[i].d(1);
     				}
-    				each_blocks_2.length = each_value_2.length;
+    				each_blocks_1.length = each_value_2.length;
     			}
 
     			if (changed.settings) select_option(select1, ctx.settings.focus.notifications.sound);
 
-    			if ((!current || changed.settings) && input3_bindvalue_value !== (input3_bindvalue_value = ctx.settings.shortBreak.duration)) {
-    				attr(input3, "bindvalue", input3_bindvalue_value);
+    			var input3_changes = {};
+    			if (!updating_value_1 && changed.settings) {
+    				input3_changes.value = ctx.settings.shortBreak.duration;
+    			}
+    			input3.$set(input3_changes);
+
+    			if ((!current || changed.settings) && t32_value !== (t32_value = ctx.settings.shortBreak.duration == 1 ? M.minute: M.minutes)) {
+    				set_data(t32, t32_value);
     			}
 
-    			if ((!current || changed.settings) && input4_bindvalue_value !== (input4_bindvalue_value = ctx.settings.shortBreak.notifications.desktop)) {
-    				attr(input4, "bindvalue", input4_bindvalue_value);
+    			var input4_changes = {};
+    			if (changed.M) input4_changes.label = M.show_desktop_notification;
+    			if (!updating_checked_2 && changed.settings) {
+    				input4_changes.checked = ctx.settings.shortBreak.notifications.desktop;
     			}
+    			input4.$set(input4_changes);
 
-    			if ((!current || changed.settings) && input5_bindvalue_value !== (input5_bindvalue_value = ctx.settings.shortBreak.notifications.tab)) {
-    				attr(input5, "bindvalue", input5_bindvalue_value);
+    			var input5_changes = {};
+    			if (changed.M) input5_changes.label = M.show_new_tab_notification;
+    			if (!updating_checked_3 && changed.settings) {
+    				input5_changes.checked = ctx.settings.shortBreak.notifications.tab;
     			}
+    			input5.$set(input5_changes);
 
     			if (changed.notificationSounds) {
     				each_value_1 = ctx.notificationSounds;
@@ -4424,81 +4295,53 @@
     				for (var i = 0; i < each_value_1.length; i += 1) {
     					const child_ctx = get_each_context_1(ctx, each_value_1, i);
 
-    					if (each_blocks_1[i]) {
-    						each_blocks_1[i].p(changed, child_ctx);
-    					} else {
-    						each_blocks_1[i] = create_each_block_1(child_ctx);
-    						each_blocks_1[i].c();
-    						each_blocks_1[i].m(select2, null);
-    					}
-    				}
-
-    				for (; i < each_blocks_1.length; i += 1) {
-    					each_blocks_1[i].d(1);
-    				}
-    				each_blocks_1.length = each_value_1.length;
-    			}
-
-    			if ((!current || changed.settings) && select2_bindvalue_value !== (select2_bindvalue_value = ctx.settings.shortBreak.notifications.sound)) {
-    				attr(select2, "bindvalue", select2_bindvalue_value);
-    			}
-
-    			if ((!current || changed.settings) && select3_bindvalue_value !== (select3_bindvalue_value = ctx.settings.longBreak.interval)) {
-    				attr(select3, "bindvalue", select3_bindvalue_value);
-    			}
-
-    			if ((!current || changed.settings) && input6_bindvalue_value !== (input6_bindvalue_value = ctx.settings.longBreak.duration)) {
-    				attr(input6, "bindvalue", input6_bindvalue_value);
-    			}
-
-    			if ((!current || changed.settings) && input7_bindvalue_value !== (input7_bindvalue_value = ctx.settings.longBreak.notifications.desktop)) {
-    				attr(input7, "bindvalue", input7_bindvalue_value);
-    			}
-
-    			if ((!current || changed.settings) && input8_bindvalue_value !== (input8_bindvalue_value = ctx.settings.longBreak.notifications.tab)) {
-    				attr(input8, "bindvalue", input8_bindvalue_value);
-    			}
-
-    			if (changed.notificationSounds) {
-    				each_value = ctx.notificationSounds;
-
-    				for (var i = 0; i < each_value.length; i += 1) {
-    					const child_ctx = get_each_context(ctx, each_value, i);
-
     					if (each_blocks[i]) {
     						each_blocks[i].p(changed, child_ctx);
     					} else {
-    						each_blocks[i] = create_each_block(child_ctx);
+    						each_blocks[i] = create_each_block_1(child_ctx);
     						each_blocks[i].c();
-    						each_blocks[i].m(select4, null);
+    						each_blocks[i].m(select2, null);
     					}
     				}
 
     				for (; i < each_blocks.length; i += 1) {
     					each_blocks[i].d(1);
     				}
-    				each_blocks.length = each_value.length;
+    				each_blocks.length = each_value_1.length;
     			}
 
-    			if ((!current || changed.settings) && select4_bindvalue_value !== (select4_bindvalue_value = ctx.settings.longBreak.notifications.sound)) {
-    				attr(select4, "bindvalue", select4_bindvalue_value);
-    			}
+    			if (changed.settings) select_option(select2, ctx.settings.shortBreak.notifications.sound);
+    			if (changed.settings) select_option(select3, ctx.settings.longBreak.interval);
 
-    			if ((!current || changed.settings) && input9_bindvalue_value !== (input9_bindvalue_value = ctx.settings.autostart.time)) {
-    				attr(input9, "bindvalue", input9_bindvalue_value);
+    			if (ctx.settings.longBreak.interval != 0) {
+    				if (if_block2) {
+    					if_block2.p(changed, ctx);
+    					transition_in(if_block2, 1);
+    				} else {
+    					if_block2 = create_if_block_2$1(ctx);
+    					if_block2.c();
+    					transition_in(if_block2, 1);
+    					if_block2.m(div26, null);
+    				}
+    			} else if (if_block2) {
+    				group_outros();
+    				transition_out(if_block2, 1, 1, () => {
+    					if_block2 = null;
+    				});
+    				check_outros();
     			}
 
     			if (ctx.showSettingsSaved) {
-    				if (if_block2) {
-    					if_block2.p(changed, ctx);
+    				if (if_block3) {
+    					if_block3.p(changed, ctx);
     				} else {
-    					if_block2 = create_if_block_1$1(ctx);
-    					if_block2.c();
-    					if_block2.m(if_block2_anchor.parentNode, if_block2_anchor);
+    					if_block3 = create_if_block_1$1(ctx);
+    					if_block3.c();
+    					if_block3.m(div27, null);
     				}
-    			} else if (if_block2) {
-    				if_block2.d(1);
-    				if_block2 = null;
+    			} else if (if_block3) {
+    				if_block3.d(1);
+    				if_block3 = null;
     			}
     		},
 
@@ -4506,62 +4349,70 @@
     			if (current) return;
     			transition_in(input0.$$.fragment, local);
 
+    			transition_in(if_block0);
     			transition_in(if_block1);
+
+    			transition_in(input1.$$.fragment, local);
+
+    			transition_in(input2.$$.fragment, local);
+
+    			transition_in(input3.$$.fragment, local);
+
+    			transition_in(input4.$$.fragment, local);
+
+    			transition_in(input5.$$.fragment, local);
+
+    			transition_in(if_block2);
     			current = true;
     		},
 
     		o: function outro(local) {
     			transition_out(input0.$$.fragment, local);
+    			transition_out(if_block0);
     			transition_out(if_block1);
+    			transition_out(input1.$$.fragment, local);
+    			transition_out(input2.$$.fragment, local);
+    			transition_out(input3.$$.fragment, local);
+    			transition_out(input4.$$.fragment, local);
+    			transition_out(input5.$$.fragment, local);
+    			transition_out(if_block2);
     			current = false;
     		},
 
     		d: function destroy(detaching) {
     			if (detaching) {
-    				detach(div4);
+    				detach(div28);
     			}
 
     			destroy_component(input0);
 
-    			destroy_each(each_blocks_3, detaching);
+    			destroy_each(each_blocks_2, detaching);
 
     			if (if_block0) if_block0.d();
     			if (if_block1) if_block1.d();
 
-    			destroy_each(each_blocks_2, detaching);
+    			destroy_component(input1);
 
-    			if (detaching) {
-    				detach(t27);
-    				detach(div6);
-    			}
+    			destroy_component(input2);
 
     			destroy_each(each_blocks_1, detaching);
 
-    			if (detaching) {
-    				detach(t46);
-    				detach(div8);
-    			}
+    			destroy_component(input3);
+
+    			destroy_component(input4);
+
+    			destroy_component(input5);
 
     			destroy_each(each_blocks, detaching);
 
-    			if (detaching) {
-    				detach(t78);
-    				detach(div9);
-    				detach(t85);
-    			}
-
-    			if (if_block2) if_block2.d(detaching);
-
-    			if (detaching) {
-    				detach(if_block2_anchor);
-    			}
-
+    			if (if_block2) if_block2.d();
+    			if (if_block3) if_block3.d();
     			run_all(dispose);
     		}
     	};
     }
 
-    // (141:24) {#each timerSounds as sound}
+    // (149:36) {#each timerSounds as sound}
     function create_each_block_3(ctx) {
     	var option, t_value = ctx.sound.name, t, option_value_value;
 
@@ -4573,7 +4424,7 @@
     		},
 
     		l: function claim(nodes) {
-    			option = claim_element(nodes, "OPTION", { value: true }, false);
+    			option = claim_element(nodes, "OPTION", { value: true, class: true }, false);
     			var option_nodes = children(option);
 
     			t = claim_text(option_nodes, t_value);
@@ -4584,7 +4435,8 @@
     		h: function hydrate() {
     			option.__value = option_value_value = ctx.sound.files;
     			option.value = option.__value;
-    			add_location(option, file$3, 141, 28, 4316);
+    			attr(option, "class", "svelte-4a9i7k");
+    			add_location(option, file$3, 149, 40, 4933);
     		},
 
     		m: function mount(target, anchor) {
@@ -4612,19 +4464,24 @@
     	};
     }
 
-    // (151:16) {#if canPlayTimerSound}
-    function create_if_block_3(ctx) {
-    	var span1, i, t0, span0, t1_value = M.hover_preview, t1, t2, img, dispose;
+    // (161:24) {#if canPlayTimerSound}
+    function create_if_block_4(ctx) {
+    	var span1, t0, span0, t1, t2_value = M.hover_preview, t2, t3, current, dispose;
+
+    	var icon = new Icon({
+    		props: { icon: "volume-high" },
+    		$$inline: true
+    	});
 
     	return {
     		c: function create() {
     			span1 = element("span");
-    			i = element("i");
-    			t0 = space();
+    			t0 = text("(\n                                    ");
     			span0 = element("span");
-    			t1 = text(t1_value);
-    			t2 = space();
-    			img = element("img");
+    			icon.$$.fragment.c();
+    			t1 = space();
+    			t2 = text(t2_value);
+    			t3 = text("\n                                )");
     			this.h();
     		},
 
@@ -4632,37 +4489,25 @@
     			span1 = claim_element(nodes, "SPAN", { class: true }, false);
     			var span1_nodes = children(span1);
 
-    			i = claim_element(span1_nodes, "I", { class: true }, false);
-    			var i_nodes = children(i);
+    			t0 = claim_text(span1_nodes, "(\n                                    ");
 
-    			i_nodes.forEach(detach);
-    			t0 = claim_text(span1_nodes, "\n                        ");
-
-    			span0 = claim_element(span1_nodes, "SPAN", {}, false);
+    			span0 = claim_element(span1_nodes, "SPAN", { class: true }, false);
     			var span0_nodes = children(span0);
 
-    			t1 = claim_text(span0_nodes, t1_value);
+    			icon.$$.fragment.l(span0_nodes);
     			span0_nodes.forEach(detach);
-    			t2 = claim_text(span1_nodes, "\n                        ");
-
-    			img = claim_element(span1_nodes, "IMG", { src: true, alt: true }, false);
-    			var img_nodes = children(img);
-
-    			img_nodes.forEach(detach);
+    			t1 = claim_text(span1_nodes, " \n                                    ");
+    			t2 = claim_text(span1_nodes, t2_value);
+    			t3 = claim_text(span1_nodes, "\n                                )");
     			span1_nodes.forEach(detach);
     			this.h();
     		},
 
     		h: function hydrate() {
-    			attr(i, "class", "icon-play");
-    			add_location(i, file$3, 152, 24, 4935);
-    			add_location(span0, file$3, 153, 24, 4985);
-    			attr(img, "src", "/images/spinner.svg");
-    			attr(img, "alt", "sponner");
-    			toggle_class(img, "active", ctx.timerSound);
-    			add_location(img, file$3, 154, 24, 5042);
-    			attr(span1, "class", "preview");
-    			add_location(span1, file$3, 151, 20, 4829);
+    			attr(span0, "class", "icon svelte-4a9i7k");
+    			add_location(span0, file$3, 163, 36, 5809);
+    			attr(span1, "class", "preview svelte-4a9i7k");
+    			add_location(span1, file$3, 161, 28, 5657);
 
     			dispose = [
     				listen(span1, "mouseover", ctx.playTimerSound),
@@ -4672,18 +4517,27 @@
 
     		m: function mount(target, anchor) {
     			insert(target, span1, anchor);
-    			append(span1, i);
     			append(span1, t0);
     			append(span1, span0);
-    			append(span0, t1);
+    			mount_component(icon, span0, null);
+    			append(span1, t1);
     			append(span1, t2);
-    			append(span1, img);
+    			append(span1, t3);
+    			current = true;
     		},
 
-    		p: function update(changed, ctx) {
-    			if (changed.timerSound) {
-    				toggle_class(img, "active", ctx.timerSound);
-    			}
+    		p: noop,
+
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(icon.$$.fragment, local);
+
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			transition_out(icon.$$.fragment, local);
+    			current = false;
     		},
 
     		d: function destroy(detaching) {
@@ -4691,32 +4545,37 @@
     				detach(span1);
     			}
 
+    			destroy_component(icon);
+
     			run_all(dispose);
     		}
     	};
     }
 
-    // (160:16) {#if focusTimerBPM != null}
-    function create_if_block_2(ctx) {
-    	var p, label, span0, t0_value = M.speed_label, t0, t1, t2, span1, t3_value = M.bpm, t3, current;
+    // (171:24) {#if focusTimerBPM != null}
+    function create_if_block_3(ctx) {
+    	var span0, t0_value = M.speed_label, t0, t1, div, updating_value, t2, span1, t3_value = M.bpm, t3, current;
 
-    	var input = new Input({
-    		props: {
-    		type: "number",
-    		min: "1",
-    		max: "1000",
-    		bindvalue: ctx.focusTimerBPM
-    	},
-    		$$inline: true
-    	});
+    	function input_value_binding(value) {
+    		ctx.input_value_binding.call(null, value);
+    		updating_value = true;
+    		add_flush_callback(() => updating_value = false);
+    	}
+
+    	let input_props = { type: "number", min: "1", max: "1000" };
+    	if (ctx.focusTimerBPM !== void 0) {
+    		input_props.value = ctx.focusTimerBPM;
+    	}
+    	var input = new Input({ props: input_props, $$inline: true });
+
+    	binding_callbacks.push(() => bind(input, 'value', input_value_binding));
 
     	return {
     		c: function create() {
-    			p = element("p");
-    			label = element("label");
     			span0 = element("span");
     			t0 = text(t0_value);
     			t1 = space();
+    			div = element("div");
     			input.$$.fragment.c();
     			t2 = space();
     			span1 = element("span");
@@ -4725,55 +4584,52 @@
     		},
 
     		l: function claim(nodes) {
-    			p = claim_element(nodes, "P", { class: true }, false);
-    			var p_nodes = children(p);
-
-    			label = claim_element(p_nodes, "LABEL", {}, false);
-    			var label_nodes = children(label);
-
-    			span0 = claim_element(label_nodes, "SPAN", {}, false);
+    			span0 = claim_element(nodes, "SPAN", {}, false);
     			var span0_nodes = children(span0);
 
     			t0 = claim_text(span0_nodes, t0_value);
     			span0_nodes.forEach(detach);
-    			t1 = claim_text(label_nodes, "\n                            ");
-    			input.$$.fragment.l(label_nodes);
-    			t2 = claim_text(label_nodes, "\n                            ");
+    			t1 = claim_text(nodes, "\n                            ");
 
-    			span1 = claim_element(label_nodes, "SPAN", {}, false);
+    			div = claim_element(nodes, "DIV", { class: true }, false);
+    			var div_nodes = children(div);
+
+    			input.$$.fragment.l(div_nodes);
+    			div_nodes.forEach(detach);
+    			t2 = claim_text(nodes, "\n                            ");
+
+    			span1 = claim_element(nodes, "SPAN", {}, false);
     			var span1_nodes = children(span1);
 
     			t3 = claim_text(span1_nodes, t3_value);
     			span1_nodes.forEach(detach);
-    			label_nodes.forEach(detach);
-    			p_nodes.forEach(detach);
     			this.h();
     		},
 
     		h: function hydrate() {
-    			add_location(span0, file$3, 162, 28, 5343);
-    			add_location(span1, file$3, 167, 28, 5594);
-    			add_location(label, file$3, 161, 24, 5307);
-    			attr(p, "class", "field");
-    			add_location(p, file$3, 160, 20, 5265);
+    			add_location(span0, file$3, 171, 28, 6174);
+    			attr(div, "class", "input-wrapper svelte-4a9i7k");
+    			add_location(div, file$3, 172, 28, 6233);
+    			add_location(span1, file$3, 178, 28, 6533);
     		},
 
     		m: function mount(target, anchor) {
-    			insert(target, p, anchor);
-    			append(p, label);
-    			append(label, span0);
+    			insert(target, span0, anchor);
     			append(span0, t0);
-    			append(label, t1);
-    			mount_component(input, label, null);
-    			append(label, t2);
-    			append(label, span1);
+    			insert(target, t1, anchor);
+    			insert(target, div, anchor);
+    			mount_component(input, div, null);
+    			insert(target, t2, anchor);
+    			insert(target, span1, anchor);
     			append(span1, t3);
     			current = true;
     		},
 
     		p: function update(changed, ctx) {
     			var input_changes = {};
-    			if (changed.focusTimerBPM) input_changes.bindvalue = ctx.focusTimerBPM;
+    			if (!updating_value && changed.focusTimerBPM) {
+    				input_changes.value = ctx.focusTimerBPM;
+    			}
     			input.$set(input_changes);
     		},
 
@@ -4791,17 +4647,24 @@
 
     		d: function destroy(detaching) {
     			if (detaching) {
-    				detach(p);
+    				detach(span0);
+    				detach(t1);
+    				detach(div);
     			}
 
     			destroy_component(input);
+
+    			if (detaching) {
+    				detach(t2);
+    				detach(span1);
+    			}
     		}
     	};
     }
 
-    // (189:24) {#each notificationSounds as sound}
+    // (205:36) {#each notificationSounds as sound}
     function create_each_block_2(ctx) {
-    	var option, t_value = ctx.sound.name, t, option_salue_value, option_value_value;
+    	var option, t_value = ctx.sound.name, t, option_value_value;
 
     	return {
     		c: function create() {
@@ -4811,7 +4674,7 @@
     		},
 
     		l: function claim(nodes) {
-    			option = claim_element(nodes, "OPTION", { salue: true, value: true }, false);
+    			option = claim_element(nodes, "OPTION", { value: true, class: true }, false);
     			var option_nodes = children(option);
 
     			t = claim_text(option_nodes, t_value);
@@ -4820,10 +4683,10 @@
     		},
 
     		h: function hydrate() {
-    			attr(option, "salue", option_salue_value = ctx.sound.file);
-    			option.__value = option_value_value = ctx.sound.name;
+    			option.__value = option_value_value = ctx.sound.file;
     			option.value = option.__value;
-    			add_location(option, file$3, 189, 28, 6614);
+    			attr(option, "class", "svelte-4a9i7k");
+    			add_location(option, file$3, 205, 40, 8006);
     		},
 
     		m: function mount(target, anchor) {
@@ -4836,11 +4699,7 @@
     				set_data(t, t_value);
     			}
 
-    			if ((changed.notificationSounds) && option_salue_value !== (option_salue_value = ctx.sound.file)) {
-    				attr(option, "salue", option_salue_value);
-    			}
-
-    			if ((changed.notificationSounds) && option_value_value !== (option_value_value = ctx.sound.name)) {
+    			if ((changed.notificationSounds) && option_value_value !== (option_value_value = ctx.sound.file)) {
     				option.__value = option_value_value;
     			}
 
@@ -4855,9 +4714,9 @@
     	};
     }
 
-    // (231:24) {#each notificationSounds as sound}
+    // (247:36) {#each notificationSounds as sound}
     function create_each_block_1(ctx) {
-    	var option, t_value = ctx.sound.name, t, option_salue_value, option_value_value;
+    	var option, t_value = ctx.sound.name, t, option_value_value;
 
     	return {
     		c: function create() {
@@ -4867,7 +4726,7 @@
     		},
 
     		l: function claim(nodes) {
-    			option = claim_element(nodes, "OPTION", { salue: true, value: true }, false);
+    			option = claim_element(nodes, "OPTION", { value: true, class: true }, false);
     			var option_nodes = children(option);
 
     			t = claim_text(option_nodes, t_value);
@@ -4876,10 +4735,10 @@
     		},
 
     		h: function hydrate() {
-    			attr(option, "salue", option_salue_value = ctx.sound.file);
-    			option.__value = option_value_value = ctx.sound.name;
+    			option.__value = option_value_value = ctx.sound.file;
     			option.value = option.__value;
-    			add_location(option, file$3, 231, 28, 8183);
+    			attr(option, "class", "svelte-4a9i7k");
+    			add_location(option, file$3, 247, 40, 10280);
     		},
 
     		m: function mount(target, anchor) {
@@ -4892,11 +4751,7 @@
     				set_data(t, t_value);
     			}
 
-    			if ((changed.notificationSounds) && option_salue_value !== (option_salue_value = ctx.sound.file)) {
-    				attr(option, "salue", option_salue_value);
-    			}
-
-    			if ((changed.notificationSounds) && option_value_value !== (option_value_value = ctx.sound.name)) {
+    			if ((changed.notificationSounds) && option_value_value !== (option_value_value = ctx.sound.file)) {
     				option.__value = option_value_value;
     			}
 
@@ -4911,9 +4766,374 @@
     	};
     }
 
-    // (292:24) {#each notificationSounds as sound}
+    // (274:20) {#if settings.longBreak.interval != 0}
+    function create_if_block_2$1(ctx) {
+    	var div1, span0, t0_value = M.duration, t0, t1, div0, updating_value, t2, span1, t3_value = ctx.settings.longBreak.duration == 1 ? M.minute: M.minutes, t3, t4, div2, t5_value = M.when_complete, t5, t6, div7, div3, updating_checked, t7, span2, t8_value = M.show_desktop_notification, t8, t9, div4, updating_checked_1, t10, span3, t11_value = M.show_new_tab_notification, t11, t12, div6, span4, t13_value = M.play_audio_notification, t13, t14, div5, select, option, t15_value = M.none, t15, current, dispose;
+
+    	function input0_value_binding_1(value) {
+    		ctx.input0_value_binding_1.call(null, value);
+    		updating_value = true;
+    		add_flush_callback(() => updating_value = false);
+    	}
+
+    	let input0_props = { type: "number", min: "1", max: "999" };
+    	if (ctx.settings.longBreak.duration !== void 0) {
+    		input0_props.value = ctx.settings.longBreak.duration;
+    	}
+    	var input0 = new Input({ props: input0_props, $$inline: true });
+
+    	binding_callbacks.push(() => bind(input0, 'value', input0_value_binding_1));
+
+    	function input1_checked_binding_1(value_1) {
+    		ctx.input1_checked_binding_1.call(null, value_1);
+    		updating_checked = true;
+    		add_flush_callback(() => updating_checked = false);
+    	}
+
+    	let input1_props = { type: "checkbox" };
+    	if (ctx.settings.longBreak.notifications.desktop !== void 0) {
+    		input1_props.checked = ctx.settings.longBreak.notifications.desktop;
+    	}
+    	var input1 = new Input({ props: input1_props, $$inline: true });
+
+    	binding_callbacks.push(() => bind(input1, 'checked', input1_checked_binding_1));
+
+    	function input2_checked_binding_1(value_2) {
+    		ctx.input2_checked_binding_1.call(null, value_2);
+    		updating_checked_1 = true;
+    		add_flush_callback(() => updating_checked_1 = false);
+    	}
+
+    	let input2_props = { type: "checkbox" };
+    	if (ctx.settings.longBreak.notifications.tab !== void 0) {
+    		input2_props.checked = ctx.settings.longBreak.notifications.tab;
+    	}
+    	var input2 = new Input({ props: input2_props, $$inline: true });
+
+    	binding_callbacks.push(() => bind(input2, 'checked', input2_checked_binding_1));
+
+    	var each_value = ctx.notificationSounds;
+
+    	var each_blocks = [];
+
+    	for (var i = 0; i < each_value.length; i += 1) {
+    		each_blocks[i] = create_each_block(get_each_context(ctx, each_value, i));
+    	}
+
+    	return {
+    		c: function create() {
+    			div1 = element("div");
+    			span0 = element("span");
+    			t0 = text(t0_value);
+    			t1 = space();
+    			div0 = element("div");
+    			input0.$$.fragment.c();
+    			t2 = space();
+    			span1 = element("span");
+    			t3 = text(t3_value);
+    			t4 = space();
+    			div2 = element("div");
+    			t5 = text(t5_value);
+    			t6 = space();
+    			div7 = element("div");
+    			div3 = element("div");
+    			input1.$$.fragment.c();
+    			t7 = space();
+    			span2 = element("span");
+    			t8 = text(t8_value);
+    			t9 = space();
+    			div4 = element("div");
+    			input2.$$.fragment.c();
+    			t10 = space();
+    			span3 = element("span");
+    			t11 = text(t11_value);
+    			t12 = space();
+    			div6 = element("div");
+    			span4 = element("span");
+    			t13 = text(t13_value);
+    			t14 = space();
+    			div5 = element("div");
+    			select = element("select");
+    			option = element("option");
+    			t15 = text(t15_value);
+
+    			for (var i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].c();
+    			}
+    			this.h();
+    		},
+
+    		l: function claim(nodes) {
+    			div1 = claim_element(nodes, "DIV", { class: true }, false);
+    			var div1_nodes = children(div1);
+
+    			span0 = claim_element(div1_nodes, "SPAN", {}, false);
+    			var span0_nodes = children(span0);
+
+    			t0 = claim_text(span0_nodes, t0_value);
+    			span0_nodes.forEach(detach);
+    			t1 = claim_text(div1_nodes, "\n                            ");
+
+    			div0 = claim_element(div1_nodes, "DIV", { class: true }, false);
+    			var div0_nodes = children(div0);
+
+    			input0.$$.fragment.l(div0_nodes);
+    			div0_nodes.forEach(detach);
+    			t2 = claim_text(div1_nodes, "\n                            ");
+
+    			span1 = claim_element(div1_nodes, "SPAN", {}, false);
+    			var span1_nodes = children(span1);
+
+    			t3 = claim_text(span1_nodes, t3_value);
+    			span1_nodes.forEach(detach);
+    			div1_nodes.forEach(detach);
+    			t4 = claim_text(nodes, "\n                        ");
+
+    			div2 = claim_element(nodes, "DIV", { class: true }, false);
+    			var div2_nodes = children(div2);
+
+    			t5 = claim_text(div2_nodes, t5_value);
+    			div2_nodes.forEach(detach);
+    			t6 = claim_text(nodes, "\n                        ");
+
+    			div7 = claim_element(nodes, "DIV", { class: true }, false);
+    			var div7_nodes = children(div7);
+
+    			div3 = claim_element(div7_nodes, "DIV", { class: true }, false);
+    			var div3_nodes = children(div3);
+
+    			input1.$$.fragment.l(div3_nodes);
+    			t7 = claim_text(div3_nodes, "\n                                ");
+
+    			span2 = claim_element(div3_nodes, "SPAN", {}, false);
+    			var span2_nodes = children(span2);
+
+    			t8 = claim_text(span2_nodes, t8_value);
+    			span2_nodes.forEach(detach);
+    			div3_nodes.forEach(detach);
+    			t9 = claim_text(div7_nodes, "\n                            ");
+
+    			div4 = claim_element(div7_nodes, "DIV", { class: true }, false);
+    			var div4_nodes = children(div4);
+
+    			input2.$$.fragment.l(div4_nodes);
+    			t10 = claim_text(div4_nodes, "\n                                ");
+
+    			span3 = claim_element(div4_nodes, "SPAN", {}, false);
+    			var span3_nodes = children(span3);
+
+    			t11 = claim_text(span3_nodes, t11_value);
+    			span3_nodes.forEach(detach);
+    			div4_nodes.forEach(detach);
+    			t12 = claim_text(div7_nodes, "\n                            ");
+
+    			div6 = claim_element(div7_nodes, "DIV", { class: true }, false);
+    			var div6_nodes = children(div6);
+
+    			span4 = claim_element(div6_nodes, "SPAN", {}, false);
+    			var span4_nodes = children(span4);
+
+    			t13 = claim_text(span4_nodes, t13_value);
+    			span4_nodes.forEach(detach);
+    			t14 = claim_text(div6_nodes, "\n                                ");
+
+    			div5 = claim_element(div6_nodes, "DIV", { class: true }, false);
+    			var div5_nodes = children(div5);
+
+    			select = claim_element(div5_nodes, "SELECT", { class: true }, false);
+    			var select_nodes = children(select);
+
+    			option = claim_element(select_nodes, "OPTION", { value: true, class: true }, false);
+    			var option_nodes = children(option);
+
+    			t15 = claim_text(option_nodes, t15_value);
+    			option_nodes.forEach(detach);
+
+    			for (var i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].l(select_nodes);
+    			}
+
+    			select_nodes.forEach(detach);
+    			div5_nodes.forEach(detach);
+    			div6_nodes.forEach(detach);
+    			div7_nodes.forEach(detach);
+    			this.h();
+    		},
+
+    		h: function hydrate() {
+    			add_location(span0, file$3, 275, 28, 11927);
+    			attr(div0, "class", "input-wrapper svelte-4a9i7k");
+    			add_location(div0, file$3, 276, 28, 11983);
+    			add_location(span1, file$3, 284, 28, 12369);
+    			attr(div1, "class", "section-field svelte-4a9i7k");
+    			add_location(div1, file$3, 274, 24, 11871);
+    			attr(div2, "class", "section-field svelte-4a9i7k");
+    			add_location(div2, file$3, 286, 24, 12496);
+    			add_location(span2, file$3, 292, 32, 12882);
+    			attr(div3, "class", "section-field svelte-4a9i7k");
+    			add_location(div3, file$3, 288, 28, 12635);
+    			add_location(span3, file$3, 298, 32, 13233);
+    			attr(div4, "class", "section-field svelte-4a9i7k");
+    			add_location(div4, file$3, 294, 28, 12990);
+    			add_location(span4, file$3, 301, 32, 13401);
+    			option.__value = "null";
+    			option.value = option.__value;
+    			attr(option, "class", "svelte-4a9i7k");
+    			add_location(option, file$3, 306, 40, 13772);
+    			if (ctx.settings.longBreak.notifications.sound === void 0) add_render_callback(() => ctx.select_change_handler.call(select));
+    			attr(select, "class", "svelte-4a9i7k");
+    			add_location(select, file$3, 303, 36, 13540);
+    			attr(div5, "class", "input-wrapper svelte-4a9i7k");
+    			add_location(div5, file$3, 302, 32, 13476);
+    			attr(div6, "class", "section-field svelte-4a9i7k");
+    			add_location(div6, file$3, 300, 28, 13341);
+    			attr(div7, "class", "section-field-group svelte-4a9i7k");
+    			add_location(div7, file$3, 287, 24, 12573);
+
+    			dispose = [
+    				listen(select, "change", ctx.select_change_handler),
+    				listen(select, "input", ctx.input_handler_2)
+    			];
+    		},
+
+    		m: function mount(target, anchor) {
+    			insert(target, div1, anchor);
+    			append(div1, span0);
+    			append(span0, t0);
+    			append(div1, t1);
+    			append(div1, div0);
+    			mount_component(input0, div0, null);
+    			append(div1, t2);
+    			append(div1, span1);
+    			append(span1, t3);
+    			insert(target, t4, anchor);
+    			insert(target, div2, anchor);
+    			append(div2, t5);
+    			insert(target, t6, anchor);
+    			insert(target, div7, anchor);
+    			append(div7, div3);
+    			mount_component(input1, div3, null);
+    			append(div3, t7);
+    			append(div3, span2);
+    			append(span2, t8);
+    			append(div7, t9);
+    			append(div7, div4);
+    			mount_component(input2, div4, null);
+    			append(div4, t10);
+    			append(div4, span3);
+    			append(span3, t11);
+    			append(div7, t12);
+    			append(div7, div6);
+    			append(div6, span4);
+    			append(span4, t13);
+    			append(div6, t14);
+    			append(div6, div5);
+    			append(div5, select);
+    			append(select, option);
+    			append(option, t15);
+
+    			for (var i = 0; i < each_blocks.length; i += 1) {
+    				each_blocks[i].m(select, null);
+    			}
+
+    			select_option(select, ctx.settings.longBreak.notifications.sound);
+
+    			current = true;
+    		},
+
+    		p: function update(changed, ctx) {
+    			var input0_changes = {};
+    			if (!updating_value && changed.settings) {
+    				input0_changes.value = ctx.settings.longBreak.duration;
+    			}
+    			input0.$set(input0_changes);
+
+    			if ((!current || changed.settings) && t3_value !== (t3_value = ctx.settings.longBreak.duration == 1 ? M.minute: M.minutes)) {
+    				set_data(t3, t3_value);
+    			}
+
+    			var input1_changes = {};
+    			if (!updating_checked && changed.settings) {
+    				input1_changes.checked = ctx.settings.longBreak.notifications.desktop;
+    			}
+    			input1.$set(input1_changes);
+
+    			var input2_changes = {};
+    			if (!updating_checked_1 && changed.settings) {
+    				input2_changes.checked = ctx.settings.longBreak.notifications.tab;
+    			}
+    			input2.$set(input2_changes);
+
+    			if (changed.notificationSounds) {
+    				each_value = ctx.notificationSounds;
+
+    				for (var i = 0; i < each_value.length; i += 1) {
+    					const child_ctx = get_each_context(ctx, each_value, i);
+
+    					if (each_blocks[i]) {
+    						each_blocks[i].p(changed, child_ctx);
+    					} else {
+    						each_blocks[i] = create_each_block(child_ctx);
+    						each_blocks[i].c();
+    						each_blocks[i].m(select, null);
+    					}
+    				}
+
+    				for (; i < each_blocks.length; i += 1) {
+    					each_blocks[i].d(1);
+    				}
+    				each_blocks.length = each_value.length;
+    			}
+
+    			if (changed.settings) select_option(select, ctx.settings.longBreak.notifications.sound);
+    		},
+
+    		i: function intro(local) {
+    			if (current) return;
+    			transition_in(input0.$$.fragment, local);
+
+    			transition_in(input1.$$.fragment, local);
+
+    			transition_in(input2.$$.fragment, local);
+
+    			current = true;
+    		},
+
+    		o: function outro(local) {
+    			transition_out(input0.$$.fragment, local);
+    			transition_out(input1.$$.fragment, local);
+    			transition_out(input2.$$.fragment, local);
+    			current = false;
+    		},
+
+    		d: function destroy(detaching) {
+    			if (detaching) {
+    				detach(div1);
+    			}
+
+    			destroy_component(input0);
+
+    			if (detaching) {
+    				detach(t4);
+    				detach(div2);
+    				detach(t6);
+    				detach(div7);
+    			}
+
+    			destroy_component(input1);
+
+    			destroy_component(input2);
+
+    			destroy_each(each_blocks, detaching);
+
+    			run_all(dispose);
+    		}
+    	};
+    }
+
+    // (308:40) {#each notificationSounds as sound}
     function create_each_block(ctx) {
-    	var option, t_value = ctx.sound.name, t, option_salue_value, option_value_value;
+    	var option, t_value = ctx.sound.name, t, option_value_value;
 
     	return {
     		c: function create() {
@@ -4923,7 +5143,7 @@
     		},
 
     		l: function claim(nodes) {
-    			option = claim_element(nodes, "OPTION", { salue: true, value: true }, false);
+    			option = claim_element(nodes, "OPTION", { value: true, class: true }, false);
     			var option_nodes = children(option);
 
     			t = claim_text(option_nodes, t_value);
@@ -4932,10 +5152,10 @@
     		},
 
     		h: function hydrate() {
-    			attr(option, "salue", option_salue_value = ctx.sound.file);
-    			option.__value = option_value_value = ctx.sound.name;
+    			option.__value = option_value_value = ctx.sound.file;
     			option.value = option.__value;
-    			add_location(option, file$3, 292, 28, 10730);
+    			attr(option, "class", "svelte-4a9i7k");
+    			add_location(option, file$3, 308, 44, 13933);
     		},
 
     		m: function mount(target, anchor) {
@@ -4948,11 +5168,7 @@
     				set_data(t, t_value);
     			}
 
-    			if ((changed.notificationSounds) && option_salue_value !== (option_salue_value = ctx.sound.file)) {
-    				attr(option, "salue", option_salue_value);
-    			}
-
-    			if ((changed.notificationSounds) && option_value_value !== (option_value_value = ctx.sound.name)) {
+    			if ((changed.notificationSounds) && option_value_value !== (option_value_value = ctx.sound.file)) {
     				option.__value = option_value_value;
     			}
 
@@ -4967,7 +5183,7 @@
     	};
     }
 
-    // (311:8) {#if showSettingsSaved}
+    // (317:16) {#if showSettingsSaved}
     function create_if_block_1$1(ctx) {
     	var div, p, img, t0, t1_value = M.settings_saved, t1, dispose;
 
@@ -5002,10 +5218,10 @@
     		h: function hydrate() {
     			attr(img, "src", "/images/check.svg");
     			attr(img, "alt", "check mark");
-    			add_location(img, file$3, 312, 19, 11407);
-    			add_location(p, file$3, 312, 16, 11404);
+    			add_location(img, file$3, 318, 27, 14370);
+    			add_location(p, file$3, 318, 24, 14367);
     			attr(div, "class", "save");
-    			add_location(div, file$3, 311, 12, 11337);
+    			add_location(div, file$3, 317, 20, 14292);
     			dispose = listen(div, "click", ctx.dismissSettingsSaved);
     		},
 
@@ -5029,7 +5245,7 @@
     	};
     }
 
-    // (124:0) <Page>
+    // (126:0) <Page>
     function create_default_slot(ctx) {
     	var if_block_anchor, current;
 
@@ -5120,7 +5336,7 @@
 
     		p: function update(changed, ctx) {
     			var page_changes = {};
-    			if (changed.$$scope || changed.settings || changed.showSettingsSaved || changed.notificationSounds || changed.focusTimerBPM || changed.timerSound || changed.focusTimerSound || changed.timerSounds) page_changes.$$scope = { changed, ctx };
+    			if (changed.$$scope || changed.settings || changed.showSettingsSaved || changed.notificationSounds || changed.focusTimerBPM || changed.focusTimerSound || changed.timerSounds) page_changes.$$scope = { changed, ctx };
     			page.$set(page_changes);
     		},
 
@@ -5143,11 +5359,10 @@
     }
 
     function setSound(filename) {
-      //$emit('input', filename);
-      play(filename);
+        if(filename !== "null"){
+            play(filename);
+        }
     }
-
-    function blur_handler() {}
 
     function instance$3($$self, $$props, $$invalidate) {
     	
@@ -5194,6 +5409,7 @@
         }
 
         function saveSettings() {
+            if(typeof settings !== 'object' || settings === null) return;
             settingsClient.setSettings(settings);
             clearTimeout(showSettingsSavedTimeout);
             showSettingsSavedTimeout = setTimeout(() => {
@@ -5201,17 +5417,18 @@
             }, 1000);
             $$invalidate('showSettingsSaved', showSettingsSaved = true);
         }
-
         async function playTimerSound() {
             timerSoundMutex.exclusive(async () => {
-                $$invalidate('timerSound', timerSound = await createTimerSound(settings.focus.timerSound));
-                timerSound.start();
+                timerSound = await createTimerSound(settings.focus.timerSound);
+                if(timerSound) timerSound.start();
             });
         }
         function stopTimerSound() {
             timerSoundMutex.exclusive(async () => {
-                timerSound.close();  
-                $$invalidate('timerSound', timerSound = null);
+                if(timerSound){
+                    timerSound.close();  
+                    timerSound = null;
+                }
             });
         }
         function dismissSettingsSaved() {
@@ -5246,22 +5463,30 @@
                 && ((bpm == null) || (bpm > 0 && bpm <= 1000));
         }
 
+    	function input0_value_binding(value) {
+    		settings.focus.duration = value;
+    		$$invalidate('settings', settings);
+    	}
+
     	function select0_change_handler() {
     		focusTimerSound = select_value(this);
     		$$invalidate('focusTimerSound', focusTimerSound);
     		$$invalidate('timerSounds', timerSounds);
     	}
 
-    	function input1_change_handler() {
-    		settings.focus.notifications.desktop = this.value;
-    		$$invalidate('settings', settings);
-    		$$invalidate('notificationSounds', notificationSounds);
+    	function input_value_binding(value) {
+    		focusTimerBPM = value;
+    		$$invalidate('focusTimerBPM', focusTimerBPM);
     	}
 
-    	function input2_change_handler() {
-    		settings.focus.notifications.tab = this.value;
+    	function input1_checked_binding(value_1) {
+    		settings.focus.notifications.desktop = value_1;
     		$$invalidate('settings', settings);
-    		$$invalidate('notificationSounds', notificationSounds);
+    	}
+
+    	function input2_checked_binding(value_2) {
+    		settings.focus.notifications.tab = value_2;
+    		$$invalidate('settings', settings);
     	}
 
     	function select1_change_handler() {
@@ -5274,8 +5499,56 @@
     		return setSound(event.target.value);
     	}
 
+    	function input3_value_binding(value_3) {
+    		settings.shortBreak.duration = value_3;
+    		$$invalidate('settings', settings);
+    	}
+
+    	function input4_checked_binding(value_4) {
+    		settings.shortBreak.notifications.desktop = value_4;
+    		$$invalidate('settings', settings);
+    	}
+
+    	function input5_checked_binding(value_5) {
+    		settings.shortBreak.notifications.tab = value_5;
+    		$$invalidate('settings', settings);
+    	}
+
+    	function select2_change_handler() {
+    		settings.shortBreak.notifications.sound = select_value(this);
+    		$$invalidate('settings', settings);
+    		$$invalidate('notificationSounds', notificationSounds);
+    	}
+
     	function input_handler_1(event) {
     		return setSound(event.target.value);
+    	}
+
+    	function select3_change_handler() {
+    		settings.longBreak.interval = select_value(this);
+    		$$invalidate('settings', settings);
+    		$$invalidate('notificationSounds', notificationSounds);
+    	}
+
+    	function input0_value_binding_1(value) {
+    		settings.longBreak.duration = value;
+    		$$invalidate('settings', settings);
+    	}
+
+    	function input1_checked_binding_1(value_1) {
+    		settings.longBreak.notifications.desktop = value_1;
+    		$$invalidate('settings', settings);
+    	}
+
+    	function input2_checked_binding_1(value_2) {
+    		settings.longBreak.notifications.tab = value_2;
+    		$$invalidate('settings', settings);
+    	}
+
+    	function select_change_handler() {
+    		settings.longBreak.notifications.sound = select_value(this);
+    		$$invalidate('settings', settings);
+    		$$invalidate('notificationSounds', notificationSounds);
     	}
 
     	function input_handler_2(event) {
@@ -5292,19 +5565,29 @@
     		showSettingsSaved,
     		notificationSounds,
     		timerSounds,
-    		timerSound,
     		focusTimerSound,
     		focusTimerBPM,
     		playTimerSound,
     		stopTimerSound,
     		dismissSettingsSaved,
     		canPlayTimerSound,
+    		input0_value_binding,
     		select0_change_handler,
-    		input1_change_handler,
-    		input2_change_handler,
+    		input_value_binding,
+    		input1_checked_binding,
+    		input2_checked_binding,
     		select1_change_handler,
     		input_handler,
+    		input3_value_binding,
+    		input4_checked_binding,
+    		input5_checked_binding,
+    		select2_change_handler,
     		input_handler_1,
+    		select3_change_handler,
+    		input0_value_binding_1,
+    		input1_checked_binding_1,
+    		input2_checked_binding_1,
+    		select_change_handler,
     		input_handler_2
     	};
     }
