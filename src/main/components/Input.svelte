@@ -5,11 +5,12 @@
     export let label = ''
     export let placeholder = ''
     export let icon = ''
+    export let checked = false
     export let min = null
     export let max = null
     export let value = ''
     export let disabled = false
-    export let autofocus
+    export let autofocus = false
 
     // Update value manually since Svelte does not allow data  
     // binding if input type is dynamic (and for good reason)
@@ -19,8 +20,8 @@
 
 </script>
 
-<label class="input-wrapper">
-    {#if label}
+<label class="input-wrapper {type === 'checkbox'? 'checkbox':''} {type === 'radio'? 'radio':''}">
+    {#if label && type !== 'checkbox' && type !== 'radio'}
         <div class="label">{label.length? label : placeholder}</div>
     {/if}
     {#if icon}
@@ -31,16 +32,25 @@
     <input 
         {min} {max}
         on:blur on:change on:input={updateValue} on:input on:keypress on:focus
-        on:keydown {type} {name} {placeholder} {value} {disabled}  autofocus 
-        class="{icon? 'input-icon': ''}">
+        on:keydown {type} {name} {placeholder} {value} {disabled} {checked}  autofocus 
+        class:icon class="{type === 'checkbox'? 'checkbox':''} {type === 'radio'? 'radio':''}">
+    {#if label && (type === 'checkbox' || type === 'radio')}
+        <span class="label">{label.length? label : placeholder}</span>
+    {/if}
 </label>
 
 <style>
     .input-wrapper {
-        line-height: 1.5;
         display: inline-block;
-        width: 100%;
         position: relative;
+    }
+    .input-wrapper:not(.checkbox):not(.radio){
+        width: 100%;
+        line-height: 1.5;
+    }
+    .input-wrapper.checkbox,
+    .input-wrapper.radio{
+        line-height: inherit;
     }
     .input-prefix {
         position: absolute;
@@ -56,8 +66,6 @@
     input {
         text-align: inherit;
         display: inline-block;
-        width: 100%;
-        height: 35px;
         padding: 4px 11px;
         color: rgba(0,0,0,0.65);
         font-size: 14px;
@@ -69,6 +77,10 @@
         -webkit-transition: all .3s;
         transition: all .3s;
     }
+    input:not(.checkbox):not(.radio){
+        width: 100%;
+        height: 35px;
+    }
     input:hover {
         border-color: #40a9ff;
     }
@@ -78,7 +90,7 @@
         -webkit-box-shadow: 0 0 0 2px rgba(24,144,255,0.2);
         box-shadow: 0 0 0 2px rgba(24,144,255,0.2);
     }
-    .input-icon {
+    .icon {
         padding-left: 30px;
     }
     .label {
