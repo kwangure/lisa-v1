@@ -150,7 +150,6 @@
     }
     
     $: saveState(state)
-    $: updateTitle(title)
 </script>
 
 <div>
