@@ -89,7 +89,6 @@
     }
 
     onMount(()=>{
-        document.title = `${M.countdown} - ${M.app_name_short}`;
         document.addEventListener('keydown', onKeyDown);
     })
 
@@ -134,21 +133,6 @@
             [Phase.LongBreak]: 'break'
         }[phase];
 
-    let title = (function () {
-        let phase = M.countdown;
-        let remaining = '';
-        if (checkpointStartAt) {
-            phase = {
-            null: M.countdown,
-            [Phase.Focus]: M.focus,
-            [Phase.ShortBreak]: M.short_break,
-            [Phase.LongBreak]: M.long_break
-            }[phase];
-            remaining = `[${mmss(remainingSeconds)}] `;
-        }
-        return `${remaining}${phase} - ${M.app_name_short}`;
-    })()
-
     async function saveState(to) {
         if (to != TimerState.Stopped) {
             return;
@@ -163,10 +147,6 @@
         if (countdown.autoclose) {
             //window.close();
         }
-    }
-
-    function updateTitle(title){
-        document.title = title;
     }
     
     $: saveState(state)
@@ -200,6 +180,8 @@
         max-width: 100vw;
         justify-content: center;
         align-items: center;
+        background-color: black;
+        color:#fff;
     }
     :global(.timer) {
         height: 90%;
