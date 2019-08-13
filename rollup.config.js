@@ -43,9 +43,9 @@ export default [
 		],
 		onwarn: function (message, warn) {
 			if (message.code === 'CIRCULAR_DEPENDENCY') {
-				return;
+				return
 			}
-			warn(message);
+			warn(message)
 		}
 	},
 	{
@@ -74,13 +74,13 @@ export default [
 		],
 		onwarn: function (message, warn) {
 			if (message.code === 'CIRCULAR_DEPENDENCY') {
-				return;
+				return
 			}
-			warn(message);
+			warn(message)
 		}
 	},
 	{
-		input: `src/content/main.js`,
+		input: `src/options/main.js`,
 		output: {
 			file: `package/js/options.js`,
 			format: 'iife',
@@ -145,6 +145,12 @@ export default [
 			// If we're building for production (npm run build
 			// instead of npm run dev), minify
 			production && terser()
-		]
+		],
+		onwarn: function (message, warn) {
+			if (message.code === 'CIRCULAR_DEPENDENCY') {
+				return
+			}
+			warn(message)
+		}
 	},
 ]
