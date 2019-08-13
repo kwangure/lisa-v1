@@ -31,13 +31,22 @@ export default [
 			// https://github.com/rollup/rollup-plugin-commonjs
 			resolve({
 				browser: true,
-				dedupe: importee => importee === 'svelte' || importee.startsWith('svelte/')
+				dedupe: importee => importee === 'svelte' || importee.startsWith('svelte/'),
+				preferBuiltins: true
 			}),
 			commonjs(),
+			globals(),
+			builtins(),
 			// If we're building for production (npm run build
 			// instead of npm run dev), minify
 			production && terser()
-		]
+		],
+		onwarn: function (message, warn) {
+			if (message.code === 'CIRCULAR_DEPENDENCY') {
+				return;
+			}
+			warn(message);
+		}
 	},
 	{
 		input: `src/background/main.js`,
