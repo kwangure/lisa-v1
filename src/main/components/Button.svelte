@@ -12,8 +12,8 @@
 </script>
 
 <button 
-    {type} class={className} 
-    class:color class:icon class:loading class:active
+    {type} class="{className} {color? color: ''}"
+    class:icon class:loading class:active
     on:click on:hover>
     <div class="content-wrapper">
         {#if icon}
@@ -66,8 +66,16 @@
     button.primary:hover, 
     button.primary:focus {
         color: #fff;
+        background-color: #e8f0fe;
+        border-color: #1967d2;
+    }
+    button.none {
+        border: none;
+    }
+    button.none:hover, 
+    button.none:focus {
+        color: #fff;
         background-color: #40a9ff;
-        border-color: #40a9ff;
     }
 
     .button-prefix {
