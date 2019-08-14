@@ -6,6 +6,7 @@
     export let type = ''
     export let color = '' 
     export let icon = ''
+    export let iconProps = {}
     export let active = ''
     export let loading = false
     $: loading
@@ -18,7 +19,7 @@
     <div class="content-wrapper">
         {#if icon}
             <span class="button-prefix">
-                <Icon {icon}></Icon>
+                <Icon {icon} {...iconProps}></Icon>
             </span>
         {/if}
         {#if loading}
