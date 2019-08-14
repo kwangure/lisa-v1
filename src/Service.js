@@ -140,11 +140,19 @@ class Service
   }
 
   emit(eventName, ...args) {
-    chrome.runtime.sendMessage({
+    let message = {
       serviceName: this.serviceName,
       eventName,
       args
-    });
+    }
+    chrome.runtime.sendMessage(message);
+    if(chrome.tabs){
+      chrome.tabs.query({}, function(tabs){
+        for (let i = 0, len = tabs.length; i < len; i++) {
+          chrome.tabs.sendMessage(tabs[i].id, message, {}, ()=>{});
+        }
+      })
+    }
   }
 
   static get proxy() {
