@@ -66,16 +66,15 @@
     button.primary:hover, 
     button.primary:focus {
         color: #fff;
-        background-color: #e8f0fe;
-        border-color: #1967d2;
+        background-color: #40a9ff;
     }
     button.none {
         border: none;
     }
     button.none:hover, 
     button.none:focus {
-        color: #fff;
-        background-color: #40a9ff;
+        background-color: #e8f0fe;
+        color: #1967d2;
     }
 
     .button-prefix {
