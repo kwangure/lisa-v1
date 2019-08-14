@@ -9,9 +9,10 @@
     "offline_enabled": true,
     "content_scripts": [{
         "matches": ["<all_urls>"],
-        "js": [
-            "js/content.js"
-        ]
+        "js": ["js/content.js"],
+        "css": [
+            "css/content.css", 
+            "css/materialdesignicons.min.css"]
     }],
     "options_page": "/static/options.html",
     "chrome_url_overrides":{
@@ -37,6 +38,10 @@
     "icons": {
         "128": "images/browser-action.png"
     },
+    "web_accessible_resources": [
+        "css/*",
+        "fonts/*"
+    ],
     "minimum_chrome_version": "55",
     "content_security_policy": "script-src 'self'; object-src 'self'"
 }
