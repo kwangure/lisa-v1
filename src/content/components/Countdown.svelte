@@ -151,8 +151,11 @@
         </div>
         <div class="controls">
             {#if isPaused}
-                <Tooltip label="Resumer timer">
+                <Tooltip label="Resume timer">
                     <Button on:click={onResume} icon="play-outline" color="none"/>
+                </Tooltip>
+                <Tooltip label="Restart timer">
+                    <Button on:click={onRestart} icon="restart" color="none"/>
                 </Tooltip>
             {:else if isRunning}
                 <Tooltip label="Pause timer">
