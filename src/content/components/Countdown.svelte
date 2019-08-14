@@ -192,6 +192,7 @@
         bottom: 0px;
         left: 0px;
         padding: 20px;
+        padding-bottom: 30px;
         background-color: transparent;
         font-size: 14px;
         font-family: --apple-system, Arial, Helvetica, sans-serif;
