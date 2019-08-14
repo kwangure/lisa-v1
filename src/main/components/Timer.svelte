@@ -123,7 +123,7 @@
         height: 100%;
     }
     .timer svg path.duration {
-        stroke: #ddd;
+        stroke: #aaa;
         stroke-width: 3px;
         fill: none;
     }
@@ -145,7 +145,7 @@
     }
     .overlay .time {
       font-weight: 500;
-      color: rgba(0, 0, 0, 0.65);
+      color: rgba(255, 255, 255, 0.65);
       font-size: 30px;
     }
     .enabled {
