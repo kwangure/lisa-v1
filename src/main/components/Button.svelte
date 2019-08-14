@@ -63,6 +63,7 @@
         background-color: #1890ff;
         border: none;
     }
+    button.primary:active, 
     button.primary:hover, 
     button.primary:focus {
         color: #fff;
@@ -71,6 +72,7 @@
     button.none {
         border: none;
     }
+    button.none:active,
     button.none:hover, 
     button.none:focus {
         background-color: #e8f0fe;
