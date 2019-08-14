@@ -12,7 +12,7 @@
 </script>
 
 <button 
-    {type} class="{className} {color? color: ''}"
+    {type} class="{color? color: ''} {className}"
     class:icon class:loading class:active
     on:click on:hover>
     <div class="content-wrapper">
