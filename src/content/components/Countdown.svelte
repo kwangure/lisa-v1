@@ -6,8 +6,11 @@
     import Button from '../../main/components/Button.svelte'
     import Tooltip from '../../main/components/Tooltip.svelte'
     import { onDestroy, onMount } from 'svelte'
+    import { fly } from 'svelte/transition';
+    import hotkeys from 'hotkeys-js'
     
-    let right = false
+    let visible = true
+    let right = true
     let elapsed = null
     let state = null
     let phase = null
@@ -43,10 +46,36 @@
         
     })()
 
+    onMount(()=>{
+        hotkeys('ctrl+alt+up, cmd+alt+up', ()=>{
+            visible = true
+        });
+        hotkeys('ctrl+alt+down, cmd+alt+down', ()=>{
+            visible = false
+        });
+        hotkeys('alt+left', ()=>{
+            right = false
+        });
+        hotkeys('alt+right', ()=>{
+            right = true
+        });
+    })
+
     onDestroy(() => {
         clearInterval(timeInterval)
         pomodoroClient.dispose()
     })
+
+    $: checkpointStartAt && updateElapsed()
+    $: checkpointElapsed && updateElapsed()
+    $: duration && updateElapsed()
+
+    $: isRunning = state == TimerState.Running
+    $: isPaused = state == TimerState.Paused
+    $: isStopped = state == TimerState.Stopped
+    $: hasTime = duration != null &&
+            checkpointStartAt != null &&
+            checkpointElapsed != null
 
     $: remaining = duration - elapsed
     $: remainingSeconds = Math.ceil(remaining)
@@ -58,18 +87,6 @@
         let remaining = Math.max(0, Math.ceil(duration - elapsed))
         return mmss(remaining)
     })()
-
-    $: hasTime = duration != null &&
-            checkpointStartAt != null &&
-            checkpointElapsed != null
-
-    $: checkpointStartAt && updateElapsed()
-    $: checkpointElapsed && updateElapsed()
-    $: duration && updateElapsed()
-
-    $: isRunning = state == TimerState.Running
-    $: isPaused = state == TimerState.Paused
-    $: isStopped = state == TimerState.Stopped
 
     $: timerClass = isStopped? 'stopped' : {
             null: '',
@@ -106,7 +123,7 @@
         }
     }
 
-    function onKeyDown(e) {
+    /*function onKeyDown(e) {
         if (e.key != " ") {
             return
         }
@@ -115,6 +132,25 @@
             PomodoroClient.once.pause()
         } else if (state == TimerState.Paused) {
             PomodoroClient.once.resume()
+        }
+    }*/
+    
+    const ARROW_LEFT = 37
+    const ARROW_UP = 38
+    const ARROW_RIGHT = 39
+    const ARROW_DOWN = 40
+    
+    function onKeyDown(e) {
+        if(!e.altKey) return;
+        debugger;
+        if (e.keyCode == ARROW_LEFT) {
+            right = false
+        } else if (e.metaKey && e.keyCode == ARROW_UP) {
+            visible = true
+        } else if (e.keyCode == ARROW_RIGHT) {
+            right = true
+        } else if (e.metaKey && e.keyCode == ARROW_DOWN) {
+            visible = false
         }
     }
 
@@ -144,58 +180,58 @@
     }
 </script>
 
-<div class="countdown" class:bottomRight={right}>
-    <div class="timer">
-        <div class="time {timerClass}" class:enabled={hasTime} class:paused={isPaused}>
-            { time }
-        </div>
-        <div class="controls">
-            {#if isPaused}
-                <Tooltip label="Resume timer">
-                    <Button on:click={onResume} icon="play-outline" color="none"/>
-                </Tooltip>
-                <Tooltip label="Restart timer">
-                    <Button on:click={onRestart} icon="restart" color="none"/>
-                </Tooltip>
-            {:else if isRunning}
-                <Tooltip label="Pause timer">
-                    <Button on:click={onPause} icon="pause" color="none"/>
-                </Tooltip>
-            {:else if isStopped}
-                <Tooltip label="Start timer">
-                    <Button on:click={startTimer} icon="play-outline" color="none"/>
-                </Tooltip>
-            {/if}
-            {#if right}
-                <Tooltip label="Move timer left">
-                    <Button 
-                        on:click={toggleRight} 
-                        icon="picture-in-picture-bottom-right-outline"
-                        iconProps={{flip: 'h'}}
-                        color="none" 
-                        class="action"/>
-                </Tooltip>
-            {:else}
-                <Tooltip label="Move timer right">
-                    <Button 
-                        on:click={toggleRight} 
-                        icon="picture-in-picture-bottom-right-outline" 
-                        color="none" 
-                        class="action"/>
-                </Tooltip>
-            {/if}
+{#if visible}
+    <div class="countdown" class:bottomRight={right} transition:fly="{{ y: 200, duration: 2000 }}">
+        <div class="timer">
+            <div class="time {timerClass}" class:enabled={hasTime} class:paused={isPaused}>
+                { time }
+            </div>
+            <div class="controls">
+                {#if isPaused}
+                    <Tooltip label="Resume timer">
+                        <Button on:click={onResume} icon="play-outline" color="none"/>
+                    </Tooltip>
+                    <Tooltip label="Restart timer">
+                        <Button on:click={onRestart} icon="restart" color="none"/>
+                    </Tooltip>
+                {:else if isRunning}
+                    <Tooltip label="Pause timer">
+                        <Button on:click={onPause} icon="pause" color="none"/>
+                    </Tooltip>
+                {:else if isStopped}
+                    <Tooltip label="Start timer">
+                        <Button on:click={startTimer} icon="play-outline" color="none"/>
+                    </Tooltip>
+                {/if}
+                {#if right}
+                    <Tooltip label="Move timer left">
+                        <Button 
+                            on:click={toggleRight} 
+                            icon="picture-in-picture-bottom-right-outline"
+                            iconProps={{flip: 'h'}}
+                            color="none" 
+                            class="action"/>
+                    </Tooltip>
+                {:else}
+                    <Tooltip label="Move timer right">
+                        <Button 
+                            on:click={toggleRight} 
+                            icon="picture-in-picture-bottom-right-outline" 
+                            color="none" 
+                            class="action"/>
+                    </Tooltip>
+                {/if}
+            </div>
         </div>
     </div>
-</div>
-
+{/if}
 
 <style>
     .countdown {
         position: fixed;
         bottom: 0px;
         left: 0px;
-        padding: 20px;
-        padding-bottom: 30px;
+        padding: 20px 20px 28px 28px;
         background-color: transparent;
         font-size: 14px;
         font-family: --apple-system, Arial, Helvetica, sans-serif;
@@ -211,11 +247,11 @@
         justify-content: center;
         align-items: center;
         background-color: #fff;
-        opacity: 0.8;
+        opacity: 0.9;
         color: #333;
         padding: 10px;
         border-radius: 4px;
-        box-shadow: 0 2px 8px rgba(125 ,125 ,125 ,125, .15);
+        box-shadow: 0 8px 18px rgba(100 ,100 ,100 , .6);
     }
     :global(.countdown:hover) .timer,
     .timer:hover{
