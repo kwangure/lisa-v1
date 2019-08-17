@@ -2,23 +2,27 @@
     import { TimerState, Phase } from '../../background/Timer'
     import { clamp, mmss } from '../../Filters'
     import { onDestroy, onMount } from 'svelte'
-    import { PomodoroClient } from '../../background/Services'
+    import { PomodoroClient, SettingsClient } from '../../background/Services'
     import M from '../../Messages'
     import Button from '../components/Button.svelte'
 
     let elapsed = null
     let state = null
     let phase = null
+    let nextPhase = null
     let duration = null
     let checkpointElapsed = null
     let checkpointStartAt = null
     let timeInterval = null
     let pomodoroClient = new PomodoroClient()
+    let settings = null
+    let hasLongBreak = false
   
     const update = (data) => {
         if(!data) return
         state = data.state
         phase = data.phase
+        nextPhase = data.nextPhase
         duration = data.duration
         checkpointElapsed = data.checkpointElapsed
         checkpointStartAt = data.checkpointStartAt
@@ -32,10 +36,11 @@
     
     let status
     (async function resolve (){
+        settings = await SettingsClient.once.getSettings()
+        hasLongBreak = settings.longBreak.interval > 0
         status = await pomodoroClient.getStatus()
         update(status)
         updateElapsed()
-        
     })()
 
     onMount(()=>{
@@ -77,6 +82,13 @@
             [Phase.ShortBreak]: 'break',
             [Phase.LongBreak]: 'break'
         }[phase]
+
+    $: nextPhaseText = {
+        null: '',
+        [Phase.Focus]: M.start_focusing_now,
+        [Phase.ShortBreak]: hasLongBreak ? M.start_short_break_now : M.start_break_now,
+        [Phase.LongBreak]: M.start_long_break_now
+    }[nextPhase]
     
     $: (function(to) {
         clearInterval(timeInterval)
@@ -127,6 +139,9 @@
     function onRestart() {
         PomodoroClient.once.restart()
     }
+    function startTimer(){
+        PomodoroClient.once.start()
+    }
 </script>
 
 <div class="timer {timerClass}">
@@ -136,10 +151,16 @@
     <div class="controls-wrapper">
         <div class="controls">
             {#if isPaused}
-                <Button on:click={onRestart} icon="restart" class="action"/>
-                <Button on:click={onResume} icon="play" class="action"/>
+                <Button class="action" icon="restart" on:click={onRestart}/>
+                <Button class="action" icon="play-outline" 
+                    on:click={onResume}/>
             {:else if isRunning}
-                <Button on:click={onPause} icon="pause" class="action"/>
+                <Button class="action" icon="pause" on:click={onPause}/>
+            {:else if isStopped}
+                <Button class="action" icon="play-outline" 
+                    on:click={startTimer}>
+                    {nextPhaseText}
+                </Button>
             {/if}
         </div>
     </div>
