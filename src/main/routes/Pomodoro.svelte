@@ -4,23 +4,6 @@
     import Timer from '../components/Timer.svelte'
     import Clock from '../components/Clock.svelte'
 
-    let time
-
-    (function showTime(){
-        let date = new Date()
-        let hours = date.getHours()
-        let minutes = date.getMinutes()
-        let session = hours > 11 ? "pm": "am"
-        
-        hours = hours == 0 ? 12 : hours
-        hours = hours > 12 ? hours - 12: hours
-        minutes = (minutes < 10) ? "0" + minutes : minutes
-
-        time = `${hours}:${minutes} ${session}`
-
-        setTimeout(showTime, 1000)
-    })()
-
     function showSettings() {
         OptionsClient.once.showPage('settings')
     }
