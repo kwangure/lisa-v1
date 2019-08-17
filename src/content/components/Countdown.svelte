@@ -66,16 +66,17 @@
         pomodoroClient.dispose()
     })
 
-    $: checkpointStartAt && updateElapsed()
-    $: checkpointElapsed && updateElapsed()
-    $: duration && updateElapsed()
-
     $: isRunning = state == TimerState.Running
     $: isPaused = state == TimerState.Paused
     $: isStopped = state == TimerState.Stopped
+
+    //Update hasTime first as it's used by updateElapsed
     $: hasTime = duration != null &&
             checkpointStartAt != null &&
             checkpointElapsed != null
+    $: checkpointStartAt && updateElapsed()
+    $: checkpointElapsed && updateElapsed()
+    $: duration && updateElapsed()
 
     $: remaining = duration - elapsed
     $: remainingSeconds = Math.ceil(remaining)
