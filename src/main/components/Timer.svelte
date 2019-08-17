@@ -48,16 +48,17 @@
         document.removeEventListener('keydown', onKeyDown)
     })
 
-    $: checkpointStartAt && updateElapsed()
-    $: checkpointElapsed && updateElapsed()
-    $: duration && updateElapsed()
-
     $: isRunning = state == TimerState.Running
     $: isPaused = state == TimerState.Paused
     $: isStopped = state == TimerState.Stopped
+
+    //Update hasTime first as it's used by updateElapsed
     $: hasTime = duration != null &&
             checkpointStartAt != null &&
             checkpointElapsed != null
+    $: checkpointStartAt && updateElapsed()
+    $: checkpointElapsed && updateElapsed()
+    $: duration && updateElapsed()
 
     $: remaining = duration - elapsed
     $: remainingSeconds = Math.ceil(remaining)
@@ -69,7 +70,7 @@
         let remaining = Math.max(0, Math.ceil(duration - elapsed))
         return mmss(remaining)
     })()
-
+    
     $: timerClass = {
             null: '',
             [Phase.Focus]: 'focus',
@@ -132,13 +133,15 @@
     <div class="time" class:paused={isPaused}>
         { time }
     </div>
-    <div class="controls">
-        {#if isPaused}
-            <Button on:click={onResume} icon="play"/>
-            <Button on:click={onRestart} icon="restart"/>
-        {:else if isRunning}
-            <Button on:click={onPause} icon="pause"/>
-        {/if}
+    <div class="controls-wrapper">
+        <div class="controls">
+            {#if isPaused}
+                <Button on:click={onRestart} icon="restart" class="action"/>
+                <Button on:click={onResume} icon="play" class="action"/>
+            {:else if isRunning}
+                <Button on:click={onPause} icon="pause" class="action"/>
+            {/if}
+        </div>
     </div>
 </div>
 
@@ -147,17 +150,20 @@
         color:#fff;
     }
     .time {
-      font-weight: 500;
-      font-size: 30px;
+        font-weight: 500;
+        font-size: 200px;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+        margin-top: 30px;
     }
     @keyframes blink  {
         0% {
             opacity: 1;
         }
-        49% {
+        70% {
             opacity: 1;
         }
-        50% {
+        71% {
             opacity: 0;
         }
         100% {
@@ -166,5 +172,22 @@
     }
     .paused {
         animation: blink 1s linear infinite;
+    }
+    .controls-wrapper {
+        display: flex;
+    }
+    .controls {
+        margin-left: auto;
+    }
+    .controls :global(button.action){
+        background-color: transparent;
+        color: #fff;
+        border-color: #fff !important;
+        font-size: 30px;
+        height: auto;
+    }
+    .controls :global(button.action .button-prefix) {
+        font-size: inherit;
+        height: auto;
     }
 </style>
