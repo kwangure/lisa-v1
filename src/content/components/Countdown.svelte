@@ -182,12 +182,12 @@
 </script>
 
 {#if visible}
-    <div class="countdown" class:bottomRight={right} transition:fly="{{ y: 200, duration: 2000 }}">
-        <div class="timer">
-            <div class="time {timerClass}" class:enabled={hasTime} class:paused={isPaused}>
+    <div class="ls-countdown" class:bottomRight={right} transition:fly="{{ y: 200, duration: 2000 }}">
+        <div class="ls-timer">
+            <div class="ls-time {timerClass} {isPaused? 'ls-paused':''}">
                 { time }
             </div>
-            <div class="controls">
+            <div class="ls-controls">
                 {#if isPaused}
                     <Tooltip label="Resume timer">
                         <Button on:click={onResume} icon="play-outline" color="none"/>
@@ -228,7 +228,7 @@
 {/if}
 
 <style>
-    .countdown {
+    .ls-countdown {
         position: fixed;
         bottom: 0px;
         left: 0px;
@@ -238,12 +238,12 @@
         font-family: --apple-system, Arial, Helvetica, sans-serif;
         z-index: 50001 !important;
     }
-    .countdown.bottomRight {
+    .ls-countdown.ls-bottomRight {
         bottom: 0px;
         right: 0px;
         left: auto;
     }
-    .timer {
+    .ls-timer {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -254,15 +254,15 @@
         border-radius: 4px;
         box-shadow: 0 8px 18px rgba(100 ,100 ,100 , .6);
     }
-    :global(.countdown:hover) .timer,
-    .timer:hover{
+    :global(.ls-countdown:hover) .ls-timer,
+    .ls-timer:hover{
         opacity: 1;
     }
-    .controls {
+    .ls-controls {
         display: flex;
         margin-left: 10px;
     }
-    .time  {
+    .ls-time  {
         background-color: rgba(255, 0, 0, 0.2);
         color: rgba(255, 0, 0, 0.6);
         font-weight: 500;
@@ -273,15 +273,15 @@
         font-size: 14px;
         text-align: center
     }
-    .time.stop {
+    .ls-time.ls-stop {
         background-color: #fee8f0;
         color: #d21967;
     }
-    .time.focus {
+    .ls-time.ls-focus {
         background-color: #e8f0fe;
         color: #1967d2;
     }
-    .time.break {
+    .ls-time.ls-break {
         background-color: #e8fef0;
         color: #19d267;
     }
@@ -299,7 +299,7 @@
             opacity: 0;
         }
     }
-    .paused {
+    .ls-paused {
         animation: blink 1s linear infinite;
     }
 </style>
