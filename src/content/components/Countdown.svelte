@@ -182,7 +182,7 @@
 </script>
 
 {#if visible}
-    <div class="ls-countdown" class:bottomRight={right} transition:fly="{{ y: 200, duration: 2000 }}">
+    <div class="ls-countdown {right? 'ls-bottom-right':''} " transition:fly="{{ y: 200, duration: 2000 }}">
         <div class="ls-timer">
             <div class="ls-time {timerClass} {isPaused? 'ls-paused':''}">
                 { time }
@@ -238,7 +238,7 @@
         font-family: --apple-system, Arial, Helvetica, sans-serif;
         z-index: 50001 !important;
     }
-    .ls-countdown.ls-bottomRight {
+    .ls-countdown.ls-bottom-right {
         bottom: 0px;
         right: 0px;
         left: auto;
