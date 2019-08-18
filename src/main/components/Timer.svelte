@@ -82,13 +82,18 @@
             [Phase.ShortBreak]: 'break',
             [Phase.LongBreak]: 'break'
         }[phase]
-
-    $: nextPhaseText = {
-        null: '',
-        [Phase.Focus]: M.start_focusing,
-        [Phase.ShortBreak]: hasLongBreak ? M.take_a_short_break : M.take_a_break,
-        [Phase.LongBreak]: M.take_a_long_break
-    }[nextPhase];
+    
+    $: nextPhaseText = ((nextPhase, Phase, M, hasLongBreak)=> {
+        if(elapsed == 0 && checkpointStartAt == null) {
+            return M.start_focusing
+        }
+        return {
+            null: '',
+            [Phase.Focus]: M.start_focusing,
+            [Phase.ShortBreak]: hasLongBreak ? M.take_a_short_break : M.take_a_break,
+            [Phase.LongBreak]: M.take_a_long_break
+        }[nextPhase];
+    })(nextPhase, Phase, M, hasLongBreak)
     
     $: (function(to) {
         clearInterval(timeInterval)
