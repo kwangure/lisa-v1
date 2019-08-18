@@ -85,10 +85,10 @@
 
     $: nextPhaseText = {
         null: '',
-        [Phase.Focus]: M.start_focusing_now,
-        [Phase.ShortBreak]: hasLongBreak ? M.start_short_break_now : M.start_break_now,
-        [Phase.LongBreak]: M.start_long_break_now
-    }[nextPhase]
+        [Phase.Focus]: M.start_focusing,
+        [Phase.ShortBreak]: hasLongBreak ? M.take_a_short_break : M.take_a_break,
+        [Phase.LongBreak]: M.take_a_long_break
+    }[nextPhase];
     
     $: (function(to) {
         clearInterval(timeInterval)
@@ -157,7 +157,7 @@
             {:else if isRunning}
                 <Button class="action" icon="pause" on:click={onPause}/>
             {:else if isStopped}
-                <Button class="action" icon="play-outline" 
+                <Button class="action text" icon="play-outline" 
                     on:click={startTimer}>
                     {nextPhaseText}
                 </Button>
@@ -181,10 +181,10 @@
         0% {
             opacity: 1;
         }
-        70% {
+        60% {
             opacity: 1;
         }
-        71% {
+        80% {
             opacity: 0;
         }
         100% {
@@ -210,5 +210,12 @@
     .controls :global(button.action .button-prefix) {
         font-size: inherit;
         height: auto;
+    }
+    .controls :global(button.action.text){
+        font-size: 20px;
+    }
+    .controls :global(button.action.text .button-prefix) {
+        padding: 0 5px;
+        font-size: 30px;
     }
 </style>
