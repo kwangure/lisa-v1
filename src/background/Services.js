@@ -114,6 +114,10 @@ class PomodoroService extends Service
     this.timer.restart();
   }
 
+  async restartCycle() {
+    this.timer.startCycle();
+  }
+
   async getStatus() {
     return this.timer.status;
   }
