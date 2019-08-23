@@ -165,12 +165,9 @@
             {:else if isRunning}
                 <Button class="action" icon="pause" on:click={onPause}/>
             {:else if isStopped}
-                <Button class="action text" icon="play-outline" 
+                <Button class="action text" icon="play-outline"
                     on:click={startTimer}>
                     {nextPhaseText}
-                </Button>
-                <Button class="action text" icon="restart" on:click={onRestartTimer}>
-                    {M.restart_timer}
                 </Button>
                 <Button class="action text" icon="restart" on:click={onRestartCycle}>
                     {M.restart_pomodoro_cycle}
@@ -226,7 +223,7 @@
         height: auto;
     }
     .controls :global(button.action.text){
-        font-size: 20px;
+        font-size: 18px;
     }
     .controls :global(button.action.text .button-prefix) {
         padding: 0 5px;
