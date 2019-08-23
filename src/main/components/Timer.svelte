@@ -141,8 +141,11 @@
     function onResume() {
         PomodoroClient.once.resume()
     }
-    function onRestart() {
+    function onRestartTimer() {
         PomodoroClient.once.restart()
+    }
+    function onRestartCycle() {
+        PomodoroClient.once.restartCycle()
     }
     function startTimer(){
         PomodoroClient.once.start()
@@ -156,7 +159,7 @@
     <div class="controls-wrapper">
         <div class="controls">
             {#if isPaused}
-                <Button class="action" icon="restart" on:click={onRestart}/>
+                <Button class="action" icon="restart" on:click={onRestartTimer}/>
                 <Button class="action" icon="play-outline" 
                     on:click={onResume}/>
             {:else if isRunning}
@@ -165,6 +168,12 @@
                 <Button class="action text" icon="play-outline" 
                     on:click={startTimer}>
                     {nextPhaseText}
+                </Button>
+                <Button class="action text" icon="restart" on:click={onRestartTimer}>
+                    {M.restart_timer}
+                </Button>
+                <Button class="action text" icon="restart" on:click={onRestartCycle}>
+                    {M.restart_pomodoro_cycle}
                 </Button>
             {/if}
         </div>
