@@ -123,18 +123,6 @@
             clearInterval(timeInterval)
         }
     }
-
-    /*function onKeyDown(e) {
-        if (e.key != " ") {
-            return
-        }
-
-        if (state == TimerState.Running) {
-            PomodoroClient.once.pause()
-        } else if (state == TimerState.Paused) {
-            PomodoroClient.once.resume()
-        }
-    }*/
     
     const ARROW_LEFT = 37
     const ARROW_UP = 38
@@ -182,7 +170,7 @@
 </script>
 
 {#if visible}
-    <div class="ls-countdown {right? 'ls-bottom-right':''} " transition:fly="{{ y: 200, duration: 2000 }}">
+    <div class="ls-countdown {right? 'ls-bottom-right':''} " transition:fly="{{ y: 200, duration: 1000 }}">
         <div class="ls-timer">
             <div class="ls-time {timerClass} {isPaused? 'ls-paused':''}">
                 { time }
