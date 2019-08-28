@@ -242,7 +242,7 @@
     .ls-time  {
         background-color: rgba(255, 0, 0, 0.2);
         color: rgba(255, 0, 0, 0.6);
-        font-weight: 500;
+        font-weight: 600;
         border-radius: 4px;
         height: 35px;
         line-height: 35px;
