@@ -6,8 +6,7 @@
     import Button from '../../main/components/Button.svelte'
     import Tooltip from '../../main/components/Tooltip.svelte'
     import { onDestroy, onMount } from 'svelte'
-    import { fly } from 'svelte/transition';
-    import hotkeys from 'hotkeys-js'
+    import { fly } from 'svelte/transition'
     
     let visible = true
     let right = true
@@ -47,23 +46,13 @@
     })()
 
     onMount(()=>{
-        hotkeys('ctrl+alt+up, cmd+alt+up', ()=>{
-            visible = true
-        });
-        hotkeys('ctrl+alt+down, cmd+alt+down', ()=>{
-            visible = false
-        });
-        hotkeys('alt+left', ()=>{
-            right = false
-        });
-        hotkeys('alt+right', ()=>{
-            right = true
-        });
+        document.addEventListener('keydown', onKeyDown)
     })
 
     onDestroy(() => {
         clearInterval(timeInterval)
         pomodoroClient.dispose()
+        document.removeEventListener('keydown', onKeyDown)
     })
 
     $: isRunning = state == TimerState.Running
@@ -130,15 +119,15 @@
     const ARROW_DOWN = 40
     
     function onKeyDown(e) {
-        if(!e.altKey) return;
-        debugger;
+        if(!e.altKey || !e.shiftKey) return;
+        
         if (e.keyCode == ARROW_LEFT) {
             right = false
-        } else if (e.metaKey && e.keyCode == ARROW_UP) {
+        } else if (e.keyCode == ARROW_UP) {
             visible = true
         } else if (e.keyCode == ARROW_RIGHT) {
             right = true
-        } else if (e.metaKey && e.keyCode == ARROW_DOWN) {
+        } else if (e.keyCode == ARROW_DOWN) {
             visible = false
         }
     }
