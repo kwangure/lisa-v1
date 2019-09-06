@@ -1,6 +1,7 @@
 <script>
     import { OptionsClient } from '../../background/Services'
     import { Button } from '@deimimi/strawberry'
+    import { mdiHistory, mdiSettings } from '@mdi/js'
     import Timer from '../components/Timer.svelte'
     import Clock from '../components/Clock.svelte'
 
@@ -30,9 +31,9 @@
         </div>
         <div class="actions-wrapper">
             <div class="actions">
-                <Button class="settings action" icon="settings-outline"
+                <Button class="settings action" icon={mdiSettings}
                     on:click={showSettings}/>
-                <Button class="history action" icon="history" 
+                <Button class="history action" icon={mdiHistory}
                     on:click={showHistory}/>
             </div>
         </div>

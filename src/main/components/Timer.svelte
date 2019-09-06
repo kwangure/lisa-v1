@@ -5,6 +5,7 @@
     import { PomodoroClient, SettingsClient } from '../../background/Services'
     import M from '../../Messages'
     import { Button}  from '@deimimi/strawberry'
+    import { mdiPlayOutline, mdiRestart, mdiPause, mdiPictureInPictureBottomRightOutline } from '@mdi/js'
 
     let elapsed = null
     let state = null
@@ -159,17 +160,17 @@
     <div class="controls-wrapper">
         <div class="controls">
             {#if isPaused}
-                <Button class="action" icon="restart" on:click={onRestartTimer}/>
-                <Button class="action" icon="play-outline" 
+                <Button class="action" icon={mdiRestart} on:click={onRestartTimer}/>
+                <Button class="action" icon={mdiPlayOutline}
                     on:click={onResume}/>
             {:else if isRunning}
-                <Button class="action" icon="pause" on:click={onPause}/>
+                <Button class="action" icon={mdiPause} on:click={onPause}/>
             {:else if isStopped}
-                <Button class="action text" icon="play-outline"
+                <Button class="action text" icon={mdiPlayOutline}
                     on:click={startTimer}>
                     {nextPhaseText}
                 </Button>
-                <Button class="action text" icon="restart" on:click={onRestartCycle}>
+                <Button class="action text" icon={mdiRestart} on:click={onRestartCycle}>
                     {M.restart_pomodoro_cycle}
                 </Button>
             {/if}
