@@ -168,16 +168,25 @@
             </div>
             <div class="ls-controls">
                 {#if isPaused}
-                    <!--Tooltip label="Resume timer"-->
-                        <Button on:click={onResume} icon={mdiPlayOutline} color="none"/>
-                    <!--/Tooltip-->
-                    <!--Tooltip label="Restart timer"-->
-                        <Button on:click={onRestart} icon={mdiRestart} color="none"/>
-                    <!--/Tooltip!-->
+                    {#if right}
+                        <Tooltip label="Restart timer">
+                            <Button on:click={onRestart} icon={mdiRestart} color="none"/>
+                        </Tooltip>
+                        <Tooltip label="Resume timer">
+                            <Button on:click={onResume} icon={mdiPlayOutline} color="none"/>
+                        </Tooltip>
+                    {:else}
+                        <Tooltip label="Resume timer">
+                            <Button on:click={onResume} icon={mdiPlayOutline} color="none"/>
+                        </Tooltip>
+                        <Tooltip label="Restart timer">
+                            <Button on:click={onRestart} icon={mdiRestart} color="none"/>
+                        </Tooltip>
+                    {/if}
                 {:else if isRunning}
-                    <!--Tooltip label="Pause timer"!-->
+                    <Tooltip label="Pause timer">
                         <Button on:click={onPause} icon={mdiPause} color="none"/>
-                    <!--/Tooltip-->
+                    </Tooltip>
                 {:else if isStopped}
                     <Tooltip label="Start timer">
                         <Button on:click={startTimer} icon={mdiPlayOutline} color="none"/>
