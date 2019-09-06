@@ -2,6 +2,7 @@
     import * as Sounds from '../../Sounds';
     import { SettingsClient, SoundsClient } from '../../background/Services'
     import { Button, Input, Icon } from '@deimimi/strawberry'
+    import { mdiVolumeHigh } from '@mdi/js'
     import createTimerSound from '../../TimerSound'
     import M from '../../Messages';
     import Mutex from '../../Mutex';
@@ -159,7 +160,7 @@
                         {#if canPlayTimerSound}
                             <span on:mouseover={playTimerSound} on:mouseout={stopTimerSound} class="preview">
                                 (
-                                    <span class="icon"><Icon icon="volume-high"/></span> 
+                                    <span class="icon"><Icon icon={mdiVolumeHigh}/></span> 
                                     { M.hover_preview }
                                 )
                             </span>

@@ -4,6 +4,7 @@
     import { clamp, mmss } from '../../Filters'
     import M from '../../Messages'
     import { Button , Tooltip } from '@deimimi/strawberry'
+    import { mdiPlayOutline, mdiRestart, mdiPause, mdiPictureInPictureBottomRightOutline } from '@mdi/js'
     import { onDestroy, onMount } from 'svelte'
     import { fly } from 'svelte/transition'
     
@@ -157,6 +158,8 @@
     }
 </script>
 
+<svelte:options tag="lisa-countdown"/>
+
 {#if visible}
     <div class="ls-countdown {right? 'ls-bottom-right':''} " transition:fly="{{ y: 200, duration: 1000 }}">
         <div class="ls-timer">
@@ -165,26 +168,26 @@
             </div>
             <div class="ls-controls">
                 {#if isPaused}
-                    <Tooltip label="Resume timer">
-                        <Button on:click={onResume} icon="play-outline" color="none"/>
-                    </Tooltip>
-                    <Tooltip label="Restart timer">
-                        <Button on:click={onRestart} icon="restart" color="none"/>
-                    </Tooltip>
+                    <!--Tooltip label="Resume timer"-->
+                        <Button on:click={onResume} icon={mdiPlayOutline} color="none"/>
+                    <!--/Tooltip-->
+                    <!--Tooltip label="Restart timer"-->
+                        <Button on:click={onRestart} icon={mdiRestart} color="none"/>
+                    <!--/Tooltip!-->
                 {:else if isRunning}
-                    <Tooltip label="Pause timer">
-                        <Button on:click={onPause} icon="pause" color="none"/>
-                    </Tooltip>
+                    <!--Tooltip label="Pause timer"!-->
+                        <Button on:click={onPause} icon={mdiPause} color="none"/>
+                    <!--/Tooltip-->
                 {:else if isStopped}
                     <Tooltip label="Start timer">
-                        <Button on:click={startTimer} icon="play-outline" color="none"/>
+                        <Button on:click={startTimer} icon={mdiPlayOutline} color="none"/>
                     </Tooltip>
                 {/if}
                 {#if right}
                     <Tooltip label="Move timer left">
                         <Button 
                             on:click={toggleRight} 
-                            icon="picture-in-picture-bottom-right-outline"
+                            icon={mdiPictureInPictureBottomRightOutline}
                             iconProps={{flip: 'h'}}
                             color="none" 
                             class="action"/>
@@ -193,7 +196,7 @@
                     <Tooltip label="Move timer right">
                         <Button 
                             on:click={toggleRight} 
-                            icon="picture-in-picture-bottom-right-outline" 
+                            icon={mdiPictureInPictureBottomRightOutline}
                             color="none" 
                             class="action"/>
                     </Tooltip>
