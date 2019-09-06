@@ -1,10 +1,8 @@
 <script>
     import * as Sounds from '../../Sounds';
     import { SettingsClient, SoundsClient } from '../../background/Services'
-    import Button from '../../main/components/Button.svelte'
+    import { Button, Input, Icon } from '@deimimi/strawberry'
     import createTimerSound from '../../TimerSound'
-    import Input from '../../main/components/Input.svelte'
-    import Icon from '../../main/components/Icon.svelte'
     import M from '../../Messages';
     import Mutex from '../../Mutex';
     import Page from '../../main/components/Page.svelte'

@@ -4,7 +4,7 @@
     import { onDestroy, onMount } from 'svelte'
     import { PomodoroClient, SettingsClient } from '../../background/Services'
     import M from '../../Messages'
-    import Button from '../components/Button.svelte'
+    import { Button}  from '@deimimi/strawberry'
 
     let elapsed = null
     let state = null

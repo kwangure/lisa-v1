@@ -1,6 +1,6 @@
 <script>
     import { OptionsClient } from '../../background/Services'
-    import Button from '../components/Button.svelte'
+    import { Button } from '@deimimi/strawberry'
     import Timer from '../components/Timer.svelte'
     import Clock from '../components/Clock.svelte'
 
