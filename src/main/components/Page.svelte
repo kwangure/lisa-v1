@@ -1,6 +1,3 @@
-<script>
-    import WindowTitle from './WindowTitle.svelte'
-</script>
 <div class="page">
     <slot></slot>
 </div>
