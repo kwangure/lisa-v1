@@ -79,11 +79,9 @@
         background-color: transparent;
         color: #fff;
         border: none !important;
-        font-size: 30px;
         height: auto;
     }
     .actions :global(button.action .button-prefix) {
-        font-size: inherit;
-        height: auto;
+        padding: 10px 5px;
     }
 </style>

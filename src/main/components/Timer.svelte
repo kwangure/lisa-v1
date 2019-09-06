@@ -216,18 +216,12 @@
         background-color: transparent;
         color: #fff;
         border-color: #fff !important;
-        font-size: 30px;
         height: auto;
     }
     .controls :global(button.action .button-prefix) {
-        font-size: inherit;
-        height: auto;
+        padding: 10px 5px;
     }
     .controls :global(button.action.text){
         font-size: 18px;
-    }
-    .controls :global(button.action.text .button-prefix) {
-        padding: 0 5px;
-        font-size: 30px;
     }
 </style>
