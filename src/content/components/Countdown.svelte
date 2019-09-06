@@ -3,8 +3,7 @@
     import { OptionsClient, SettingsClient, PomodoroClient } from '../../background/Services'
     import { clamp, mmss } from '../../Filters'
     import M from '../../Messages'
-    import Button from '../../main/components/Button.svelte'
-    import Tooltip from '../../main/components/Tooltip.svelte'
+    import { Button , Tooltip } from '@deimimi/strawberry'
     import { onDestroy, onMount } from 'svelte'
     import { fly } from 'svelte/transition'
     
