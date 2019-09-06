@@ -160,7 +160,7 @@
                         {#if canPlayTimerSound}
                             <span on:mouseover={playTimerSound} on:mouseout={stopTimerSound} class="preview">
                                 (
-                                    <span class="icon"><Icon icon={mdiVolumeHigh}/></span> 
+                                    <span class="icon"><Icon path={mdiVolumeHigh} size={18}/></span> 
                                     { M.hover_preview }
                                 )
                             </span>
