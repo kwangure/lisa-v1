@@ -78,11 +78,11 @@
         return mmss(remaining)
     })()
 
-    $: timerClass = isStopped? 'stopped' : {
+    $: timerClass = isStopped? 'ls-stop' : {
             null: '',
-            [Phase.Focus]: 'focus',
-            [Phase.ShortBreak]: 'break',
-            [Phase.LongBreak]: 'break'
+            [Phase.Focus]: 'ls-focus',
+            [Phase.ShortBreak]: 'ls-break',
+            [Phase.LongBreak]: 'ls-break'
         }[phase]
     
     $: (function updateTime(to) {
@@ -251,27 +251,25 @@
         margin-left: 10px;
     }
     .ls-time  {
-        background-color: rgba(255, 0, 0, 0.2);
-        color: rgba(255, 0, 0, 0.6);
         font-weight: 600;
         border-radius: 4px;
         height: 35px;
         line-height: 35px;
         padding: 0 15px;
         font-size: 14px;
-        text-align: center
+        text-align: center;
     }
     .ls-time.ls-stop {
-        background-color: #fee8f0;
-        color: #d21967;
+        background-color: #ffe8e8;
+        color: #f33;
     }
     .ls-time.ls-focus {
-        background-color: #e8f0fe;
-        color: #1967d2;
+        background-color: #deefff;
+        color: #1870ff;
     }
     .ls-time.ls-break {
-        background-color: #e8fef0;
-        color: #19d267;
+        background-color: #d3f8e1;
+        color: #18d270;
     }
     @keyframes blink  {
         0% {
