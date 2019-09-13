@@ -3,8 +3,14 @@
     import { OptionsClient, SettingsClient, PomodoroClient } from '../../background/Services'
     import { clamp, mmss } from '../../Filters'
     import M from '../../Messages'
-    import { Button , Tooltip } from '@deimimi/strawberry'
-    import { mdiPlayOutline, mdiRestart, mdiPause, mdiPictureInPictureBottomRightOutline } from '@mdi/js'
+    import { Button, Dropdown, Tooltip } from '@deimimi/strawberry'
+    import { 
+        mdiDotsHorizontal,
+        mdiPlayOutline, 
+        mdiRestart, 
+        mdiPause, 
+        mdiPictureInPictureBottomRightOutline 
+    } from '@mdi/js'
     import { onDestroy, onMount } from 'svelte'
     import { fly } from 'svelte/transition'
     
@@ -138,8 +144,11 @@
     function onResume() {
         PomodoroClient.once.resume()
     }
-    function onRestart() {
+    function onRestartTimer() {
         PomodoroClient.once.restart()
+    }
+    function onRestartCycle() {
+        PomodoroClient.once.restartCycle()
     }
     function startTimer(){
         PomodoroClient.once.start()
@@ -156,6 +165,21 @@
     function toggleRight(){
         right = !right
     }
+
+    let dropdownItems = [ 
+        { 
+            value: "Restart pomodoro cycle",
+            clickFn: onRestartCycle,
+        }, 
+        { 
+            value: "Restart current timer",
+            clickFn: onRestartTimer,
+        },
+        { 
+            value: "Mute Sound",
+            clickFn: () => {},
+        } 
+    ]
 </script>
 
 <svelte:options tag="lisa-countdown"/>
@@ -170,7 +194,7 @@
                 {#if isPaused}
                     {#if right}
                         <Tooltip label="Restart timer">
-                            <Button on:click={onRestart} icon={mdiRestart} color="none"/>
+                            <Button on:click={onRestartTimer} icon={mdiRestart} color="none"/>
                         </Tooltip>
                         <Tooltip label="Resume timer">
                             <Button on:click={onResume} icon={mdiPlayOutline} color="none"/>
@@ -180,7 +204,7 @@
                             <Button on:click={onResume} icon={mdiPlayOutline} color="none"/>
                         </Tooltip>
                         <Tooltip label="Restart timer">
-                            <Button on:click={onRestart} icon={mdiRestart} color="none"/>
+                            <Button on:click={onRestartTimer} icon={mdiRestart} color="none"/>
                         </Tooltip>
                     {/if}
                 {:else if isRunning}
@@ -210,6 +234,14 @@
                             class="action"/>
                     </Tooltip>
                 {/if}
+                <Dropdown items={dropdownItems} top {right}>
+                    <div slot="button">
+                        <Button color="none" icon={mdiDotsHorizontal}/>
+                    </div>
+                    <div slot="menu" let:item>
+                        <div on:click={item.clickFn}>{item.value}</div>
+                    </div>
+                </Dropdown>
             </div>
         </div>
     </div>
