@@ -88,6 +88,11 @@ class HistoryService extends Service
   async clearHistory() {
     return await this.history.clear();
   }
+
+  async countToday() {
+    return await this.history.countToday();
+  }
+  
 }
 
 class PomodoroService extends Service
@@ -122,6 +127,14 @@ class PomodoroService extends Service
     return this.timer.status;
   }
 
+  async extendBy(duration) {
+    return this.timer.extend(duration);
+  }
+
+  async getPomodorosUntilLongBreak() {
+    return this.timer.pomodorosUntilLongBreak;
+  }
+
   onStart(...args) {
     this.emit('start', ...args);
   }
@@ -144,6 +157,10 @@ class PomodoroService extends Service
 
   onExpire(...args) {
     this.emit('expire', ...args);
+  }
+
+  onExtend(...args) {
+    this.emit('extend', ...args);
   }
 }
 

@@ -100,6 +100,12 @@ class TimerSoundObserver
     });
   }
 
+  async onExtend() {
+    await this.mutex.exclusive(async () => {
+      this.timerSound && await this.timerSound.start();
+    });
+  }
+
   async onExpire() {
     await this.mutex.exclusive(async () => {
       this.timerSound && await this.timerSound.close();
@@ -221,6 +227,10 @@ class HistoryObserver
     this.history = history;
   }
 
+  async onExtend() {
+    await this.history.removeLastPomodoro();
+  }
+  
   async onExpire({ phase, duration }) {
     if (phase !== Phase.Focus) {
       return;
