@@ -112,6 +112,20 @@ class History
     });
   }
 
+  async removeLastPomodoro() {
+    await this.mutex.exclusive(async () => {
+      let local = await this.storage.get();
+
+      if (local.pomodoros.length > 1) {
+        local.pomodoros.pop();
+      } 
+
+      await this.storage.set(local);
+
+      return this.countSince(local.pomodoros, History.today);
+    });
+  }
+
   async stats(since) {
     return this.mutex.exclusive(async () => {
       let { pomodoros } = await this.storage.get('pomodoros');

@@ -27,6 +27,7 @@ class Timer extends EventEmitter
     observer.onStart && this.on('start', (...args) => observer.onStart(...args));
     observer.onStop && this.on('stop', (...args) => observer.onStop(...args));
     observer.onPause && this.on('pause', (...args) => observer.onPause(...args));
+    observer.onExtend && this.on('extend', (...args) => observer.onExtend(...args));
     observer.onResume && this.on('resume', (...args) => observer.onResume(...args));
     observer.onTick && this.on('tick', (...args) => observer.onTick(...args));
     observer.onExpire && this.on('expire', (...args) => observer.onExpire(...args));
@@ -132,6 +133,20 @@ class Timer extends EventEmitter
   restart() {
     this.stop();
     this.start();
+  }
+
+  extend(duration){
+    if (!this.isStopped) {
+      return;
+    }
+
+    this.duration += duration
+    this.setExpireTimeout(this.remaining);
+    this.setTickInterval(this.tick);
+
+    this.state = TimerState.Running;
+    this.checkpointStartAt = Date.now();
+    this.emit('extend', this.status);
   }
 
   setExpireTimeout(seconds) {
@@ -320,11 +335,16 @@ class PomodoroTimer extends EventEmitter
     return this.start();
   }
 
+  extend(duration) {
+    return this.timer.extend(duration);
+  }
+
   observe(observer) {
     observer.onStart && this.on('start', (...args) => observer.onStart(...args));
     observer.onStop && this.on('stop', (...args) => observer.onStop(...args));
     observer.onPause && this.on('pause', (...args) => observer.onPause(...args));
     observer.onResume && this.on('resume', (...args) => observer.onResume(...args));
+    observer.onExtend && this.on('extend', (...args) => observer.onExtend(...args));
     observer.onTick && this.on('tick', (...args) => observer.onTick(...args));
     observer.onExpire && this.on('expire', (...args) => observer.onExpire(...args));
   }
@@ -343,6 +363,16 @@ class PomodoroTimer extends EventEmitter
 
   onResume(status) {
     this.emit('resume', { phase: this.phase, nextPhase: this.nextPhase, ...status });
+  }
+
+  onExtend(status) {
+    if (this.phase === Phase.Focus) {
+      this.pomodoros--;
+    }
+
+    this.advanceTimer = false;
+
+    this.emit('extend', { phase: this.phase, nextPhase: this.nextPhase, ...status });
   }
 
   onTick(status) {
