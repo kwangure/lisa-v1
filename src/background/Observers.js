@@ -227,7 +227,10 @@ class HistoryObserver
     this.history = history;
   }
 
-  async onExtend() {
+  async onExtend({ phase }) {
+    if (phase !== Phase.Focus) {
+      return;
+    }
     await this.history.removeLastPomodoro();
   }
   
