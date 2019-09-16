@@ -3,7 +3,7 @@
     import { OptionsClient, SettingsClient, HistoryClient, PomodoroClient } from '../../background/Services'
     import { clamp, mmss, pomodoroCount } from '../../Filters'
     import M from '../../Messages'
-    import { Button, Dropdown, Tooltip } from '@deimimi/strawberry'
+    import { Button, Dropdown, Modal, Tooltip } from '@deimimi/strawberry'
     import NumberInput from './NumberInput.svelte'
     import { 
         mdiDotsHorizontal,
@@ -35,6 +35,7 @@
     let pomodoros = []
     let pomodorosUntilLongBreak = 0
     let extendValue = 5
+    let timerStoppedModal = null
   
     const update = async (data) => {
         if(!data) return
@@ -222,30 +223,93 @@
 
 <svelte:options tag="lisa-countdown"/>
 
-{#if visible}
+{#if isStopped}
+    <Modal bind:this={timerStoppedModal} visible closable={false}>
+        <div slot="content">
+            {#if pomodoros.length > 0}
+                <div class="ls-pomodoro-wrapper">
+                    <div>Pomodoros Today</div>
+                    <div class="ls-pomodoros">
+                        {#each pomodoros as pomodoro}
+                            <span></span>
+                        {/each}
+                    </div>
+                    <div>
+                        {M.pomodoros_until_long_break(pomodoroCount(pomodorosUntilLongBreak))}
+                    </div>
+                </div>
+            {/if}
+            <div class="ls-stopped-controls">
+                <Tooltip label="Restart pomodoro cycle">
+                    <Button 
+                        on:click={ onRestartCycle } 
+                        icon={ mdiRestart }
+                        color="none" 
+                        class="action"/>
+                </Tooltip>
+                <Tooltip label="Open history page">
+                    <Button 
+                        on:click={showHistory} 
+                        icon={mdiHistory}
+                        color="none" 
+                        class="action"/>
+                </Tooltip>
+                <Tooltip label="Open settings page">
+                    <Button 
+                        on:click={showHistory} 
+                        icon={mdiSettingsOutline}
+                        color="none" 
+                        class="action"/>
+                </Tooltip>
+            </div>
+            {#if checkpointStartAt != null}
+                <div class="ls-timer-card">
+                    { extendPhaseText }
+                    <div class="ls-input-wrapper">
+                        <NumberInput bind:value={extendValue} min={1}/>
+                    </div>
+                    { extendValue == 1 ? M.minute: M.minutes }
+                    <div class="ls-extend">
+                        <Button color="primary"
+                            on:click={() => extendTimer(extendValue) }>
+                            Extend
+                        </Button>
+                    </div>
+                </div>
+                <div>or</div>
+            {/if}
+            <div on:click={startTimer} class="ls-timer-card phase">
+                { nextPhaseText }
+            </div>
+        </div>
+    </Modal>
+{:else if visible }
     <div class="ls-countdown {right? 'ls-bottom-right':''} " transition:fly="{{ y: 200, duration: 1000 }}">
         <div class="ls-main">
-            {#if isStopped}
-                {#if pomodoros.length > 0}
-                    <div class="ls-pomodoro-wrapper">
-                        <div>Pomodoros Today</div>
-                        <div class="ls-pomodoros">
-                            {#each pomodoros as pomodoro}
-                                <span></span>
-                            {/each}
-                        </div>
-                        <div>
-                            {M.pomodoros_until_long_break(pomodoroCount(pomodorosUntilLongBreak))}
-                        </div>
-                    </div>
-                {/if}
-                <div class="ls-stopped-controls">
+            <div class="ls-timer">
+                <div class="ls-time {timerClass} {isPaused? 'ls-paused':''}">
+                    { time }
+                </div>
+                <div class="ls-controls">
+                    {#if isPaused}
+                        <Tooltip label="Resume timer">
+                            <Button on:click={onResume} icon={mdiPlayOutline} color="none"/>
+                        </Tooltip>
+                    {:else if isRunning}
+                        <Tooltip label="Pause timer">
+                            <Button on:click={onPause} icon={mdiPause} color="none"/>
+                        </Tooltip>
+                    {:else if isStopped}
+                        <Tooltip label="Start timer">
+                            <Button on:click={startTimer} icon={mdiPlayOutline} color="none"/>
+                        </Tooltip>
+                    {/if}
                     {#if right}
                         <Tooltip label="Move timer left">
                             <Button 
                                 on:click={toggleRight} 
                                 icon={mdiPictureInPictureBottomRightOutline}
-                                iconProps={{flip: 'horizontal'}}
+                                iconProps={{flip: 'h'}}
                                 color="none" 
                                 class="action"/>
                         </Tooltip>
@@ -258,101 +322,16 @@
                                 class="action"/>
                         </Tooltip>
                     {/if}
-                    <Tooltip label="Restart pomodoro">
-                        <Button 
-                            on:click={ onRestartCycle } 
-                            icon={ mdiRestart }
-                            color="none" 
-                            class="action"/>
-                    </Tooltip>
-                    <Tooltip label="Hide timer">
-                        <Button 
-                            on:click={() => visible = false } 
-                            icon={ mdiEyeOffOutline }
-                            color="none" 
-                            class="action"/>
-                    </Tooltip>
-                    <Tooltip label="Open history page">
-                        <Button 
-                            on:click={showHistory} 
-                            icon={mdiHistory}
-                            color="none" 
-                            class="action"/>
-                    </Tooltip>
-                    <Tooltip label="Open settings page">
-                        <Button 
-                            on:click={showHistory} 
-                            icon={mdiSettingsOutline}
-                            color="none" 
-                            class="action"/>
-                    </Tooltip>
-                </div>
-                {#if checkpointStartAt != null}
-                    <div class="ls-timer-card">
-                        { extendPhaseText }
-                        <div class="ls-input-wrapper">
-                            <NumberInput bind:value={extendValue} min={1}/>
+                    <Dropdown items={dropdownItems} placement="topRight">
+                        <div slot="button">
+                            <Button color="none" icon={mdiDotsHorizontal}/>
                         </div>
-                        { extendValue == 1 ? M.minute: M.minutes }
-                        <div class="ls-extend">
-                            <Button color="primary"
-                                on:click={() => extendTimer(extendValue) }>
-                                Extend
-                            </Button>
+                        <div slot="menu" let:item>
+                            <div on:click={item.clickFn}>{item.value}</div>
                         </div>
-                    </div>
-                {/if}
-                <div on:click={startTimer} class="ls-timer-card phase">
-                    { nextPhaseText }
+                    </Dropdown>
                 </div>
-            {:else}
-                <div class="ls-timer">
-                    <div class="ls-time {timerClass} {isPaused? 'ls-paused':''}">
-                        { time }
-                    </div>
-                    <div class="ls-controls">
-                        {#if isPaused}
-                            <Tooltip label="Resume timer">
-                                <Button on:click={onResume} icon={mdiPlayOutline} color="none"/>
-                            </Tooltip>
-                        {:else if isRunning}
-                            <Tooltip label="Pause timer">
-                                <Button on:click={onPause} icon={mdiPause} color="none"/>
-                            </Tooltip>
-                        {:else if isStopped}
-                            <Tooltip label="Start timer">
-                                <Button on:click={startTimer} icon={mdiPlayOutline} color="none"/>
-                            </Tooltip>
-                        {/if}
-                        {#if right}
-                            <Tooltip label="Move timer left">
-                                <Button 
-                                    on:click={toggleRight} 
-                                    icon={mdiPictureInPictureBottomRightOutline}
-                                    iconProps={{flip: 'h'}}
-                                    color="none" 
-                                    class="action"/>
-                            </Tooltip>
-                        {:else}
-                            <Tooltip label="Move timer right">
-                                <Button 
-                                    on:click={toggleRight} 
-                                    icon={mdiPictureInPictureBottomRightOutline}
-                                    color="none" 
-                                    class="action"/>
-                            </Tooltip>
-                        {/if}
-                        <Dropdown items={dropdownItems} placement="topRight">
-                            <div slot="button">
-                                <Button color="none" icon={mdiDotsHorizontal}/>
-                            </div>
-                            <div slot="menu" let:item>
-                                <div on:click={item.clickFn}>{item.value}</div>
-                            </div>
-                        </Dropdown>
-                    </div>
-                </div>
-            {/if}
+            </div>
         </div>
     </div>
 {/if}
@@ -405,8 +384,6 @@
         color: #1870ff;
         justify-content: center;
         cursor: pointer;
-        margin-left: 8px;
-        margin-right: 8px;
     }
     .ls-extend {
         padding-left: 10px;
