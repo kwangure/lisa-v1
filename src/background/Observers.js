@@ -8,57 +8,6 @@ import M from '../Messages';
 import Mutex from '../Mutex';
 import Notification from './Notification';
 
-class BadgeObserver {
-  onStart({ phase, remaining }) {
-    this.updateBadge({ phase, minutes: Math.round(remaining / 60) });
-  }
-
-  onTick({ phase, remaining }) {
-    this.updateBadge({ phase, minutes: Math.round(remaining / 60) });
-  }
-
-  onStop() {
-    this.removeBadge();
-  }
-
-  onPause({ phase }) {
-    this.updateBadge({ phase, text: '—', tooltip: M.timer_paused });
-  }
-
-  onResume({ phase, remaining }) {
-    this.updateBadge({ phase, minutes: Math.round(remaining / 60) });
-  }
-
-  onExpire() {
-    this.removeBadge();
-  }
-
-  updateBadge({ phase, minutes, tooltip, text }) {
-    let title = {
-      [Phase.Focus]: M.focus,
-      [Phase.ShortBreak]: M.short_break,
-      [Phase.LongBreak]: M.long_break
-    }[phase];
-
-    if (minutes != null) {
-      text = minutes < 1 ? M.less_than_minute : M.n_minutes(minutes);
-      tooltip = M.browser_action_tooltip(title, M.time_remaining(text));
-    } else {
-      tooltip = M.browser_action_tooltip(title, tooltip);
-    }
-
-    let backgroundColor = phase === Phase.Focus ? '#437aff' : '#10a840';
-    chrome.browserAction.setTitle({ title: tooltip });
-    chrome.browserAction.setBadgeText({ text });
-    chrome.browserAction.setBadgeBackgroundColor({ color: backgroundColor });
-  }
-
-  removeBadge() {
-    chrome.browserAction.setTitle({ title: '' });
-    chrome.browserAction.setBadgeText({ text: '' });
-  }
-}
-
 class TimerSoundObserver
 {
   constructor(settings) {
@@ -349,7 +298,6 @@ class TraceObserver
 }
 
 export {
-  BadgeObserver,
   TimerSoundObserver,
   ExpirationSoundObserver,
   NotificationObserver,
