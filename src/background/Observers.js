@@ -88,7 +88,6 @@ class NotificationObserver
     this.settings = settings;
     this.history = history;
     this.notification = null;
-    this.expiration = null;
     this.mutex = new Mutex();
   }
 
@@ -97,11 +96,6 @@ class NotificationObserver
       if (this.notification) {
         this.notification.close();
         this.notification = null;
-      }
-
-      if (this.expiration) {
-        this.expiration.close();
-        this.expiration = null;
       }
     });
   }
