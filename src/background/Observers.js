@@ -106,6 +106,15 @@ class NotificationObserver
     });
   }
 
+  onExtend() {
+    this.mutex.exclusive(async () => {
+      if (this.notification) {
+        this.notification.close();
+        this.notification = null;
+      }
+    });
+  }
+
   async onExpire({ phase, nextPhase }) {
     let settings = this.settings[{
       [Phase.Focus]: 'focus',
