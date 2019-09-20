@@ -1,5 +1,4 @@
 import * as Sounds from '../Sounds';
-import { ExpirationPage } from './Expiration';
 import { Phase } from './Timer';
 import { pomodoroCount } from '../Filters';
 import { SingletonPage, PageHost } from './SingletonPage';
@@ -157,14 +156,6 @@ class NotificationObserver
           [Phase.ShortBreak]: hasLongBreak ? 'short-break' : 'break',
           [Phase.LongBreak]: 'long-break'
         }[nextPhase];
-
-        this.expiration = await ExpirationPage.show(
-          title,
-          messages,
-          action,
-          pomodorosToday,
-          phaseId
-        );
       }
     });
   }
