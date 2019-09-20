@@ -20,7 +20,8 @@
     },
     "browser_action": {
         "default_title": "Lisa",
-        "default_icon": "images/browser-action.png"
+        "default_icon": "images/browser-action.png",
+        "default_popup": "static/popup.html"
     },
     "permissions": [
         "alarms",
