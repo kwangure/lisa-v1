@@ -34,15 +34,6 @@ async function run() {
   settingsManager.on('change', () => menu.apply());
 
   Alarms.install(timer, settingsManager);
-  chrome.browserAction.onClicked.addListener(() => {
-    if (timer.isRunning) {
-      timer.pause();
-    } else if (timer.isPaused) {
-      timer.resume();
-    } else {
-      timer.start();
-    }
-  });
 
   ServiceBroker.register(new HistoryService(history));
   ServiceBroker.register(new SoundsService());
