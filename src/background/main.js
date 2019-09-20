@@ -5,7 +5,7 @@ import { History } from './History';
 import StorageManager from './StorageManager';
 import { SettingsSchema, PersistentSettings } from './Settings';
 import { HistoryService, SoundsService, SettingsService, PomodoroService, OptionsService } from './Services';
-import { BadgeObserver, TimerSoundObserver, ExpirationSoundObserver, NotificationObserver, HistoryObserver, CountdownObserver, MenuObserver } from './Observers';
+import { TimerSoundObserver, ExpirationSoundObserver, NotificationObserver, HistoryObserver, CountdownObserver, MenuObserver } from './Observers';
 import { ServiceBroker } from '../Service';
 import * as Alarms from './Alarms';
 
@@ -24,7 +24,6 @@ async function run() {
 
   let menu = createPomodoroMenu(timer);
   timer.observe(new HistoryObserver(history));
-  timer.observe(new BadgeObserver());
   timer.observe(new NotificationObserver(timer, settings, history));
   timer.observe(new ExpirationSoundObserver(settings));
   timer.observe(new TimerSoundObserver(settings));
