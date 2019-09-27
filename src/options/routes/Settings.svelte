@@ -7,7 +7,7 @@
     import M from '../../Messages';
     import Mutex from '../../Mutex';
     import Page from '../../main/components/Page.svelte'
-
+    
     function getFocusTimerBpm() {
         let sound = settings.focus.timerSound;
         return sound
@@ -131,8 +131,7 @@
                     <div class="section-field">
                         <span>{ M.duration }</span>
                         <div class="input-wrapper">
-                            <Input
-                                type="number"
+                            <Input.Number
                                 min="1"
                                 max="999"
                                 bind:value={settings.focus.duration}/>
@@ -170,8 +169,7 @@
                         {#if focusTimerBPM != null}
                             <span>{ M.speed_label }</span>
                             <div class="input-wrapper">
-                                <Input
-                                    type="number"
+                                <Input.Number
                                     min="1" max="1000"
                                     bind:value={focusTimerBPM}/>
                             </div>
@@ -214,8 +212,7 @@
                     <div class="section-field">
                         <span>{ M.duration }</span>
                         <div class="input-wrapper">
-                            <Input
-                                type="number"
+                            <Input.Number
                                 min="1"
                                 max="999"
                                 bind:value={settings.shortBreak.duration}/>
@@ -274,8 +271,7 @@
                         <div class="section-field">
                             <span>{ M.duration }</span>
                             <div class="input-wrapper">
-                                <Input
-                                    type="number"
+                                <Input.Number
                                     min="1"
                                     max="999"
                                     bind:value={settings.longBreak.duration}
