@@ -3,8 +3,7 @@
     import { OptionsClient, SettingsClient, HistoryClient, PomodoroClient } from '../../background/Services'
     import { clamp, mmss, pomodoroCount } from '../../Filters'
     import M from '../../Messages'
-    import { Button, Dropdown, Modal, Tooltip } from '@deimimi/strawberry'
-    import NumberInput from './NumberInput.svelte'
+    import { Button, Dropdown, Modal, Tooltip, Input } from '@deimimi/strawberry'
     import { 
         mdiDotsHorizontal,
         mdiEyeOffOutline,
@@ -266,7 +265,7 @@
                 <div class="ls-timer-card">
                     { extendPhaseText }
                     <div class="ls-input-wrapper">
-                        <NumberInput bind:value={extendValue} min={1}/>
+                        <Input.Number bind:value={extendValue} min={1}/>
                     </div>
                     { extendValue == 1 ? M.minute: M.minutes }
                     <div class="ls-extend">
