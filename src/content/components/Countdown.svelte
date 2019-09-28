@@ -16,7 +16,6 @@
         mdiVolumeOff
     } from '@mdi/js'
     import { onDestroy, onMount } from 'svelte'
-    import { fly } from 'svelte/transition'
     
     let visible = true
     let right = true
@@ -283,7 +282,7 @@
         </div>
     </Modal>
 {:else if visible }
-    <div class="ls-countdown {right? 'ls-bottom-right':''} " transition:fly="{{ y: 200, duration: 1000 }}">
+    <div class="ls-countdown {right? 'ls-bottom-right':''} ">
         <div class="ls-main">
             <div class="ls-timer">
                 <div class="ls-time {timerClass} {isPaused? 'ls-paused':''}">
