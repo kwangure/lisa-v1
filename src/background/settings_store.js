@@ -33,8 +33,8 @@ const { get, update, subscribe, reset } = writable({
     },
 });
 
-export default {
-    settings_writable: { get, update, subscribe, reset },
-    settings_readable: { get, subscribe }
-};
+const settings_writable = { get, update, subscribe, reset }
+const settings_readable = { get, subscribe }
+
+export { settings_writable, settings_readable };
 
