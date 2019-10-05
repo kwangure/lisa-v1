@@ -9,7 +9,7 @@ const production = !process.env.ROLLUP_WATCH
 
 export default [
 	{
-		input: `src/main/main.js`,
+		input: `src/newtab/main.js`,
 		output: {
 			file: `package/js/newtab.js`,
 			format: 'iife',
