@@ -220,10 +220,13 @@ export function pomodoro_store(timer, settings_readable){
         return result;
     }
 
-    function isSubset(array_1, array_2) {
-        return array_1.every(value => array_2.includes(value));
-    }
-
+    let pomodoro_store = writable(pomodoro);
+    pomodoro_store.subscribe(value => {
+        pomodoro = value;
+    })
+    let subscribers = objectMap(events, (_events, _event_key, event_name) => {
+        return { key: event_name, value: []};
+    });
     function emit(event_name) {
         let fns = subscribers[event_name];
         let event = {
@@ -233,31 +236,19 @@ export function pomodoro_store(timer, settings_readable){
         fns.forEach(fn => fn(event));
     }
 
-    let pomodoro_store = writable(pomodoro);
-    pomodoro_store.subscribe(value => {
-        pomodoro = value;
-    })
-    let subscribers = objectMap(events, (_events, _event_key, event_name) => {
-        return { key: event_name, value: []};
-    });
-
     let actions = {
         subscribe: function (event, event_listener) {
             if (typeof event_listener != 'function') {
                 throw new Error(errors.INVALID_EVENT_LISTENER);
+            }
+            if (Array.isArray(event)) {
+                event.forEach(e => this.subscribe(e, event_listener))
             }
             if (typeof event == 'string') {
                 if(Object.values(events).includes(event)){
                     subscribers[event].push(event_listener)
                 } else {
                     throw new Error(errors.INVALID_EVENT);
-                }
-            }
-            if (typeof event == 'array') {
-                if(isSubset(event, Object.values(events))){
-                    event.forEach(e => subscribers[e].push(event_listener))
-                } else {
-                    throw new Error(errors.INVALID_EVENTS);
                 }
             }
         },
