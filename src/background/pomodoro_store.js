@@ -55,20 +55,23 @@ export function pomodoro_store(timer, settings_readable){
         pomodoros_since_start: {
             value: 0,
             writable: true,
+            enumerable: true,
         },
         settings: {
             get: function(){
                 return settings_readable.get()
-            }
+            },
+            enumerable: true,
         },
         duration: {
             get: function () {
                 return {
-                    [phases.FOCUS]: this.settings.focus_duration,
-                    [phases.SHORT_BREAK]: this.settings.short_break_duration,
-                    [phases.LONG_BREAK]: this.settings.long_break_duration,
+                    [phases.FOCUS]: this.settings.focus.duration,
+                    [phases.SHORT_BREAK]: this.settings.short_break.duration,
+                    [phases.LONG_BREAK]: this.settings.long_break.duration,
                 } [this.phase];
-            }
+            },
+            enumerable: true,
         },
         _extended_duration: {
             value: 0,
@@ -82,13 +85,18 @@ export function pomodoro_store(timer, settings_readable){
                 if (value < 0) {
                     throw new Error(errors.VALUE_NEGATIVE);
                 }
+                if (value > this.total_duration) {
+                    throw new Error(errors.ELAPSED_GT_DURATION);
+                }
                 this._extended_duration = duration;
             },
+            enumerable: true,
         },
         total_duration: {
             get: function () {
                 return this.duration + this.extended_duration;
             },
+            enumerable: true,
         },
         _elapsed: {
             value: 0,
@@ -102,16 +110,15 @@ export function pomodoro_store(timer, settings_readable){
                 if (value < 0) {
                     throw new Error(errors.VALUE_NEGATIVE);
                 }
-                if (value > this.total_duration) {
-                    throw new Error(errors.ELAPSED_TOO_LARGE);
-                }
-                return this._elapsed;
-            }
+                this._elapsed = value;
+            },
+            enumerable: true,
         },
         remaining: {
             get: function () {
                 return this.total_duration - this.elapsed;
-            }
+            },
+            enumerable: true,
         },
         _state: {
             value: states.STOPPED,
@@ -126,7 +133,8 @@ export function pomodoro_store(timer, settings_readable){
                     throw new Error(errors.INVALID_STATE);
                 }
                 this._state = new_state;
-            }
+            },
+            enumerable: true,
         },
         status: {
             get: function () {
@@ -138,27 +146,32 @@ export function pomodoro_store(timer, settings_readable){
                     remaining: this.remaining,
                     state: this.state,
                 }
-            }
+            },
+            enumerable: true,
         },
         is_running: {
             get: function () {
                 return this.state == states.RUNNING;
-            }
+            },
+            enumerable: true,
         },
         is_paused: {
             get: function () {
                 return this.state == states.PAUSED;
-            }
+            },
+            enumerable: true,
         },
         is_stopped: {
             get: function () {
                 return this.state == states.STOPPED;
-            }
+            },
+            enumerable: true,
         },
         has_long_break: {
             qet: function () {
                 return this.settings.long_break.interval > 0;
-            }
+            },
+            enumerable: true,
         },
         pomodoros_until_long_break: {
             get: function () {
@@ -168,7 +181,8 @@ export function pomodoro_store(timer, settings_readable){
                 }
 
                 return interval - ((this.pomodoros - 1) % interval) - 1;
-            }
+            },
+            enumerable: true,
         },
         _phase: {
             value: phases.FOCUS,
@@ -189,7 +203,8 @@ export function pomodoro_store(timer, settings_readable){
                     this.pomodoros_since_start = 0
                 }
                 this._phase = new_phase;
-            }
+            },
+            enumerable: true,
         },
         next_phase: {
             get: function () {
@@ -206,7 +221,8 @@ export function pomodoro_store(timer, settings_readable){
                 } else {
                     return phases.SHORT_BREAK;
                 }
-            }
+            },
+            enumerable: true,
         },
     })
 
@@ -229,11 +245,11 @@ export function pomodoro_store(timer, settings_readable){
     });
     function emit(event_name) {
         let fns = subscribers[event_name];
-        let event = {
+        let event_msg = {
             event_name,
-            ...actions.get_status()
+            ...pomodoro
         };
-        fns.forEach(fn => fn(event));
+        fns.forEach(fn => fn(event_msg));
     }
 
     let actions = {
@@ -345,11 +361,13 @@ export function pomodoro_store(timer, settings_readable){
                     case states.STOPPED:
                         timer_store && timer_store.unsubscribe();
                         return status;
-                    case states.RUNNING && status.remaining == 0:
-                        this.expire();
-                        return status;
-                    default: // states.RUNNING
-                        status.elapsed += 1
+                    case states.RUNNING:
+                        if(status.remaining == 0){
+                            this.expire();
+                        } else {
+                            status.elapsed += 1
+                        }
+                        return status; 
                 }
                 return status
             })
