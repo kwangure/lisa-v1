@@ -4,7 +4,7 @@ const { writable } = persist("lisa-ext-settings");
 // hide set and destroy operations
 const { get, update, subscribe, reset } = writable({
     focus: {
-        duration: 25,
+        duration: 1500,
         timer_sound: null,
         notifications: {
             desktop: true,
@@ -13,7 +13,7 @@ const { get, update, subscribe, reset } = writable({
         }
     },
     short_break: {
-        duration: 5,
+        duration: 300,
         timer_sound: null,
         notifications: {
             desktop: true,
@@ -22,7 +22,7 @@ const { get, update, subscribe, reset } = writable({
         }
     },
     long_break: {
-        duration: 15,
+        duration: 300,
         interval: 4,
         timer_sound: null,
         notifications: {
