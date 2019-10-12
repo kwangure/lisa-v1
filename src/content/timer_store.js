@@ -16,18 +16,7 @@ chrome.runtime.onMessage.addListener(respond);
 window.onclose = () => chrome.runtime.onMessage.removeListener(respond);
 
 export const timer_actions = {
-    start: function () {
-        emit(events.START)
-    },
-    stop: function () {
-        emit(events.STOP)
-    },
-    pause: function () {
-        emit(events.PAUSE)
-    },
-    resume: function () {
-        emit(events.RESUME)
-    }
+    
 }
 
 /*function restart_timer() {
@@ -39,5 +28,19 @@ function restart_cycle() {
 }*/
 
 export function timer_readable() {
-    return { subscribe: pomodoro.subscribe }
+    return { 
+        subscribe: pomodoro.subscribe,
+        start: function () {
+            emit(events.START)
+        },
+        stop: function () {
+            emit(events.STOP)
+        },
+        pause: function () {
+            emit(events.PAUSE)
+        },
+        resume: function () {
+            emit(events.RESUME)
+        }
+    }
 }
