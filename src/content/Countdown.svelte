@@ -1,5 +1,5 @@
 <script>
-    import { timer_readable, timer_actions } from "./timer_store"
+    import { timer_readable } from "./timer_store"
     import { Button, Dropdown, Input, Modal, Tooltip } from "@deimimi/strawberry"
     import { phases } from "../background/pomodoro_store"
     import { 
@@ -16,11 +16,11 @@
     import { onDestroy, onMount } from 'svelte'
     import { mmss } from "./utils"
 
-    const { start, stop, pause, resume } = timer_actions;
+    let timer = timer_readable();
+    const { start, stop, pause, resume } = timer;
 
     let timer_stopped_modal = null;
     let visible = true;
-    let timer = timer_readable();
     let right = true;
     let extend_timer_by = 5
 
