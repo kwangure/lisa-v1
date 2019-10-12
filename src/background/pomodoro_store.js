@@ -49,7 +49,10 @@ const errors = {
 };
 
 export function pomodoro_store(timer, settings_readable){
-    let pomodoro = {};
+    let pomodoro = {
+        // Useful for checking if current phase is the first pomodoro
+        previous_phase: null,
+    };
 
     Object.defineProperties(pomodoro, {
         pomodoros_since_start: {
@@ -321,6 +324,7 @@ export function pomodoro_store(timer, settings_readable){
         },
         expire: function () {
             pomodoro_store.update(status => {
+                status.previous_phase = status.phase;
                 status.elapsed = 0;
                 status.pomodoros_since_start += 1;
                 status.state = states.STOPPED;
