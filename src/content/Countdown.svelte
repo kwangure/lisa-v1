@@ -138,23 +138,26 @@
                         class="action"/>
                 </Tooltip>
             </div>
-            <div class="ls-timer-card">
-                extendPhaseText 
-                <div class="ls-input-wrapper">
-                    <Input.Number bind:value={extend_timer_by} min={1}/>
+            {#if $timer.previous_phase}
+                <div class="ls-timer-card">
+                    extendPhaseText 
+                    <div class="ls-input-wrapper">
+                        <Input.Number bind:value={extend_timer_by} min={1}/>
+                    </div>
+                    { extend_timer_by == 1 ? "minute" : "minutes" }
+                    <div class="ls-extend">
+                        <Button color="primary"
+                            on:click={() => extendTimer(extend_timer_by) }>
+                            Extend
+                        </Button>
+                    </div>
                 </div>
-                { extend_timer_by == 1 ? "minute" : "minutes" }
-                <div class="ls-extend">
-                    <Button color="primary"
-                        on:click={() => extendTimer(extend_timer_by) }>
-                        Extend
-                    </Button>
-                </div>
-            </div>
-            <div>or</div>
+                <div>or</div>
+            {/if}
             <div on:click={ start } class="ls-timer-card phase">
                 nextPhaseText
             </div>
+            
         </div>
     </Modal>
 {:else if visible }
