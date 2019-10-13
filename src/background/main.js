@@ -1,7 +1,8 @@
 import timer from './timer'
 import { pomodoro_store, events } from './pomodoro_store'
 import { settings_writable, settings_readable } from './settings_store'
-import emitter_observer from './emitter_observer'
+import emit from './emit'
+import { service_requests } from './service';
 // import history_observer from './history_observer'
 // import notification_observer from './notification_observer'
 // import timer_sound_observer from './timer_sound_observer'
@@ -15,13 +16,20 @@ function start() {
     });
 
     let pomodoro    = pomodoro_store(timer, settings_readable);
+    //let messages    = message_store();
     //let history     = history_store();
-    
-    pomodoro.subscribe(Object.values(events), emitter_observer);
+    pomodoro.subscribe(Object.values(events), emit);
+    service_requests.listen({
+        pomodoro, 
+        settings: settings_writable
+    });
     // pomodoro.subscribe(events.EXPIRE, notification_observer);
     // pomodoro.subscribe(events.TICK, timer_sound_observer);
     // pomodoro.subscribe([events.EXPIRE, events.EXTEND], history_observer(history));
-    pomodoro.start()
+    
+    // Begin pomodoro in stopped state
+    pomodoro.stop();
 }
+
 
 start();
