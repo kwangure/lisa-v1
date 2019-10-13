@@ -68,35 +68,32 @@
         document.removeEventListener('keydown', onKeyDown)
     })
 
-    $: time = mmss($timer.remaining);
+    $: time = mmss($timer.remaining|| 0);
 
-    $: timerClass = $timer.is_stopped? 'ls-stop' : {
+    $: timer_class = $timer.is_stopped? 'ls-stop' : {
             null: '',
             [phases.FOCUS]: 'ls-focus',
             [phases.SHORT_BREAK]: 'ls-break',
             [phases.LONG_BREAK]: 'ls-break'
         }[$timer.phase]
-    /*$: nextPhaseText = ((nextPhase, Phase, M, hasLongBreak)=> {
-        if(elapsed == 0 && checkpointStartAt == null) {
-            return M.start_focusing
+    $: next_phase_text = (()=> {
+        if(!$timer.previous_phase) {
+            return "Start focusing"
         }
         return {
             null: '',
-            [Phase.Focus]: M.start_focusing,
-            [Phase.ShortBreak]: hasLongBreak ? M.take_a_short_break : M.take_a_break,
-            [Phase.LongBreak]: M.take_a_long_break
-        }[nextPhase];
-    })(nextPhase, Phase, M, hasLongBreak)
+            [phases.FOCUS]: "Start focusing",
+            [phases.SHORT_BREAK]: $timer.has_long_break ? "Take a short break" : "Take a break",
+            [phases.LONG_BREAK]: "Take a long break"
+        }[$timer.next_phase];
+    })()
     
-    $: extendPhaseText = ((phase, Phase)=> {
-        return {
-            null: '',
-            [Phase.Focus]: "Extend focus by",
-            [Phase.ShortBreak]: "Extend short break by",
-            [Phase.LongBreak]: "Extend long break by",
-        }[phase];
-    })(phase, Phase)*/
-    //debugger;
+    $: extend_phase_text = {
+        null: '',
+        [phases.FOCUS]: "Extend focus by",
+        [phases.SHORT_BREAK]: "Extend short break by",
+        [phases.LONG_BREAK]: "Extend long break by",
+    }[$timer.phase];
 </script>
 
 {#if $timer.is_stopped}
@@ -140,7 +137,7 @@
             </div>
             {#if $timer.previous_phase}
                 <div class="ls-timer-card">
-                    extendPhaseText 
+                    {extend_phase_text}
                     <div class="ls-input-wrapper">
                         <Input.Number bind:value={extend_timer_by} min={1}/>
                     </div>
@@ -155,16 +152,15 @@
                 <div>or</div>
             {/if}
             <div on:click={ start } class="ls-timer-card phase">
-                nextPhaseText
+                {next_phase_text}
             </div>
-            
         </div>
     </Modal>
 {:else if visible }
     <div class="ls-countdown">
         <div class="ls-main">
             <div class="ls-timer">
-                <div class="ls-time {timerClass} {$timer.is_paused? 'ls-paused':''}">
+                <div class="ls-time {timer_class} {$timer.is_paused? 'ls-paused':''}">
                     { time }
                 </div>
                 <div class="ls-controls">
