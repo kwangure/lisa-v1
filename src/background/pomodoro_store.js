@@ -313,6 +313,7 @@ export function pomodoro_store(timer, settings_readable){
                 status.elapsed = 0;
                 status.pomodoros_since_start = 0;
                 status.state = states.STOPPED; 
+                state.phase = phases.FOCUS;
                 return status
             })
             this.unsubscribe_from_timer()
