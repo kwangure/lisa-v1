@@ -309,6 +309,8 @@ export function pomodoro_store(timer, settings_readable){
             this.unsubscribe_from_timer()
             emit(events.STOP)
         },
+        // Avoid calling expire directly. It should be system only
+        // Use `stop` instead.
         expire: function () {
             pomodoro_store.update(status => {
                 status.previous_phase = status.phase;
@@ -355,8 +357,7 @@ export function pomodoro_store(timer, settings_readable){
                         return status;
                     case states.RUNNING:
                         if(status.remaining == 0){
-                            // don't use `this` since it's not exported
-                            actions.expire();
+                            this.expire();
                         } else {
                             status.elapsed += 1
                         }
@@ -371,16 +372,14 @@ export function pomodoro_store(timer, settings_readable){
                 this.tick()
             })
             this.unsubscribe_from_timer = function () {
-                unsubscribe()
-                this.unsubscribe_from_timer = noop
+                unsubscribe();
+                this.unsubscribe_from_timer = noop;
             }
         },
         unsubscribe_from_timer: noop
     }
-    // Do not export expire. Internal event only.
-    let { expire, ...public_actions } = actions
 
-    return public_actions
+    return actions
 }
 
 export { states, phases, events }
