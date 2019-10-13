@@ -139,19 +139,6 @@ export function pomodoro_store(timer, settings_readable){
             },
             enumerable: true,
         },
-        status: {
-            get: function () {
-                return {
-                    phase: this.phase,
-                    next_pase: this.next_phase,
-                    duration: this.duration,
-                    elapsed: this.elapsed,
-                    remaining: this.remaining,
-                    state: this.state,
-                }
-            },
-            enumerable: true,
-        },
         is_running: {
             get: function () {
                 return this.state == states.RUNNING;
@@ -272,7 +259,7 @@ export function pomodoro_store(timer, settings_readable){
             }
         },
         get_status: function(){
-            return pomodoro.status
+            return pomodoro
         },
         start_cycle: function () {
             this.stop()
