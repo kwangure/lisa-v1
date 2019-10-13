@@ -40,7 +40,6 @@ const enumerations = {
 const errors = {
     ELAPSED_GT_DURATION: "Elapsed cannot be greater than total duration.",
     INVALID_EVENT: "Event is not one of: " + enumerations.EVENTS,
-    INVALID_EVENTS: "An event is not one of: " + enumerations.EVENTS,
     INVALID_EVENT_LISTENER: "Event listener must be a function",
     INVALID_PHASE: "Phase is not one of: " + enumerations.PHASES,
     INVALID_STATE: "State is not one of: " + enumerations.STATES,
@@ -72,7 +71,7 @@ export function pomodoro_store(timer, settings_readable){
                     [phases.FOCUS]: this.settings.focus.duration,
                     [phases.SHORT_BREAK]: this.settings.short_break.duration,
                     [phases.LONG_BREAK]: this.settings.long_break.duration,
-                } [this.phase];
+                } [this.phase] * 60;
             },
             enumerable: true,
         },
@@ -158,7 +157,7 @@ export function pomodoro_store(timer, settings_readable){
             enumerable: true,
         },
         has_long_break: {
-            qet: function () {
+            get: function () {
                 return this.settings.long_break.interval > 0;
             },
             enumerable: true,
@@ -288,8 +287,12 @@ export function pomodoro_store(timer, settings_readable){
         },
         start: function () {
             pomodoro_store.update(status => {
+                if(status.previous_phase){
+                    status.previous_phase = status.phase;
+                    status.phase = status.next_phase;
+                }
                 status.elapsed = 0;
-                status.state = states.RUNNING; 
+                status.state = states.RUNNING;
                 return status
             })
             this.subscribe_to_timer()
@@ -345,16 +348,15 @@ export function pomodoro_store(timer, settings_readable){
         },
         tick: function () {
             pomodoro_store.update(status => {
-                debugger;
                 switch (status.state) {
                     case states.PAUSED:
                         return status;
                     case states.STOPPED:
-                        timer_store && timer_store.unsubscribe();
                         return status;
                     case states.RUNNING:
                         if(status.remaining == 0){
-                            this.expire();
+                            // don't use `this` since it's not exported
+                            actions.expire();
                         } else {
                             status.elapsed += 1
                         }
