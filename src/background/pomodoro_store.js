@@ -275,11 +275,7 @@ export function pomodoro_store(timer, settings_readable){
             return pomodoro.status
         },
         start_cycle: function () {
-            pomodoro_store.update(state => {
-                state.pomodoros = 0;
-                state.phase = phases.FOCUS;
-                return state;
-            })
+            this.stop()
             this.start()
         },
         start_focus: function () {
@@ -334,8 +330,10 @@ export function pomodoro_store(timer, settings_readable){
             emit(events.EXPIRE)
         },
         restart: function () {
-            this.stop()
-            this.start()
+            pomodoro_store.update(status => {
+                status.elapsed = 0;
+                return status
+            })
         },
         pause: function () {
             pomodoro_store.update(status => {
