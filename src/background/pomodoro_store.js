@@ -306,20 +306,20 @@ export function pomodoro_store(timer, settings_readable){
         start: function () {
             pomodoro_store.update(status => {
                 status.elapsed = 0;
-                status.state = states.RUNNING;
-                this.subscribe_to_timer()
+                status.state = states.RUNNING; 
                 return status
             })
+            this.subscribe_to_timer()
             emit(events.START)
         },
         stop: function () {
             pomodoro_store.update(status => {
                 status.elapsed = 0;
                 status.pomodoros_since_start = 0;
-                status.state = states.STOPPED;
-                this.unsubscribe_from_timer()
+                status.state = states.STOPPED; 
                 return status
             })
+            this.unsubscribe_from_timer()
             emit(events.STOP)
         },
         expire: function () {
@@ -328,9 +328,9 @@ export function pomodoro_store(timer, settings_readable){
                 status.elapsed = 0;
                 status.pomodoros_since_start += 1;
                 status.state = states.STOPPED;
-                this.unsubscribe_from_timer()
                 return status
             })
+            this.unsubscribe_from_timer()
             emit(events.EXPIRE)
         },
         restart: function () {
