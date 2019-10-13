@@ -1,46 +1,38 @@
 
 import { writable } from "svelte/store";
-import emit from "../background/emitter_observer"
-import { events } from "../background/pomodoro_store"
+import { events } from "../background/pomodoro_store";
+import { pomodoro_client } from "./client";
 
 let pomodoro = writable({});
 
-async function respond(message, sender, sendResponse) {
-    pomodoro.set(message)
-    sendResponse({});
-    return true;
-}
+(async function init() {
+    pomodoro.set(await pomodoro_client.get_status())
+})()
 
-chrome.runtime.onMessage.addListener(respond);
-
-window.onclose = () => chrome.runtime.onMessage.removeListener(respond);
-
-export const timer_actions = {
-    
-}
-
-/*function restart_timer() {
-    
-}
-
-function restart_cycle() {
-    
-}*/
+Object.values(events).forEach(event =>{
+    pomodoro_client.on(event, state => pomodoro.set(state))
+})
 
 export function timer_readable() {
     return { 
         subscribe: pomodoro.subscribe,
         start: function () {
-            emit(events.START)
+            pomodoro_client.start();
         },
         stop: function () {
-            emit(events.STOP)
+            pomodoro_client.stop();
         },
         pause: function () {
-            emit(events.PAUSE)
+            pomodoro_client.pause();
         },
         resume: function () {
-            emit(events.RESUME)
-        }
+            pomodoro_client.resume();
+        },
+        restart_timer: function () {
+            pomodoro_client.restart();
+        },
+        restart_cycle: function () {
+            pomodoro_client.start_cycle();
+        },
     }
 }
