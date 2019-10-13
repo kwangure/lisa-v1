@@ -183,7 +183,7 @@ export function pomodoro_store(timer, settings_readable){
                 return this._phase;
             },
             set: function (new_phase) {
-                if (Object.values(phases).includes(new_phase)) {
+                if (!Object.values(phases).includes(new_phase)) {
                     throw new Error(errors.INVALID_PHASE);
                 }
                 if (!this.has_long_break && new_phase == phases.LONG_BREAK) {
