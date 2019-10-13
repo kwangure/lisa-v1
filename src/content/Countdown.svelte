@@ -22,6 +22,7 @@
     let timer_stopped_modal = null;
     let visible = true;
     let right = true;
+    let pomodoros = [];
     let extend_timer_by = 5
 
     function toggleRight(){
@@ -68,7 +69,7 @@
         document.removeEventListener('keydown', onKeyDown)
     })
 
-    $: time = mmss($timer.remaining|| 0);
+    $: time = mmss(($timer && $timer.remaining)|| 0);
 
     $: timer_class = $timer.is_stopped? 'ls-stop' : {
             null: '',
@@ -94,16 +95,18 @@
         [phases.SHORT_BREAK]: "Extend short break by",
         [phases.LONG_BREAK]: "Extend long break by",
     }[$timer.phase];
+
+    $: pomodoros.length = $timer.pomodoros_since_start || 0
 </script>
 
 {#if $timer.is_stopped}
     <Modal bind:this={timer_stopped_modal} visible closable={false}>
         <div slot="content">
-            {#if $timer.pomodoros_since_start.length > 0}
+            {#if pomodoros > 0}
                 <div class="ls-pomodoro-wrapper">
                     <div>Pomodoros Today</div>
                     <div class="ls-pomodoros">
-                        {#each $timer.pomodoros_since_start as pomodoro}
+                        {#each pomodoros as pomodoro}
                             <span></span>
                         {/each}
                     </div>

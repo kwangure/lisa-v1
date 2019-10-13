@@ -1,10 +1,10 @@
 import { persist } from './store';
 
 const { writable } = persist("lisa-ext-settings");
-// hide set and destroy operations
-const { get, update, subscribe, reset } = writable({
+// hide destroy operation
+const { get, set, update, subscribe, reset } = writable({
     focus: {
-        duration: 1500,
+        duration: 5,
         timer_sound: null,
         notifications: {
             desktop: true,
@@ -33,7 +33,7 @@ const { get, update, subscribe, reset } = writable({
     },
 });
 
-const settings_writable = { get, update, subscribe, reset }
+const settings_writable = { get, set, update, subscribe, reset }
 const settings_readable = { get, subscribe }
 
 export { settings_writable, settings_readable };
