@@ -372,7 +372,7 @@ export function pomodoro_store(timer, settings_readable){
                 this.unsubscribe_from_timer = noop
             }
         },
-        unsubscribe_timer: noop
+        unsubscribe_from_timer: noop
     }
     // Do not export expire. Internal event only.
     let { expire, ...public_actions } = actions
