@@ -314,7 +314,6 @@ export function pomodoro_store(timer, settings_readable){
         expire: function () {
             pomodoro_store.update(status => {
                 status.previous_phase = status.phase;
-                status.elapsed = 0;
                 status.pomodoros_since_start += 1;
                 status.state = states.STOPPED;
                 return status
