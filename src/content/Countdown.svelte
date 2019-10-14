@@ -36,11 +36,11 @@
     let dropdownItems = [ 
         { 
             value: "Restart pomodoro cycle",
-            clickFn: ()=>{},
+            clickFn: timer.restart,
         }, 
         { 
             value: "Restart current timer",
-            clickFn: ()=>{},
+            clickFn: timer.restart_cycle,
         },
         { 
             value: "Open settings page",
