@@ -1,13 +1,11 @@
 function proxy(service){
     let root = {
         on: function(event, event_listener){
-            chrome.runtime.onMessage.addListener((message, sender, send_response)=>{
+            chrome.runtime.onMessage.addListener((message)=>{
                 const { event_name, ...value} = message;
                 if(event == event_name) {
                     event_listener(value);
                 }
-                send_response({});
-                return true;
             });
         }
     }
@@ -21,6 +19,12 @@ function proxy(service){
                     chrome.runtime.sendMessage(
                         {service, method: propKey, args}, 
                         function(response){
+                            if(chrome.runtime.lastError){
+                                console.log(
+                                    "Failed response", 
+                                    {service, method: propKey, args}
+                                )
+                            }
                             resolve(response)
                     })
                 })
