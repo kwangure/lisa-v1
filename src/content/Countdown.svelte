@@ -17,7 +17,6 @@
     import { mmss } from "./utils"
 
     let timer = timer_readable();
-    const { start, stop, pause, resume } = timer;
 
     let timer_stopped_modal = null;
     let visible = true;
@@ -169,15 +168,15 @@
                 <div class="ls-controls">
                     {#if $timer.is_paused}
                         <Tooltip label="Resume timer">
-                            <Button on:click={resume} icon={mdiPlayOutline} color="none"/>
+                            <Button on:click={timer.resume} icon={mdiPlayOutline} color="none"/>
                         </Tooltip>
                     {:else if $timer.is_running}
                         <Tooltip label="Pause timer">
-                            <Button on:click={pause} icon={mdiPause} color="none"/>
+                            <Button on:click={timer.pause} icon={mdiPause} color="none"/>
                         </Tooltip>
                     {:else if $timer.is_stopped}
                         <Tooltip label="Start timer">
-                            <Button on:click={start} icon={mdiPlayOutline} color="none"/>
+                            <Button on:click={timer.start} icon={mdiPlayOutline} color="none"/>
                         </Tooltip>
                     {/if}
                     {#if right}
