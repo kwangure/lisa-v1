@@ -47,6 +47,11 @@
         } 
     ]
 
+    const ARROW_LEFT = 37
+    const ARROW_UP = 38
+    const ARROW_RIGHT = 39
+    const ARROW_DOWN = 40
+    
     function onKeyDown(e) {
         if(!e.altKey || !e.shiftKey) return;
         
@@ -153,7 +158,7 @@
                 </div>
                 <div>or</div>
             {/if}
-            <div on:click={ start } class="ls-timer-card phase">
+            <div on:click={ timer.start } class="ls-timer-card phase">
                 {next_phase_text}
             </div>
         </div>
