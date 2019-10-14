@@ -35,3 +35,4 @@ function proxy(service){
 
 export const pomodoro_client = proxy("pomodoro");
 export const settings_client = proxy("settings");
+export const sound_client = proxy("sound");

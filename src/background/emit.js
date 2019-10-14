@@ -16,8 +16,8 @@ function emit_runtime(message) {
     });
 }
 
-export default function (event) {
-    emit_tabs(event);
-    emit_runtime(event);
+export default function (message) {
+    emit_tabs(message);
+    emit_runtime(message);
 }
 

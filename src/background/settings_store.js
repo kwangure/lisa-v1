@@ -5,7 +5,10 @@ const { writable } = persist("lisa-ext-settings");
 const { get, set, update, subscribe, reset } = writable({
     focus: {
         duration: 5,
-        timer_sound: null,
+        timer_sound: {
+            file: null,
+            bpm: null,
+        },
         notifications: {
             desktop: true,
             tab: true,
@@ -14,7 +17,10 @@ const { get, set, update, subscribe, reset } = writable({
     },
     short_break: {
         duration: 300,
-        timer_sound: null,
+        timer_sound: {
+            file: null,
+            bpm: null,
+        },
         notifications: {
             desktop: true,
             tab: true,
@@ -24,7 +30,10 @@ const { get, set, update, subscribe, reset } = writable({
     long_break: {
         duration: 300,
         interval: 4,
-        timer_sound: null,
+        timer_sound: {
+            file: null,
+            bpm: null,
+        },
         notifications: {
             desktop: true,
             tab: true,
@@ -33,8 +42,9 @@ const { get, set, update, subscribe, reset } = writable({
     },
 });
 
-const settings_writable = { get, set, update, subscribe, reset }
-const settings_readable = { get, subscribe }
-
-export { settings_writable, settings_readable };
-
+export function settings_writable () {
+    return { get, set, update, subscribe, reset }
+}
+export function settings_readable () {
+    return { get, subscribe }
+}

@@ -47,7 +47,7 @@ const errors = {
     VALUE_NEGATIVE: "Value cannot be negative.",
 };
 
-export function pomodoro_store(timer, settings_readable){
+export function pomodoro_readable(timer, settings){
     let pomodoro = {
         // Useful for checking if current phase is the first pomodoro
         previous_phase: null,
@@ -61,7 +61,7 @@ export function pomodoro_store(timer, settings_readable){
         },
         settings: {
             get: function(){
-                return settings_readable.get()
+                return settings.get()
             },
             enumerable: true,
         },
