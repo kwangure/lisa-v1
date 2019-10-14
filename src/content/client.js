@@ -1,11 +1,13 @@
 function proxy(service){
     let root = {
         on: function(event, event_listener){
-            chrome.runtime.onMessage.addListener((message, )=>{
-                const { event_name, ...value} = message
-                if(event == event_name){
-                    event_listener(value)
+            chrome.runtime.onMessage.addListener((message, sender, send_response)=>{
+                const { event_name, ...value} = message;
+                if(event == event_name) {
+                    event_listener(value);
                 }
+                send_response({});
+                return true;
             });
         }
     }
