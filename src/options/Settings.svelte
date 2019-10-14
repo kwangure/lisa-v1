@@ -1,11 +1,52 @@
 <script>
     import { settings_writable } from '../content/settings_store'
+    import { sound_client } from '../content/client'
     import { Button, Input, Icon } from '@deimimi/strawberry'
     import { mdiVolumeHigh } from '@mdi/js'
 
     let settings = settings_writable();
+    let notification_sounds = sound_client.get_notification_sounds();
+
+    let stop_sound_helper = () => {};
+
+    $: can_play_sound = (() => {
+        let loaded = $settings && $settings.focus;
+        let sound_selected = loaded && $settings.focus.timer_sound.file != "none";
+        let valid_bpm = loaded && (($settings.focus.timer_sound.bpm == null) || 
+            ($settings.focus.timer_sound.bpm > 0 && 
+            $settings.focus.timer_sound.bpm <= 1000));
+
+        return sound_selected && valid_bpm;
+    })();
+
+    async function play_timer_sound() {
+        let interval = Math.floor(60 / $settings.focus.timer_sound.bpm) * 1000;
+        let audio = new Audio(`..${$settings.focus.timer_sound.file}`);
+        let bpm = $settings.focus.timer_sound.bpm;
+        if(bpm){
+            let interval_id = setInterval(async function player() {
+                await audio.play()
+            }, interval);
+            stop_sound_helper = async () => {
+                clearInterval(interval_id)
+            };
+        } else {
+            await audio.play()
+            stop_sound_helper = audio.pause;
+        }  
+    }
+
+    async function play_sound(file_name) {
+        let audio = new Audio(`..${file_name}`);
+        await audio.play()
+    }
+
+    function stop_sound() {
+        // Allows us to change the listener dynamically
+        stop_sound_helper()
+    }
 </script>
-{#if $settings.focus}
+{#if $settings && $settings.focus}
     <div class="main">
         <div class="content-wrapper">
             <div class="section">
@@ -20,44 +61,37 @@
                     </div>
                     <span> { $settings.focus.duration == 1 ? "minute": "minutes" }</span>
                 </div>
-                <!--div class="section-field">
-                    <span>{ M.timer_sound_label }</span>
+                <div class="section-field">
+                    <span>Timer sound </span>
                     <div class="input-wrapper">
-                        <select bind:value={focusTimerSound}>
-                            <option value="null">{ M.none }</option>
-                            <optgroup label="{M.periodic_beat}">
-                                {#each timerSounds as sound}
-                                    <option value="{sound.files}">{sound.name }</option>
+                        <select bind:value={$settings.focus.timer_sound.file}>
+                            <option value="none"> None </option>
+                            {#await sound_client.get_timer_sounds() then sounds}
+                                {#each sounds as sound}
+                                    <option value="{sound.file}">{sound.name}</option>
                                 {/each}
-                            </optgroup>
-                            <optgroup label="{M.noise}">
-                            <option value="'brown-noise'">{ M.brown_noise }</option>
-                            <option value="'pink-noise'">{ M.pink_noise }</option>
-                            <option value="'white-noise'">{ M.white_noise }</option>
-                            </optgroup>
+                            {/await}
                         </select>
                     </div>
-                    <span>{ M.during_focus_label }&nbsp;</span>
-                    {#if canPlayTimerSound}
-                        <span on:mouseover={playTimerSound} on:mouseout={stopTimerSound} class="preview">
+                    <span> during focus </span>
+                    {#if can_play_sound}
+                        <span on:mouseover={play_timer_sound} on:mouseout={stop_sound} class="preview">
                             (
                                 <span class="icon"><Icon path={mdiVolumeHigh} size={18}/></span> 
-                                { M.hover_preview }
+                                Hover to preview
                             )
                         </span>
                     {/if}
-                </div-->
-                <!--div class="section-field">
-                    {#if focusTimerBPM != null}
-                        <span>{ M.speed_label }</span>
-                        <div class="input-wrapper">
-                            <Input.Number
-                                min="1" max="1000"
-                                bind:value={focusTimerBPM}/>
-                        </div>
-                        <span>{ M.bpm }</span>
-                    {/if}
-                </div-->
+                </div>
+                <div class="section-field">
+                    <span>Speed: </span>
+                    <div class="input-wrapper">
+                        <Input.Number
+                            min="0" max="1000"
+                            bind:value={$settings.focus.timer_sound.bpm}/>
+                    </div>
+                    <span>beats per minute</span>
+                </div>
                 <div class="section-field">
                     When complete
                 </div>
@@ -72,19 +106,20 @@
                             bind:checked={$settings.focus.notifications.tab}
                             label="Show new tab notification"/>
                     </div>
-                    <!--div class="section-field">
-                        <span>{ M.play_audio_notification }</span>
+                    <div class="section-field">
+                        <span>Play notification audio</span>
                         <div class="input-wrapper">
-                            <select 
-                                bind:value={settings.focus.notifications.sound} 
-                                on:input={event => setSound(event.target.value)}>
-                                <option value="null">{ M.none }</option>
-                                {#each notificationSounds as sound}
+                            <select bind:value={$settings.focus.notifications.sound}
+                                on:input={(e)=>play_sound(e.target.value)}>
+                                <option value="none">None</option>
+                                {#await notification_sounds then sounds}
+                                    {#each sounds as sound}
                                     <option value={sound.file}>{ sound.name }</option>
-                                {/each}
+                                    {/each}
+                                {/await}
                             </select>
                         </div>
-                    </div--> 
+                    </div> 
                 </div>
             </div>
             <div class="section">
@@ -111,19 +146,20 @@
                             bind:checked={$settings.short_break.notifications.tab}
                             label="Show new tab notification"/>
                     </div>
-                    <!--div class="section-field">
-                        <span>{ M.play_audio_notification }</span>
+                    <div class="section-field">
+                        <span>Play audio notification</span>
                         <div class="input-wrapper">
-                            <select 
-                                bind:value={settings.short_break.notifications.sound} 
-                                on:input={event => setSound(event.target.value)}>
-                                <option value="null">{ M.none }</option>
-                                {#each notificationSounds as sound}
+                            <select bind:value={$settings.short_break.notifications.sound}
+                                on:input={(e)=>play_sound(e.target.value)}>
+                                <option value="none">None</option>
+                                {#await notification_sounds then sounds}
+                                    {#each sounds as sound}
                                     <option value={sound.file}>{ sound.name }</option>
-                                {/each}
+                                    {/each}
+                                {/await}
                             </select>
                         </div> 
-                    </div-->
+                    </div>
                 </div>
             </div>
             <div class="section">
@@ -169,19 +205,20 @@
                                 bind:checked={$settings.long_break.notifications.tab}
                                 label="Show new tab notification"/>
                         </div>
-                        <!--div class="section-field">
-                            <span>{ M.play_audio_notification }</span>
+                        <div class="section-field">
+                            <span>Play audio notification</span>
                             <div class="input-wrapper">
-                                <select 
-                                    bind:value={$settings.long_break.notifications.sound} 
-                                    on:input={event => setSound(event.target.value)}>
-                                    <option value="null">{ M.none }</option>
-                                    {#each notificationSounds as sound}
-                                        <option value={sound.file}>{ sound.name }</option>
-                                    {/each}
+                                <select bind:value={$settings.long_break.notifications.sound}
+                                    on:input={(e)=>play_sound(e.target.value)}>
+                                    <option value="none">None</option>
+                                    {#await notification_sounds then sounds}
+                                        {#each sounds as sound}
+                                            <option value={sound.file}>{ sound.name }</option>
+                                        {/each}
+                                    {/await}
                                 </select>
                             </div>
-                        </div-->
+                        </div>
                     </div>
                 {/if}
             </div>

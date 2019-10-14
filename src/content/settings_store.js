@@ -15,10 +15,10 @@ export function settings_writable() {
     return { 
         subscribe: settings.subscribe,
         set: function (state) {
-            settings_client.set(state)
+            settings_client.set(state);
         },
         update: async function (update_fn) {
-            let state = update_fn(await settings.get());
+            let state = update_fn(await this.get());
             settings_client.set(state)
         },
         get: function () {
