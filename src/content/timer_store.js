@@ -17,22 +17,22 @@ export function timer_readable() {
     return { 
         subscribe: pomodoro.subscribe,
         start: function () {
-            pomodoro_client.start();
+            return pomodoro_client.start();
         },
         stop: function () {
-            pomodoro_client.stop();
+            return pomodoro_client.stop();
         },
         pause: function () {
-            pomodoro_client.pause();
+            return pomodoro_client.pause();
         },
         resume: function () {
-            pomodoro_client.resume();
+            return pomodoro_client.resume();
         },
-        restart_timer: function () {
-            pomodoro_client.restart();
+        restart: function () {
+            return pomodoro_client.restart();
         },
         restart_cycle: function () {
-            pomodoro_client.start_cycle();
+            return pomodoro_client.start_cycle();
         },
     }
 }
