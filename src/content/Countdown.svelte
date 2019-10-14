@@ -25,7 +25,7 @@
     let pomodoros = [];
     let extend_timer_by = 5
 
-    function toggleRight(){
+    function toggle_right(){
         right = !right
     }
 
@@ -99,7 +99,7 @@
     $: pomodoros.length = $timer.pomodoros_since_start || 0
 </script>
 
-{#if $timer.is_stopped}
+{#if $timer && $timer.is_stopped}
     <Modal bind:this={timer_stopped_modal} visible closable={false}>
         <div slot="content">
             {#if pomodoros > 0}
@@ -160,7 +160,7 @@
         </div>
     </Modal>
 {:else if visible }
-    <div class="ls-countdown">
+    <div class="ls-countdown {right? 'ls-bottom-right':''}">
         <div class="ls-main">
             <div class="ls-timer">
                 <div class="ls-time {timer_class} {$timer.is_paused? 'ls-paused':''}">
@@ -183,16 +183,16 @@
                     {#if right}
                         <Tooltip label="Move timer left">
                             <Button 
-                                on:click={toggleRight} 
+                                on:click={toggle_right} 
                                 icon={mdiPictureInPictureBottomRightOutline}
-                                iconProps={{flip: 'h'}}
+                                iconProps={{flip: 'horizontal'}}
                                 color="none" 
                                 class="action"/>
                         </Tooltip>
                     {:else}
                         <Tooltip label="Move timer right">
                             <Button 
-                                on:click={toggleRight} 
+                                on:click={toggle_right} 
                                 icon={mdiPictureInPictureBottomRightOutline}
                                 color="none" 
                                 class="action"/>
