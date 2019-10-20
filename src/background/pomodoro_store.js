@@ -368,9 +368,12 @@ export function pomodoro_readable(timer, settings){
             emit(events.TICK)
         },
         subscribe_to_timer: function () {
+            this.unsubscribe_from_timer();
+
             let unsubscribe = timer.subscribe(() => {
                 this.tick()
             })
+            
             this.unsubscribe_from_timer = function () {
                 unsubscribe();
                 this.unsubscribe_from_timer = noop;
