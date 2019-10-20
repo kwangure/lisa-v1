@@ -81,14 +81,11 @@ export function pomodoro_readable(timer, settings){
         },
         extended_duration: {
             get: function () {
-                return this._extended_duration;
+                return this._extended_duration * 60;
             },
             set: function (duration) {
-                if (value < 0) {
+                if (duration < 0) {
                     throw new Error(errors.VALUE_NEGATIVE);
-                }
-                if (value > this.total_duration) {
-                    throw new Error(errors.ELAPSED_GT_DURATION);
                 }
                 this._extended_duration = duration;
             },
@@ -187,9 +184,6 @@ export function pomodoro_readable(timer, settings){
                 }
                 if (!this.has_long_break && new_phase == phases.LONG_BREAK) {
                     throw new Error(errors.NO_LONG_BREAK_INTERVAL);
-                }
-                if(new_phase == phases.FOCUS){
-                    this.pomodoros_since_start = 0
                 }
                 this._phase = new_phase;
             },
@@ -344,10 +338,15 @@ export function pomodoro_readable(timer, settings){
             emit(events.RESUME)
         },
         extend: function (duration) {
-            pomodoro_store.update(state => {
-                state.duration = duration;
-            })
-            emit(events.EXTEND)
+            pomodoro_store.update(status => {
+                status.extended_duration = duration; 
+                status.phase = status.previous_phase;
+                status.pomodoros_since_start -= 1;
+                status.state = states.RUNNING;
+                return status;
+            });
+            this.subscribe_to_timer();
+            emit(events.EXTEND);
         },
         tick: function () {
             pomodoro_store.update(status => {
