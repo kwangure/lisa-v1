@@ -22,14 +22,10 @@
     let visible = true;
     let right = true;
     let pomodoros = [];
-    let extend_timer_by = 5
+    let extend_timer_by = 5;
 
     function toggle_right(){
         right = !right
-    }
-
-    function extendTimer(durationInMins){
-        let durationInSecs = durationInMins * 60
     }
 
     let dropdownItems = [ 
@@ -151,7 +147,7 @@
                     { extend_timer_by == 1 ? "minute" : "minutes" }
                     <div class="ls-extend">
                         <Button color="primary"
-                            on:click={() => extendTimer(extend_timer_by) }>
+                            on:click={() => timer.extend(extend_timer_by) }>
                             Extend
                         </Button>
                     </div>

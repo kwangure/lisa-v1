@@ -28,6 +28,9 @@ export function timer_readable() {
         resume: function () {
             return pomodoro_client.resume();
         },
+        extend: function (duration) {
+            return pomodoro_client.extend(duration);
+        },
         restart: function () {
             return pomodoro_client.restart();
         },
