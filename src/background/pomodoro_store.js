@@ -61,7 +61,7 @@ export function pomodoro_readable(timer, settings){
         },
         settings: {
             get: function(){
-                return settings.get()
+                return settings.get();
             },
             enumerable: true,
         },
@@ -328,6 +328,7 @@ export function pomodoro_readable(timer, settings){
             })
         },
         pause: function () {
+            if(pomodoro.state != states.RUNNING) return;
             pomodoro_store.update(status => {
                 status.state = states.PAUSED;
                 return status;
@@ -335,6 +336,7 @@ export function pomodoro_readable(timer, settings){
             emit(events.PAUSE)
         },
         resume: function () {
+            if(pomodoro.state != states.PAUSED) return;
             pomodoro_store.update(status => {
                 status.state = states.RUNNING;
                 return status;
