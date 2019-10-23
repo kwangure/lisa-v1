@@ -14,7 +14,7 @@ const phases = {
     LONG_BREAK: "long-break",
 };
 
-const events = {
+const transitions = {
     START: "start",
     STOP: "stop",
     EXPIRE: "expire",
@@ -33,14 +33,14 @@ function enumerate_with_word(object, word) {
 
 const enumerations = {
     PHRASES: enumerate_with_word(phases, "or"),
-    EVENTS: enumerate_with_word(events, "or"),
+    TRANSITIONS: enumerate_with_word(transitions, "or"),
     STATES: enumerate_with_word(states, "or"),
 };
 
 const errors = {
     ELAPSED_GT_DURATION: "Elapsed cannot be greater than total duration.",
-    INVALID_EVENT: "Event is not one of: " + enumerations.EVENTS,
-    INVALID_EVENT_LISTENER: "Event listener must be a function",
+    INVALID_TRANSITION: "Transition is not one of: " + enumerations.TRANSITIONS,
+    INVALID_SUBSCRIBER: "Subscriber must be a function",
     INVALID_PHASE: "Phase is not one of: " + enumerations.PHASES,
     INVALID_STATE: "State is not one of: " + enumerations.STATES,
     NO_LONG_BREAK_INTERVAL: "No long break interval defined.",
@@ -207,49 +207,35 @@ export function pomodoro_readable(timer, settings){
             },
             enumerable: true,
         },
+        _transition: {
+            value: phases.FOCUS,
+            writable: true,
+        },
+        transition: {
+            get: function () {
+                return this._transition;
+            },
+            set: function (transition) {
+                if (!Object.values(transitions).includes(transition)) {
+                    throw new Error(errors.INVALID_TRANSITION);
+                }
+                this._transition = transition;
+            },
+        }
     })
 
-    function objectMap(obj, callback) {
-        var result = {};
-        Object.keys(obj).forEach(function (obj_key) {
-            let { key, value } = callback(obj, obj_key, obj[obj_key]);
-            result[key] = value
-        });
-        
-        return result;
-    }
-
     let pomodoro_store = writable(pomodoro);
+
     pomodoro_store.subscribe(value => {
         pomodoro = value;
     })
-    let subscribers = objectMap(events, (_events, _event_key, event_name) => {
-        return { key: event_name, value: []};
-    });
-    function emit(event_name) {
-        let fns = subscribers[event_name];
-        let event_msg = {
-            event_name,
-            ...pomodoro
-        };
-        fns.forEach(fn => fn(event_msg));
-    }
 
     let actions = {
-        subscribe: function (event, event_listener) {
-            if (typeof event_listener != 'function') {
-                throw new Error(errors.INVALID_EVENT_LISTENER);
+        subscribe: function(subscriber){
+            if (typeof subscriber != 'function') {
+                throw new Error(errors.INVALID_SUBSCRIBER);
             }
-            if (Array.isArray(event)) {
-                event.forEach(e => this.subscribe(e, event_listener))
-            }
-            if (typeof event == 'string') {
-                if(Object.values(events).includes(event)){
-                    subscribers[event].push(event_listener)
-                } else {
-                    throw new Error(errors.INVALID_EVENT);
-                }
-            }
+            pomodoro_store.subscribe(subscriber)
         },
         get_status: function(){
             return pomodoro
@@ -287,10 +273,10 @@ export function pomodoro_readable(timer, settings){
                 }
                 status.elapsed = 0;
                 status.state = states.RUNNING;
+                status.transition = transitions.START;
                 return status
             })
             this.subscribe_to_timer()
-            emit(events.START)
         },
         stop: function () {
             pomodoro_store.update(status => {
@@ -298,10 +284,10 @@ export function pomodoro_readable(timer, settings){
                 status.pomodoros_since_start = 0;
                 status.state = states.STOPPED; 
                 status.phase = phases.FOCUS;
+                status.transition = transitions.STOP;
                 return status
             })
             this.unsubscribe_from_timer()
-            emit(events.STOP)
         },
         // Avoid calling expire directly. It should be system only
         // Use `stop` instead.
@@ -310,10 +296,11 @@ export function pomodoro_readable(timer, settings){
                 status.previous_phase = status.phase;
                 status.pomodoros_since_start += 1;
                 status.state = states.STOPPED;
+                status.extended_duration = 0;
+                status.transition = transitions.EXPIRE;
                 return status
             })
             this.unsubscribe_from_timer()
-            emit(events.EXPIRE)
         },
         restart: function () {
             pomodoro_store.update(status => {
@@ -325,17 +312,17 @@ export function pomodoro_readable(timer, settings){
             if(pomodoro.state != states.RUNNING) return;
             pomodoro_store.update(status => {
                 status.state = states.PAUSED;
+                status.transition = transitions.PAUSE;
                 return status;
             })
-            emit(events.PAUSE)
         },
         resume: function () {
             if(pomodoro.state != states.PAUSED) return;
             pomodoro_store.update(status => {
                 status.state = states.RUNNING;
+                status.transition = transitions.RESUME;
                 return status;
             })
-            emit(events.RESUME)
         },
         extend: function (duration) {
             pomodoro_store.update(status => {
@@ -343,10 +330,10 @@ export function pomodoro_readable(timer, settings){
                 status.phase = status.previous_phase;
                 status.pomodoros_since_start -= 1;
                 status.state = states.RUNNING;
+                status.transition = transitions.EXTEND;
                 return status;
             });
             this.subscribe_to_timer();
-            emit(events.EXTEND);
         },
         tick: function () {
             pomodoro_store.update(status => {
@@ -363,9 +350,9 @@ export function pomodoro_readable(timer, settings){
                         }
                         return status; 
                 }
+                status.transition = transitions.TICK;
                 return status
             })
-            emit(events.TICK)
         },
         subscribe_to_timer: function () {
             this.unsubscribe_from_timer();
@@ -385,4 +372,4 @@ export function pomodoro_readable(timer, settings){
     return actions
 }
 
-export { states, phases, events }
+export { states, phases, transitions as events }
