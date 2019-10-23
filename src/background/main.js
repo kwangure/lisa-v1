@@ -18,25 +18,19 @@ function start() {
     let settings    = settings_writable();
     let pomodoro    = pomodoro_readable(timer, settings);
     let sound       = sound_store();
-    //let history     = history_store();
 
-    // TODO(kwangure): standardize subscription functions for different stores
-    pomodoro.subscribe(Object.values(events), emit);
-    settings.subscribe(state => {
-        let message = {
-            event_name: "settings-change",
-            ...state,
-        };
-        emit(message);
+    pomodoro.subscribe(value => {
+        const { transition, ...pomodoro_state } = value;
+        emit(transition, pomodoro_state);
     });
+
+    settings.subscribe(value => emit("settings-change", value));
+
     service_requests.listen({
         pomodoro, 
         settings,
         sound,
     });
-    // pomodoro.subscribe(events.EXPIRE, notification_observer);
-    // pomodoro.subscribe(events.TICK, timer_sound_observer);
-    // pomodoro.subscribe([events.EXPIRE, events.EXTEND], history_observer(history));
     
     // Begin pomodoro in stopped state
     pomodoro.stop();
