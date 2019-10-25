@@ -1,6 +1,6 @@
 <script>
     import { settings_writable } from '../content/settings_store'
-    import { sound_client } from '../content/client'
+    import { sound_client } from '../client'
     import { Button, Input, Icon } from '@deimimi/strawberry'
     import { mdiVolumeHigh } from '@mdi/js'
 

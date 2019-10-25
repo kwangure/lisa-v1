@@ -208,7 +208,7 @@ export function pomodoro_readable(timer, settings){
             enumerable: true,
         },
         _transition: {
-            value: phases.FOCUS,
+            value: null,
             writable: true,
         },
         transition: {
@@ -235,7 +235,7 @@ export function pomodoro_readable(timer, settings){
             if (typeof subscriber != 'function') {
                 throw new Error(errors.INVALID_SUBSCRIBER);
             }
-            pomodoro_store.subscribe(subscriber)
+            return pomodoro_store.subscribe(subscriber)
         },
         get_status: function(){
             return pomodoro
@@ -276,7 +276,7 @@ export function pomodoro_readable(timer, settings){
                 status.transition = transitions.START;
                 return status
             })
-            this.subscribe_to_timer()
+            this.subscribe_to_timer();
         },
         stop: function () {
             pomodoro_store.update(status => {
@@ -336,29 +336,21 @@ export function pomodoro_readable(timer, settings){
             this.subscribe_to_timer();
         },
         tick: function () {
-            pomodoro_store.update(status => {
-                switch (status.state) {
-                    case states.PAUSED:
-                        return status;
-                    case states.STOPPED:
-                        return status;
-                    case states.RUNNING:
-                        if(status.remaining == 0){
-                            this.expire();
-                        } else {
-                            status.elapsed += 1
-                        }
-                        return status; 
-                }
-                status.transition = transitions.TICK;
-                return status
-            })
+            if(pomodoro.remaining == 0) {
+                this.expire();
+            } else if (pomodoro.state == states.RUNNING) {
+                pomodoro_store.update(status => {
+                    status.elapsed += 1
+                    status.transition = transitions.TICK;
+                    return status
+                });
+            }
         },
         subscribe_to_timer: function () {
             this.unsubscribe_from_timer();
 
             let unsubscribe = timer.subscribe(() => {
-                this.tick()
+                this.tick();
             })
             
             this.unsubscribe_from_timer = function () {

@@ -1,7 +1,7 @@
 
 import { writable } from "svelte/store";
 import { events } from "../background/pomodoro_store";
-import { settings_client } from "./client";
+import { settings_client } from "../client";
 
 let settings = writable({});
 
