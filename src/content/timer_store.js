@@ -1,7 +1,7 @@
 
 import { writable } from "svelte/store";
 import { events } from "../background/pomodoro_store";
-import { pomodoro_client } from "./client";
+import { pomodoro_client } from "../client";
 
 let pomodoro = writable({});
 
@@ -9,8 +9,10 @@ let pomodoro = writable({});
     pomodoro.set(await pomodoro_client.get_status())
 })()
 
-Object.values(events).forEach(event =>{
-    pomodoro_client.on(event, state => pomodoro.set(state))
+Object.values(events).forEach(event => {
+    pomodoro_client.on(event, state => {
+        pomodoro.set(state)
+    })
 })
 
 export function timer_readable() {

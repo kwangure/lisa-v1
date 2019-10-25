@@ -1,13 +1,12 @@
 import timer from './timer'
 import { pomodoro_readable, events } from './pomodoro_store'
 import { sound_store } from './sound_store'
-import { settings_writable, settings_readable } from './settings_store'
+import { settings_writable } from './settings_store'
 import emit from './emit'
 import { service_requests } from './service';
-// import history_observer from './history_observer'
-// import notification_observer from './notification_observer'
+import notification from './notification';
 
-function start() {
+(function () {
     chrome.runtime.onUpdateAvailable.addListener(() => {
         // We must listen to (but do nothing with) the onUpdateAvailable event in order to
         // defer updating the extension until the next time Chrome is restarted. We do not want
@@ -19,13 +18,29 @@ function start() {
     let pomodoro    = pomodoro_readable(timer, settings);
     let sound       = sound_store();
 
+    let pomodoro_subscribers = {
+        [null]: [],
+        [events.EXPIRE]: [notification],
+        [events.EXTEND]: [],
+        [events.PAUSE]: [],
+        [events.RESUME]: [],
+        [events.START]: [],
+        [events.STOP]: [],
+        [events.TICK]: [],
+    };
+
     pomodoro.subscribe(value => {
         const { transition, ...pomodoro_state } = value;
         emit(transition, pomodoro_state);
+        // since sendMessage doesn't work in the sender's frame
+        // we have to call background script subscribers manually
+        let subscribers = pomodoro_subscribers[transition];
+        subscribers.forEach(fn => fn(pomodoro));
     });
 
     settings.subscribe(value => emit("settings-change", value));
 
+    // listen to requests from outside background script
     service_requests.listen({
         pomodoro, 
         settings,
@@ -34,7 +49,4 @@ function start() {
     
     // Begin pomodoro in stopped state
     pomodoro.stop();
-}
-
-
-start();
+})()
