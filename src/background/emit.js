@@ -16,9 +16,9 @@ function emit_runtime(message) {
     });
 }
 
-export default function (service, data) {
+export default function (event, data) {
     let message = {
-        event_name: service,
+        event_name: event,
         ...data,
     };
     emit_tabs(message);
