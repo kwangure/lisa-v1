@@ -10,8 +10,8 @@ const states = {
 
 const phases = {
     FOCUS: "focus",
-    SHORT_BREAK: "short-break",
-    LONG_BREAK: "long-break",
+    SHORT_BREAK: "short_break",
+    LONG_BREAK: "long_break",
 };
 
 const transitions = {
