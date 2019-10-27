@@ -118,7 +118,7 @@
             <div class="ls-stopped-controls">
                 <Tooltip label="Restart pomodoro cycle">
                     <Button 
-                        on:click={ ()=>{} } 
+                        on:click={ timer.restart } 
                         icon={ mdiRestart }
                         color="none" 
                         class="action"/>
