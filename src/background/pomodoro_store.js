@@ -283,6 +283,7 @@ export function pomodoro_readable(timer, settings){
                 status.elapsed = 0;
                 status.pomodoros_since_start = 0;
                 status.state = states.STOPPED; 
+                status.previous_phase = null;
                 status.phase = phases.FOCUS;
                 status.transition = transitions.STOP;
                 return status
@@ -305,6 +306,8 @@ export function pomodoro_readable(timer, settings){
         restart: function () {
             pomodoro_store.update(status => {
                 status.elapsed = 0;
+                status.state = states.RUNNING;
+                status.transition = transitions.START;
                 return status
             })
         },
