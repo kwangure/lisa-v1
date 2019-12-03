@@ -99,6 +99,8 @@
     $: pomodoros.length = $timer.pomodoros_since_start || 0
 </script>
 
+<svelte:options tag="lisa-timer"/>
+
 {#if $timer && $timer.is_stopped}
     <Modal bind:this={timer_stopped_modal} visible closable={false}>
         <div slot="content">
