@@ -1,7 +1,7 @@
 <script>
     import { settings_writable } from '../content/settings_store'
     import { sound_client } from '../client'
-    import { Button, Input, Icon } from '@deimimi/strawberry'
+    import { Button, Input, Icon, Select } from '@deimimi/strawberry'
     import { mdiVolumeHigh } from '@mdi/js'
 
     let settings = settings_writable();
@@ -36,6 +36,14 @@
         }  
     }
 
+    function sounds_to_options(options) {
+        options = options.map(({file, name, ...rest}) => (
+                    { value: file, text: name, ...rest}
+                ))
+        options.unshift({text:"None",value:"none"})
+        return options
+    }
+
     async function play_sound(file_name) {
         let audio = new Audio(`..${file_name}`);
         await audio.play()
@@ -64,14 +72,10 @@
                 <div class="section-field">
                     <span>Timer sound </span>
                     <div class="input-wrapper">
-                        <select bind:value={$settings.focus.timer_sound.file}>
-                            <option value="none"> None </option>
-                            {#await sound_client.get_timer_sounds() then sounds}
-                                {#each sounds as sound}
-                                    <option value="{sound.file}">{sound.name}</option>
-                                {/each}
-                            {/await}
-                        </select>
+                        {#await sound_client.get_timer_sounds() then sounds}
+                            <Select bind:value={$settings.focus.timer_sound.file} 
+                                options={sounds_to_options(sounds)}/>
+                        {/await}
                     </div>
                     <span> during focus </span>
                     {#if can_play_sound}
@@ -109,15 +113,11 @@
                     <div class="section-field">
                         <span>Play notification audio</span>
                         <div class="input-wrapper">
-                            <select bind:value={$settings.focus.notifications.sound}
-                                on:input={(e)=>play_sound(e.target.value)}>
-                                <option value="none">None</option>
-                                {#await notification_sounds then sounds}
-                                    {#each sounds as sound}
-                                    <option value={sound.file}>{ sound.name }</option>
-                                    {/each}
-                                {/await}
-                            </select>
+                            {#await notification_sounds then sounds}
+                                <Select bind:value={$settings.focus.notifications.sound}
+                                    on:input={(e)=>play_sound(e.target.value)}
+                                    options={sounds_to_options(sounds)}/>
+                            {/await}
                         </div>
                     </div> 
                 </div>
@@ -149,15 +149,11 @@
                     <div class="section-field">
                         <span>Play audio notification</span>
                         <div class="input-wrapper">
-                            <select bind:value={$settings.short_break.notifications.sound}
-                                on:input={(e)=>play_sound(e.target.value)}>
-                                <option value="none">None</option>
-                                {#await notification_sounds then sounds}
-                                    {#each sounds as sound}
-                                    <option value={sound.file}>{ sound.name }</option>
-                                    {/each}
-                                {/await}
-                            </select>
+                            {#await notification_sounds then sounds}
+                                <Select bind:value={$settings.short_break.notifications.sound}
+                                    on:input={(e)=>play_sound(e.target.value)}
+                                    options={sounds_to_options(sounds)}/>
+                            {/await}
                         </div> 
                     </div>
                 </div>
@@ -167,18 +163,21 @@
                 <div class="section-field">
                     <span>Take a long break</span>
                     <div class="input-wrapper">
-                        <select bind:value={$settings.long_break.interval}>
-                            <option value="0">Never</option>
-                            <option value="2">every 2nd break</option>
-                            <option value="3">every 3rd break</option>
-                            <option value="4">every 4th break</option>
-                            <option value="5">every 5th break</option>
-                            <option value="6">every 6th break</option>
-                            <option value="7">every 7th break</option>
-                            <option value="8">every 8th break</option>
-                            <option value="9">every 9th break</option>
-                            <option value="10">every 10th break</option>
-                        </select>
+                        <Select bind:value={$settings.long_break.interval}
+                            options={[
+                                {value: 0, text: "Never"},
+                                {value: 2, text: "every 2nd break"},
+                                {value: 3, text: "every 3rd break"},
+                                {value: 4, text: "every 4th break"},
+                                {value: 5, text: "every 5th break"},
+                                {value: 6, text: "every 6th break"},
+                                {value: 7, text: "every 7th break"},
+                                {value: 8, text: "every 8th break"},
+                                {value: 9, text: "every 9th break"},
+                                {value: 10, text: "every 10th break"},
+                            ]}
+                        >
+                        </Select>
                     </div>
                 </div>
                 {#if $settings.long_break.interval != 0}
@@ -208,15 +207,12 @@
                         <div class="section-field">
                             <span>Play audio notification</span>
                             <div class="input-wrapper">
-                                <select bind:value={$settings.long_break.notifications.sound}
-                                    on:input={(e)=>play_sound(e.target.value)}>
-                                    <option value="none">None</option>
-                                    {#await notification_sounds then sounds}
-                                        {#each sounds as sound}
-                                            <option value={sound.file}>{ sound.name }</option>
-                                        {/each}
-                                    {/await}
-                                </select>
+                                {#await notification_sounds then sounds}
+                                <Select bind:value={$settings.long_break.notifications.sound}
+                                    on:input={(e)=>play_sound(e.target.value)}
+                                    options={sounds_to_options(sounds)}
+                                    placement="topLeft"/>
+                                {/await}
                             </div>
                         </div>
                     </div>
@@ -260,37 +256,6 @@
     }
     .input-wrapper {
         margin: 0 8px;
-    }
-    select {
-        font-family: sans-serif;
-        font-size: 13px;
-        color: #444;
-        height: 35px;
-        padding: .6em 1.4em .5em .8em;
-        max-width: 100%;
-        box-sizing: border-box;
-        border: 1px solid #d9d9d9;
-        border-radius: 4px;
-        background-color: #fff;
-        background-repeat: no-repeat, repeat;
-        background-position: right .7em top 50%, 0 0;
-        background-size: .65em auto, 100%;
-    }
-    select::-ms-expand {
-        display: none;
-    }
-    select:hover {
-        border-color: #888;
-    }
-    select:focus {
-        border-color: #aaa;
-        box-shadow: 0 0 1px 3px rgba(59, 153, 252, .7);
-        box-shadow: 0 0 0 3px -moz-mac-focusring;
-        color: #222;
-        outline: none;
-    }
-    select option {
-        font-weight:normal;
     }
     /*.preview .icon {
         font-size: 18px;
