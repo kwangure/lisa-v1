@@ -100,7 +100,7 @@
 </script>
 
 {#if $timer && $timer.is_stopped}
-    <Modal bind:this={timer_stopped_modal} visible closable={false}>
+    <berry-modal bind:this={timer_stopped_modal} visible closable={false}>
         <div slot="content">
             {#if pomodoros > 0}
                 <div class="ls-pomodoro-wrapper">
@@ -116,27 +116,27 @@
                 </div>
             {/if}
             <div class="ls-stopped-controls">
-                <Tooltip label="Restart pomodoro cycle">
-                    <Button 
+                <berry-tooltip label="Restart pomodoro cycle">
+                    <berry-button 
                         on:click={ timer.restart } 
                         icon={ mdiRestart }
                         color="none" 
                         class="action"/>
-                </Tooltip>
-                <Tooltip label="Open history page">
-                    <Button 
+                </berry-tooltip>
+                <berry-tooltip label="Open history page">
+                    <berry-button 
                         on:click={()=>{} } 
                         icon={mdiHistory}
                         color="none" 
                         class="action"/>
-                </Tooltip>
-                <Tooltip label="Open settings page">
-                    <Button 
+                </berry-tooltip>
+                <berry-tooltip label="Open settings page">
+                    <berry-button 
                         on:click={()=>{} } 
                         icon={mdiSettingsOutline}
                         color="none" 
                         class="action"/>
-                </Tooltip>
+                </berry-tooltip>
             </div>
             {#if $timer.previous_phase}
                 <div class="ls-timer-card">
@@ -146,10 +146,10 @@
                     </div>
                     { extend_timer_by == 1 ? "minute" : "minutes" }
                     <div class="ls-extend">
-                        <Button color="primary"
+                        <berry-button color="primary"
                             on:click={() => timer.extend(extend_timer_by) }>
                             Extend
-                        </Button>
+                        </berry-button>
                     </div>
                 </div>
                 <div>or</div>
@@ -158,7 +158,7 @@
                 {next_phase_text}
             </div>
         </div>
-    </Modal>
+    </berry-modal>
 {:else if visible }
     <div class="ls-countdown {right? 'ls-bottom-right':''}">
         <div class="ls-main">
@@ -168,49 +168,51 @@
                 </div>
                 <div class="ls-controls">
                     {#if $timer.is_paused}
-                        <Tooltip label="Resume timer">
-                            <Button on:click={timer.resume} icon={mdiPlayOutline} color="none"/>
-                        </Tooltip>
+                        <berry-tooltip label="Resume timer">
+                            <berry-button on:click={timer.resume} icon={mdiPlayOutline} color="none"/>
+                        </berry-tooltip>
                     {:else if $timer.is_running}
-                        <Tooltip label="Pause timer">
-                            <Button on:click={timer.pause} icon={mdiPause} color="none"/>
-                        </Tooltip>
+                        <berry-tooltip label="Pause timer">
+                            <berry-button on:click={timer.pause} icon={mdiPause} color="none"/>
+                        </berry-tooltip>
                     {:else if $timer.is_stopped}
-                        <Tooltip label="Start timer">
-                            <Button on:click={timer.start} icon={mdiPlayOutline} color="none"/>
-                        </Tooltip>
+                        <berry-tooltip label="Start timer">
+                            <berry-button on:click={timer.start} icon={mdiPlayOutline} color="none"/>
+                        </berry-tooltip>
                     {/if}
                     {#if right}
-                        <Tooltip label="Move timer left">
-                            <Button 
+                        <berry-tooltip label="Move timer left">
+                            <berry-button 
                                 on:click={toggle_right} 
                                 icon={mdiPictureInPictureBottomRightOutline}
                                 iconProps={{flip: 'horizontal'}}
                                 color="none" 
                                 class="action"/>
-                        </Tooltip>
+                        </berry-tooltip>
                     {:else}
-                        <Tooltip label="Move timer right">
-                            <Button 
+                        <berry-tooltip label="Move timer right">
+                            <berry-button 
                                 on:click={toggle_right} 
                                 icon={mdiPictureInPictureBottomRightOutline}
                                 color="none" 
                                 class="action"/>
-                        </Tooltip>
+                        </berry-tooltip>
                     {/if}
-                    <Dropdown items={dropdownItems} placement="topRight">
+                    <berry-dropdown items={dropdownItems} placement="topRight">
                         <div slot="button">
-                            <Button color="none" icon={mdiDotsHorizontal}/>
+                            <berry-button color="none" icon={mdiDotsHorizontal}/>
                         </div>
                         <div slot="menu" let:item>
                             <div on:click={item.clickFn}>{item.value}</div>
                         </div>
-                    </Dropdown>
+                    </berry-dropdown>
                 </div>
             </div>
         </div>
     </div>
 {/if}
+
+<svelte:options tag="lisa-timer"/>
 
 <style>
     .ls-countdown {

@@ -45,6 +45,9 @@ export default [
 			if (message.code === 'CIRCULAR_DEPENDENCY') {
 				return
 			}
+			if (message.pluginCode === "missing-custom-element-compile-options"){
+				return;
+			}
 			warn(message)
 		}
 	},
@@ -110,8 +113,14 @@ export default [
 			builtins(),
 			// If we're building for production (npm run build
 			// instead of npm run dev), minify
-			production && terser()
-		]
+			production && terser(),
+		],
+		onwarn: function (message, warn) {
+			if (message.pluginCode === "missing-custom-element-compile-options"){
+				return;
+			}
+			warn(message)
+		}
 	},
 	{
 		input: `src/content/main.js`,
@@ -127,7 +136,8 @@ export default [
 				css: css => {
 					css.write(`package/css/content.css`)
 				},
-				hydratable: true,
+				// Tell the compiler to output a custom element.
+				customElement: true,
 			}),
 			// If you have external dependencies installed from
 			// npm, you'll most likely need these plugins. In
