@@ -237,12 +237,12 @@
     .main {
         display: flex;
         flex-direction: column;
-        background-color: #fff;
-        opacity: 0.9;
         color: #333;
         padding: 10px;
         border-radius: 4px;
         box-shadow: 0 8px 18px rgba(100 ,100 ,100 , .6);
+        background-color: #fff;
+        opacity: 0.9;
     }
     :global(.countdown:hover) .main,
     .main:hover{
@@ -252,7 +252,6 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        opacity: 0.9;
     }
     .timer-card {
         padding: 8px;
