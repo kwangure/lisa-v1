@@ -71,11 +71,11 @@
 
     $: time = mmss(($timer && $timer.remaining)|| 0);
 
-    $: timer_class = $timer.is_stopped? 'ls-stop' : {
+    $: timer_class = $timer.is_stopped? 'stop' : {
             null: '',
-            [phases.FOCUS]: 'ls-focus',
-            [phases.SHORT_BREAK]: 'ls-break',
-            [phases.LONG_BREAK]: 'ls-break'
+            [phases.FOCUS]: 'focus',
+            [phases.SHORT_BREAK]: 'break',
+            [phases.LONG_BREAK]: 'break'
         }[$timer.phase]
     $: next_phase_text = (()=> {
         if(!$timer.previous_phase) {
@@ -103,9 +103,9 @@
     <berry-modal bind:this={timer_stopped_modal} visible={true} closable={false}>
         <div slot="content">
             {#if pomodoros > 0}
-                <div class="ls-pomodoro-wrapper">
+                <div class="pomodoro-wrapper">
                     <div>Pomodoros Today</div>
-                    <div class="ls-pomodoros">
+                    <div class="pomodoros">
                         {#each pomodoros as pomodoro}
                             <span></span>
                         {/each}
@@ -115,7 +115,7 @@
                     </div>
                 </div>
             {/if}
-            <div class="ls-stopped-controls">
+            <div class="stopped-controls">
                 <berry-tooltip label="Restart pomodoro cycle">
                     <berry-button 
                         on:click={ timer.restart } 
@@ -139,13 +139,13 @@
                 </berry-tooltip>
             </div>
             {#if $timer.previous_phase}
-                <div class="ls-timer-card">
+                <div class="timer-card">
                     {extend_phase_text}
-                    <div class="ls-input-wrapper">
+                    <div class="input-wrapper">
                         <Input.Number bind:value={extend_timer_by} min={1}/>
                     </div>
                     { extend_timer_by == 1 ? "minute" : "minutes" }
-                    <div class="ls-extend">
+                    <div class="extend">
                         <berry-button color="primary"
                             on:click={() => timer.extend(extend_timer_by) }>
                             Extend
@@ -154,19 +154,19 @@
                 </div>
                 <div>or</div>
             {/if}
-            <div on:click={ timer.start } class="ls-timer-card phase">
+            <div on:click={ timer.start } class="timer-card phase">
                 {next_phase_text}
             </div>
         </div>
     </berry-modal>
 {:else if visible }
-    <div class="ls-countdown {right? 'ls-bottom-right':''}">
-        <div class="ls-main">
-            <div class="ls-timer">
-                <div class="ls-time {timer_class} {$timer.is_paused? 'ls-paused':''}">
+    <div class="countdown {right? 'bottom-right':''}">
+        <div class="main">
+            <div class="timer">
+                <div class="time {timer_class} {$timer.is_paused? 'paused':''}">
                     { time }
                 </div>
-                <div class="ls-controls">
+                <div class="controls">
                     {#if $timer.is_paused}
                         <berry-tooltip label="Resume timer">
                             <berry-button on:click={timer.resume} icon={mdiPlayOutline} color="none"/>
@@ -218,7 +218,7 @@
 
 <style>
     @import "@deimimi/strawberry/css/strawberry.css";
-    .ls-countdown {
+    .countdown {
         position: fixed;
         bottom: 0px;
         left: 0px;
@@ -229,12 +229,12 @@
         z-index: 50001 !important;
         user-select: none;
     }
-    .ls-countdown.ls-bottom-right {
+    .countdown.bottom-right {
         bottom: 0px;
         right: 0px;
         left: auto;
     }
-    .ls-main {
+    .main {
         display: flex;
         flex-direction: column;
         background-color: #fff;
@@ -244,49 +244,49 @@
         border-radius: 4px;
         box-shadow: 0 8px 18px rgba(100 ,100 ,100 , .6);
     }
-    :global(.ls-countdown:hover) .ls-main,
-    .ls-main:hover{
+    :global(.countdown:hover) .main,
+    .main:hover{
         opacity: 1;
     }
-    .ls-timer {
+    .timer {
         display: flex;
         justify-content: center;
         align-items: center;
         opacity: 0.9;
     }
-    .ls-timer-card {
+    .timer-card {
         padding: 8px;
         border-radius: 4px;
         display: flex;
         align-items: center;
     }
-    .ls-timer-card.phase{
+    .timer-card.phase{
         background-color: #deeaff;
         color: #1870ff;
         justify-content: center;
         cursor: pointer;
     }
-    .ls-extend {
+    .extend {
         padding-left: 10px;
         margin-left: auto;
     }
-    .ls-input-wrapper {
+    .input-wrapper {
         margin: 0 8px;
         display: flex;
     }
-    .ls-input-wrapper :global(input) {
+    .input-wrapper :global(input) {
         width: 65px !important;
     }
-    .ls-controls {
+    .controls {
         display: flex;
         margin-left: 10px;
     }
-    .ls-stopped-controls {
+    .stopped-controls {
         display: flex;
         justify-content: center;
         margin-top: 10px;
     }
-    .ls-time  {
+    .time  {
         font-weight: 600;
         border-radius: 4px;
         height: 35px;
@@ -295,15 +295,15 @@
         font-size: 14px;
         text-align: center;
     }
-    .ls-time.ls-stop {
+    .time.stop {
         background-color: #ffe8e8;
         color: #f33;
     }
-    .ls-time.ls-focus {
+    .time.focus {
         background-color: #deefff;
         color: #1870ff;
     }
-    .ls-time.ls-break {
+    .time.break {
         background-color: #d3f8e1;
         color: #18d270;
     }
@@ -321,14 +321,14 @@
             opacity: 0;
         }
     }
-    .ls-paused {
+    .paused {
         animation: blink 1s linear infinite;
     }
-    .ls-pomodoro-wrapper {
+    .pomodoro-wrapper {
         margin-top: 10px;
         text-align: center;
     }
-    .ls-pomodoros {
+    .pomodoros {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -336,14 +336,14 @@
         margin-bottom: 5px;
         min-width: 300px;
     }
-    .ls-pomodoros span {
+    .pomodoros span {
         flex: auto;
         max-width: 20px;
         margin: 5px;
         background-color:  #f33 !important;
         border-radius: 100%;
     }
-    .ls-pomodoros span:after {
+    .pomodoros span:after {
         content: "";
         display: block;
         padding-bottom: 100%;
