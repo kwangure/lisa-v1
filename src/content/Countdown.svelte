@@ -218,6 +218,10 @@
 
 <style>
     @import "@deimimi/strawberry/css/strawberry.css";
+    .countdown, 
+    berry-modal {
+        --text: var(--grey-dark);
+    }
     .countdown {
         position: fixed;
         bottom: 0px;
@@ -228,6 +232,7 @@
         font-family: --apple-system, Arial, Helvetica, sans-serif;
         z-index: 50001 !important;
         user-select: none;
+
     }
     .countdown.bottom-right {
         bottom: 0px;
@@ -237,11 +242,11 @@
     .main {
         display: flex;
         flex-direction: column;
-        color: #333;
+        color: var(--text);
         padding: 10px;
         border-radius: 4px;
         box-shadow: 0 8px 18px rgba(100 ,100 ,100 , .6);
-        background-color: #fff;
+        background-color: var(--white);
         opacity: 0.9;
     }
     :global(.countdown:hover) .main,
@@ -260,8 +265,8 @@
         align-items: center;
     }
     .timer-card.phase{
-        background-color: #deeaff;
-        color: #1870ff;
+        background-color: var(--primary-light);
+        color: var(--primary);
         justify-content: center;
         cursor: pointer;
     }
@@ -295,16 +300,16 @@
         text-align: center;
     }
     .time.stop {
-        background-color: #ffe8e8;
-        color: #f33;
+        background-color: var(--red-light);
+        color: var(--red);
     }
     .time.focus {
-        background-color: #deefff;
-        color: #1870ff;
+        background-color: var(--blue-light);
+        color: var(--blue);
     }
     .time.break {
-        background-color: #d3f8e1;
-        color: #18d270;
+        background-color: var(--green-light);
+        color: var(--green);
     }
     @keyframes blink  {
         0% {
