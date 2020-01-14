@@ -100,7 +100,7 @@
 </script>
 
 {#if $timer && $timer.is_stopped}
-    <berry-modal bind:this={timer_stopped_modal} visible closable={false}>
+    <berry-modal bind:this={timer_stopped_modal} visible={true} closable={false}>
         <div slot="content">
             {#if pomodoros > 0}
                 <div class="ls-pomodoro-wrapper">
@@ -198,13 +198,15 @@
                                 class="action"/>
                         </berry-tooltip>
                     {/if}
-                    <berry-dropdown items={dropdownItems} placement="topRight">
+                    <berry-dropdown placement="topRight">
                         <div slot="button">
                             <berry-button color="none" icon={mdiDotsHorizontal}/>
                         </div>
-                        <div slot="menu" let:item>
-                            <div on:click={item.clickFn}>{item.value}</div>
-                        </div>
+                        {#each dropdownItems as item}
+                            <berry-dropdown-item on:click={item.clickFn}>
+                                {item.value}
+                            </berry-dropdown-item>
+                        {/each}
                     </berry-dropdown>
                 </div>
             </div>
@@ -215,6 +217,7 @@
 <svelte:options tag="lisa-timer"/>
 
 <style>
+    @import "@deimimi/strawberry/css/strawberry.css";
     .ls-countdown {
         position: fixed;
         bottom: 0px;

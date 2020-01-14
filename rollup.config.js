@@ -1,9 +1,11 @@
 import { terser } from 'rollup-plugin-terser'
 import builtins from 'rollup-plugin-node-builtins'
+import cssImport from "postcss-import";
 import commonjs from 'rollup-plugin-commonjs'
 import globals from 'rollup-plugin-node-globals'
 import resolve from 'rollup-plugin-node-resolve'
 import svelte from 'rollup-plugin-svelte'
+import sveltePreprocess from "svelte-preprocess";
 
 const production = !process.env.ROLLUP_WATCH
 
@@ -133,6 +135,13 @@ export default [
 			svelte({
 				// enable run-time checks when not in production
 				dev: !production,
+				preprocess: sveltePreprocess({
+					postcss: {
+						plugins: [
+							cssImport(),
+						],
+					},
+				}),
 				css: css => {
 					css.write(`package/css/content.css`)
 				},
