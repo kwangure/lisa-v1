@@ -218,6 +218,9 @@
 
 <style>
     @import "@deimimi/strawberry/css/strawberry.css";
+    :host {
+        font-size: 16px;
+    }
     .countdown, 
     berry-modal {
         --text: var(--grey-dark);
