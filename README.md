@@ -11,7 +11,7 @@
     <a href="./Contributing.md"><strong>Chrome Webstore</strong></a-->
 </p>
 
-Lisa extends your focus by helping you break down work into managable time 
+Lisa extends your focus by helping you break down work into manageable time 
 intervals separated by short breaks.
 
 <p align="center">
