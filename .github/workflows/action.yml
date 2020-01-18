@@ -1,0 +1,15 @@
+- name: Upload and publish chrome extension
+  runs-on: ubuntu-latest
+  steps:
+    - name: Zipping extension...
+      uses: montudor/action-zip@v0.1.0
+      with:
+        args: zip -qq -r ./package.zip ./package
+    - name: Uploading extension...
+      uses: Klemensas/chrome-extension-upload-action@$VERSION
+      with:
+        refresh-token: ${{ secrets.refresh_token }}
+        client-id:  ${{ secrets.client_id }}
+        client-secret: ${{ secrets.client_secret }}
+        file-name: './package.zip'
+        app-id: 'eifhbkffnfdohkcijfiiggcblnfhcogc'
