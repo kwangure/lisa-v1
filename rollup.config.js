@@ -97,6 +97,7 @@ export default [
 			svelte({
 				// enable run-time checks when not in production
 				dev: !production,
+				...config,
 				css: css => {
 					css.write(`package/css/options.css`)
 				},
@@ -137,13 +138,7 @@ export default [
 			svelte({
 				// enable run-time checks when not in production
 				dev: !production,
-				preprocess: sveltePreprocess({
-					postcss: {
-						plugins: [
-							cssImport(),
-						],
-					},
-				}),
+				...config,
 				css: css => {
 					css.write(`package/css/content.css`)
 				},
