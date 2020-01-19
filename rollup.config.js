@@ -6,6 +6,7 @@ import globals from 'rollup-plugin-node-globals'
 import resolve from 'rollup-plugin-node-resolve'
 import svelte from 'rollup-plugin-svelte'
 import sveltePreprocess from "svelte-preprocess";
+import config from "@deimimi/strawberry/strawberry.config";
 
 const production = !process.env.ROLLUP_WATCH
 
@@ -21,6 +22,7 @@ export default [
 			svelte({
 				// enable run-time checks when not in production
 				dev: !production,
+				...config,
 				css: css => {
 					css.write(`package/css/newtab.css`)
 				},
