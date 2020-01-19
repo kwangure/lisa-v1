@@ -223,6 +223,8 @@
 {/if}
 
 <style>
+    @import "@deimimi/strawberry/css/strawberry.css";
+
     .main {
         padding: 10px 20px;
         overflow: scroll;
@@ -257,7 +259,7 @@
     .input-wrapper {
         margin: 0 8px;
     }
-    /*.preview .icon {
-        font-size: 18px;
-    }*/
+    .input-wrapper :global(input[type=number]) {
+        color: inherit;
+    }
 </style>

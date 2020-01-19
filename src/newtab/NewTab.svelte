@@ -88,6 +88,7 @@
 </div>
 
 <style>
+    @import "@deimimi/strawberry/css/strawberry.css";
     .main {
         display: flex;
         flex-direction: column;
