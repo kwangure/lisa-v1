@@ -221,6 +221,7 @@
     @import "@deimimi/strawberry/css/strawberry.css";
     :host {
         font-size: 14px;
+        font-family: var(--font);
     }
     .countdown, 
     berry-modal {
