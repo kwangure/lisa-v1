@@ -142,7 +142,8 @@
                 <div class="timer-card">
                     {extend_phase_text}
                     <div class="input-wrapper">
-                        <Input.Number bind:value={extend_timer_by} min={1}/>
+                        <berry-input-number value={extend_timer_by} min={1}
+                            on:input={(event) => extend_timer_by = event.target.value}/>
                     </div>
                     { extend_timer_by == 1 ? "minute" : "minutes" }
                     <div class="extend">
@@ -152,7 +153,7 @@
                         </berry-button>
                     </div>
                 </div>
-                <div>or</div>
+                <div class="separator">or</div>
             {/if}
             <div on:click={ timer.start } class="timer-card phase">
                 {next_phase_text}
@@ -219,7 +220,7 @@
 <style>
     @import "@deimimi/strawberry/css/strawberry.css";
     :host {
-        font-size: 16px;
+        font-size: 14px;
     }
     .countdown, 
     berry-modal {
@@ -354,5 +355,11 @@
         content: "";
         display: block;
         padding-bottom: 100%;
+    }
+    .separator {
+        text-align: center;
+        margin-bottom: 5px;
+        font-weight: 500;
+        font-size: 16px;
     }
 </style>
