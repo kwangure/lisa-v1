@@ -118,7 +118,7 @@
                             label="Show new tab notification"/>
                     </div>
                     <div class="section-field">
-                        <span>Play notification audio</span>
+                        <span>Play audio notification</span>
                         <div class="input-wrapper">
                             {#await notification_sounds then sounds}
                                 <Select bind:value={$settings.focus.notifications.sound}
@@ -126,6 +126,7 @@
                                     options={sounds_to_options(sounds)}/>
                             {/await}
                         </div>
+                        <span>after completing interval</span>
                     </div> 
                 </div>
             </div>
@@ -162,6 +163,7 @@
                                     options={sounds_to_options(sounds)}/>
                             {/await}
                         </div> 
+                        <span>after completing interval</span>
                     </div>
                 </div>
             </div>
@@ -221,6 +223,7 @@
                                     placement="topLeft"/>
                                 {/await}
                             </div>
+                            <span>after completing interval</span>
                         </div>
                     </div>
                 {/if}
@@ -260,7 +263,8 @@
     .section-field-group {
         padding-left: 30px;
     }
-    .section-field {
+    .section-field,
+    .section-field :global(.tooltip) {
         align-items: center;
         margin-bottom: 10px;
     }
