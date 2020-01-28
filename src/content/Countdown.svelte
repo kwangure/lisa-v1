@@ -37,10 +37,10 @@
             value: "Restart current timer",
             clickFn: timer.restart,
         },
-        { 
+        /*{ 
             value: "Open settings page",
             clickFn: ()=>{},
-        } 
+        }*/
     ]
 
     const ARROW_LEFT = 37
