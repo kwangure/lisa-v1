@@ -8,44 +8,12 @@ function create_notification_sounds() {
             file: 'be75f155.mp3'
         },
         {
-            name: "Analog Clock",
-            file: '0f034826.mp3'
-        },
-        {
-            name: "Digital Alarm Clock",
-            file: 'fee369b7.mp3'
-        },
-        {
-            name: "Electronic Chime",
-            file: '28d6b5be.mp3'
-        },
-        {
-            name: "Gong 1",
-            file: '8bce59b5.mp3'
-        },
-        {
-            name: "Gong 2",
-            file: '85cab25d.mp3'
-        },
-        {
             name: "Computer Magic",
             file: '5cf807ce.mp3'
         },
         {
-            name: "Fire Pager",
-            file: 'b38e515f.mp3'
-        },
-        {
             name: "Glass Ping",
             file: '2ed9509e.mp3'
-        },
-        {
-            name: "Music Box",
-            file: 'ebe7deb8.mp3'
-        },
-        {
-            name: "Pin Drop",
-            file: '2e13802a.mp3'
         },
         {
             name: "Robot Blip 1",
@@ -56,49 +24,17 @@ function create_notification_sounds() {
             file: '36e93c27.mp3'
         },
         {
-            name: "Ship Bell",
-            file: '9404f598.mp3'
-        },
-        {
             name: "Train Horn",
             file: '6a215611.mp3'
-        },
-        {
-            name: "Bike Horn",
-            file: '72312dd3.mp3'
         },
         {
             name: "Bell Ring",
             file: 'b10d75f2.mp3'
         },
         {
-            name: "Reception Bell",
-            file: '54b867f9.mp3'
-        },
-        {
-            name: "Toaster Oven",
-            file: 'a258e906.mp3'
-        },
-        {
             name: "Battle Horn",
             file: '88736c22.mp3'
         },
-        {
-            name: "Ding",
-            file: '1a5066bd.mp3'
-        },
-        {
-            name: "Dong",
-            file: '5e122cee.mp3'
-        },
-        {
-            name: "Ding Dong",
-            file: '92ff2a8a.mp3'
-        },
-        {
-            name: "Airplane",
-            file: '72cb1b7f.mp3'
-        }
     ];
 
     for (let sound of sounds) {
@@ -114,32 +50,12 @@ function create_timer_sounds() {
             file: '4cf03078.mp3',
         },
         {
-            name: "Wristwatch",
-            file: '8dc834f8.mp3',
-        },
-        {
             name: "Clock",
             file: 'af607ff1.mp3',
         },
         {
             name: "Wall Clock",
             file: '6103cd58.mp3',
-        },
-        {
-            name: "Desk Clock",
-            file: '6a981bfc.mp3',
-        },
-        {
-            name: "Wind-up Clock",
-            file: 'bc4e3db2.mp3',
-        },
-        {
-            name: "Antique Clock",
-            file: '875326f9.mp3',
-        },
-        {
-            name: "Small Clock",
-            file: '89dafd3e.mp3'
         },
         {
             name: "Large Clock",
