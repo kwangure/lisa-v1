@@ -1,7 +1,7 @@
 <script>
     import { settings_writable } from '../content/settings_store'
     import { sound_client } from '../client'
-    import { Button, Input, Icon, Select } from '@deimimi/strawberry'
+    import { Button, Input, Icon, Select, Tooltip } from '@deimimi/strawberry'
     import { mdiVolumeHigh } from '@mdi/js'
 
     let settings = settings_writable();
@@ -11,12 +11,13 @@
 
     $: can_play_sound = (() => {
         let loaded = $settings && $settings.focus;
-        let sound_selected = loaded && $settings.focus.timer_sound.file != "none";
-        let valid_bpm = loaded && (($settings.focus.timer_sound.bpm == null) || 
-            ($settings.focus.timer_sound.bpm > 0 && 
-            $settings.focus.timer_sound.bpm <= 1000));
+        let sound_selected = (
+            loaded && 
+            $settings.focus.timer_sound.file && 
+            $settings.focus.timer_sound.file != "none"
+        );
 
-        return sound_selected && valid_bpm;
+        return sound_selected;
     })();
 
     async function play_timer_sound() {
@@ -44,9 +45,13 @@
         return options
     }
 
-    async function play_sound(file_name) {
-        let audio = new Audio(`..${file_name}`);
-        await audio.play()
+    async function play_sound(sound) {
+        let can_play = sound && sound != "none";
+
+        if(can_play) {
+            let audio = new Audio(`..${sound}`);
+            await audio.play()
+        }
     }
 
     function stop_sound() {
@@ -87,14 +92,16 @@
                         </span>
                     {/if}
                 </div>
-                <div class="section-field">
-                    <span>Speed: </span>
-                    <div class="input-wrapper">
-                        <Input.Number
-                            min="0" max="1000"
-                            bind:value={$settings.focus.timer_sound.bpm}/>
-                    </div>
-                    <span>beats per minute</span>
+                <div class="section-field" class:disabled={!can_play_sound}>
+                    <Tooltip label={can_play_sound ? "": "Disabled. Set timer sound first."}>
+                        <span>Speed: </span>
+                        <div class="input-wrapper">
+                            <Input.Number disabled={!can_play_sound}
+                                min="0" max="1000"
+                                bind:value={$settings.focus.timer_sound.bpm}/>
+                        </div>
+                        <span>beats per minute</span>
+                    </Tooltip>
                 </div>
                 <div class="section-field">
                     When complete
@@ -115,7 +122,7 @@
                         <div class="input-wrapper">
                             {#await notification_sounds then sounds}
                                 <Select bind:value={$settings.focus.notifications.sound}
-                                    on:input={(e)=>play_sound(e.target.value)}
+                                    on:change={(e)=> play_sound(e.detail)}
                                     options={sounds_to_options(sounds)}/>
                             {/await}
                         </div>
@@ -151,7 +158,7 @@
                         <div class="input-wrapper">
                             {#await notification_sounds then sounds}
                                 <Select bind:value={$settings.short_break.notifications.sound}
-                                    on:input={(e)=>play_sound(e.target.value)}
+                                    on:change={(e)=>play_sound(e.detail)}
                                     options={sounds_to_options(sounds)}/>
                             {/await}
                         </div> 
@@ -209,7 +216,7 @@
                             <div class="input-wrapper">
                                 {#await notification_sounds then sounds}
                                 <Select bind:value={$settings.long_break.notifications.sound}
-                                    on:input={(e)=>play_sound(e.target.value)}
+                                    on:change={(e)=>play_sound(e.detail)}
                                     options={sounds_to_options(sounds)}
                                     placement="topLeft"/>
                                 {/await}
@@ -235,7 +242,8 @@
         max-width: 700px;
     }
     .section,
-    .section-field {
+    .section-field,
+    .section-field :global(.tooltip) {
         display: flex;
     }
     .section {
@@ -255,6 +263,9 @@
     .section-field {
         align-items: center;
         margin-bottom: 10px;
+    }
+    .section-field.disabled > * {
+        cursor: not-allowed;
     }
     .input-wrapper {
         margin: 0 8px;
