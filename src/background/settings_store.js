@@ -7,7 +7,7 @@ const { get, set, update, subscribe, reset } = writable({
         duration: 50,
         timer_sound: {
             file: null,
-            bpm: null,
+            bpm: 60,
         },
         notifications: {
             desktop: true,
@@ -19,7 +19,7 @@ const { get, set, update, subscribe, reset } = writable({
         duration: 10,
         timer_sound: {
             file: null,
-            bpm: null,
+            bpm: 60,
         },
         notifications: {
             desktop: true,
@@ -32,7 +32,7 @@ const { get, set, update, subscribe, reset } = writable({
         interval: 4,
         timer_sound: {
             file: null,
-            bpm: null,
+            bpm: 60,
         },
         notifications: {
             desktop: true,
