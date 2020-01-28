@@ -15,7 +15,7 @@ Lisa extends your focus by helping you break down work into manageable time
 intervals separated by short breaks.
 
 <p align="center">
-    <img src="./lisa screenshot.png" alt="Lisa Screenshot">
+    <img src="./package/images/lisa screenshot.png" alt="Lisa Screenshot">
 </p>
 
 ## Why?
