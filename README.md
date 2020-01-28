@@ -6,9 +6,11 @@
     Work better, focus longer.
 </p>
 <p align="center">
-    <a href="#why"><strong>Why?</strong></a> ·
-    <a href="#principles"><strong>Features</strong></a><!-- ·
-    <a href="./Contributing.md"><strong>Chrome Webstore</strong></a-->
+    <a href="#why"><strong>Why?</strong></a> •
+    <a href="#principles"><strong>Features</strong></a> •
+    <a href="https://chrome.google.com/webstore/detail/lisa/eifhbkffnfdohkcijfiiggcblnfhcogc">
+        <strong>Web store</strong>
+    </a>
 </p>
 
 Lisa extends your focus by helping you break down work into manageable time 
