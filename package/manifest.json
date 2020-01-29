@@ -11,8 +11,8 @@
         "matches": ["<all_urls>"],
         "js": ["js/content.js"],
         "css": [
-            "css/content.css", 
-            "css/materialdesignicons.min.css"]
+            "css/content.css"
+        ]
     }],
     "options_page": "/static/options.html",
     "chrome_url_overrides":{
@@ -27,7 +27,8 @@
         "contextMenus",
         "notifications",
         "storage",
-        "tabs"
+        "tabs",
+        "activeTab"
     ],
     "background": { 
         "scripts": [
