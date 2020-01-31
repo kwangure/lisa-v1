@@ -104,7 +104,7 @@
                     </Tooltip>
                 </div-->
                 <div class="section-field">
-                    When complete
+                    When complete:
                 </div>
                 <div class="section-field-group">
                     <div class="section-field">
@@ -112,11 +112,11 @@
                             bind:checked={$settings.focus.notifications.desktop}
                             label="Show desktop notificiation"/>
                     </div>
-                    <div class="section-field">
+                    <!--div class="section-field">
                         <Input.Checkbox 
                             bind:checked={$settings.focus.notifications.tab}
                             label="Show new tab notification"/>
-                    </div>
+                    </div-->
                     <div class="section-field">
                         <span>Play audio notification</span>
                         <div class="input-wrapper">
@@ -126,7 +126,6 @@
                                     options={sounds_to_options(sounds)}/>
                             {/await}
                         </div>
-                        <span>after completing interval</span>
                     </div> 
                 </div>
             </div>
@@ -142,18 +141,18 @@
                     </div>
                     <span>{ $settings.short_break.duration == 1 ? "minute": "minutes" }</span>
                 </div>
-                <div class="section-field">When complete</div>
+                <div class="section-field">When complete:</div>
                 <div class="section-field-group">
                     <div class="section-field">
                         <Input.Checkbox
                             bind:checked={$settings.short_break.notifications.desktop}
                             label="Show desktop notification"/>
                     </div>
-                    <div class="section-field">
+                    <!--div class="section-field">
                         <Input.Checkbox
                             bind:checked={$settings.short_break.notifications.tab}
                             label="Show new tab notification"/>
-                    </div>
+                    </div-->
                     <div class="section-field">
                         <span>Play audio notification</span>
                         <div class="input-wrapper">
@@ -163,7 +162,6 @@
                                     options={sounds_to_options(sounds)}/>
                             {/await}
                         </div> 
-                        <span>after completing interval</span>
                     </div>
                 </div>
             </div>
@@ -196,23 +194,22 @@
                             <Input.Number
                                 min="1"
                                 max="999"
-                                bind:value={$settings.long_break.duration}
-                                />
+                                bind:value={$settings.long_break.duration}/>
                         </div>
                         <span>{ $settings.long_break.duration == 1 ? "minute": "minutes" }</span>
                     </div>
-                    <div class="section-field">When Complete</div>
+                    <div class="section-field">When complete:</div>
                     <div class="section-field-group">
                         <div class="section-field">
                             <Input.Checkbox 
                                 bind:checked={$settings.long_break.notifications.desktop}
                                 label="Show desktop notification"/>
                         </div>
-                        <div class="section-field">
+                        <!--div class="section-field">
                             <Input.Checkbox
                                 bind:checked={$settings.long_break.notifications.tab}
                                 label="Show new tab notification"/>
-                        </div>
+                        </div-->
                         <div class="section-field">
                             <span>Play audio notification</span>
                             <div class="input-wrapper">
@@ -223,7 +220,6 @@
                                     placement="topLeft"/>
                                 {/await}
                             </div>
-                            <span>after completing interval</span>
                         </div>
                     </div>
                 {/if}
