@@ -14,7 +14,7 @@ const phases = {
     LONG_BREAK: "long_break",
 };
 
-const transitions = {
+const events = {
     START: "start",
     STOP: "stop",
     EXPIRE: "expire",
@@ -33,13 +33,13 @@ function enumerate_with_word(object, word) {
 
 const enumerations = {
     PHRASES: enumerate_with_word(phases, "or"),
-    TRANSITIONS: enumerate_with_word(transitions, "or"),
+    EVENTS: enumerate_with_word(events, "or"),
     STATES: enumerate_with_word(states, "or"),
 };
 
 const errors = {
     ELAPSED_GT_DURATION: "Elapsed cannot be greater than total duration.",
-    INVALID_TRANSITION: "Transition is not one of: " + enumerations.TRANSITIONS,
+    INVALID_EVENT: "Event is not one of: " + enumerations.EVENTS,
     INVALID_SUBSCRIBER: "Subscriber must be a function",
     INVALID_PHASE: "Phase is not one of: " + enumerations.PHASES,
     INVALID_STATE: "State is not one of: " + enumerations.STATES,
@@ -207,19 +207,19 @@ export function pomodoro_readable(timer, settings){
             },
             enumerable: true,
         },
-        _transition: {
+        _event: {
             value: null,
             writable: true,
         },
-        transition: {
+        event: {
             get: function () {
-                return this._transition;
+                return this._event;
             },
-            set: function (transition) {
-                if (!Object.values(transitions).includes(transition)) {
-                    throw new Error(errors.INVALID_TRANSITION);
+            set: function (event) {
+                if (!Object.values(events).includes(event)) {
+                    throw new Error(errors.INVALID_EVENT);
                 }
-                this._transition = transition;
+                this._event = event;
             },
         }
     })
@@ -273,7 +273,7 @@ export function pomodoro_readable(timer, settings){
                 }
                 status.elapsed = 0;
                 status.state = states.RUNNING;
-                status.transition = transitions.START;
+                status.event = events.START;
                 return status
             })
             this.subscribe_to_timer();
@@ -285,7 +285,7 @@ export function pomodoro_readable(timer, settings){
                 status.state = states.STOPPED; 
                 status.previous_phase = null;
                 status.phase = phases.FOCUS;
-                status.transition = transitions.STOP;
+                status.event = events.STOP;
                 return status
             })
             this.unsubscribe_from_timer()
@@ -297,7 +297,7 @@ export function pomodoro_readable(timer, settings){
                 status.previous_phase = status.phase;
                 status.state = states.STOPPED;
                 status.extended_duration = 0;
-                status.transition = transitions.EXPIRE;
+                status.event = events.EXPIRE;
                 if(status.phase == phases.FOCUS){
                     status.pomodoros_since_start += 1;
                 }
@@ -309,7 +309,7 @@ export function pomodoro_readable(timer, settings){
             pomodoro_store.update(status => {
                 status.elapsed = 0;
                 status.state = states.RUNNING;
-                status.transition = transitions.START;
+                status.event = events.START;
                 return status
             })
         },
@@ -317,7 +317,7 @@ export function pomodoro_readable(timer, settings){
             if(pomodoro.state != states.RUNNING) return;
             pomodoro_store.update(status => {
                 status.state = states.PAUSED;
-                status.transition = transitions.PAUSE;
+                status.event = events.PAUSE;
                 return status;
             })
         },
@@ -325,7 +325,7 @@ export function pomodoro_readable(timer, settings){
             if(pomodoro.state != states.PAUSED) return;
             pomodoro_store.update(status => {
                 status.state = states.RUNNING;
-                status.transition = transitions.RESUME;
+                status.event = events.RESUME;
                 return status;
             })
         },
@@ -335,7 +335,7 @@ export function pomodoro_readable(timer, settings){
                 status.phase = status.previous_phase;
                 status.pomodoros_since_start -= 1;
                 status.state = states.RUNNING;
-                status.transition = transitions.EXTEND;
+                status.event = events.EXTEND;
                 return status;
             });
             this.subscribe_to_timer();
@@ -346,7 +346,7 @@ export function pomodoro_readable(timer, settings){
             } else if (pomodoro.state == states.RUNNING) {
                 pomodoro_store.update(status => {
                     status.elapsed += 1
-                    status.transition = transitions.TICK;
+                    status.event = events.TICK;
                     return status
                 });
             }
@@ -369,4 +369,4 @@ export function pomodoro_readable(timer, settings){
     return actions
 }
 
-export { states, phases, transitions as events }
+export { states, phases, events }

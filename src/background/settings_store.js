@@ -48,3 +48,6 @@ export function settings_writable () {
 export function settings_readable () {
     return { get, subscribe }
 }
+export const events = {
+    CHANGE: "settings-change",
+}
