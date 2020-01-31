@@ -113,7 +113,7 @@
                             <span></span>
                         {/each}
                     </div>
-                    {#if $timer.has_long_break && $timer.next_phase !== phases.LONG_BREAK}
+                    {#if $timer.has_long_break && $timer.pomodoros_until_long_break > 0}
                         <div>
                             {$timer.pomodoros_until_long_break} more until long break.
                         </div>
