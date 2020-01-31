@@ -161,12 +161,12 @@ export function pomodoro_readable(timer, settings){
         },
         pomodoros_until_long_break: {
             get: function () {
-                let interval = this.settings.long_break;
+                let { interval } = this.settings.long_break;
                 if (!interval) {
                     return null;
                 }
 
-                return interval - ((this.pomodoros - 1) % interval) - 1;
+                return interval - ((this.pomodoros_since_start - 1) % interval) - 1;
             },
             enumerable: true,
         },
@@ -295,10 +295,12 @@ export function pomodoro_readable(timer, settings){
         expire: function () {
             pomodoro_store.update(status => {
                 status.previous_phase = status.phase;
-                status.pomodoros_since_start += 1;
                 status.state = states.STOPPED;
                 status.extended_duration = 0;
                 status.transition = transitions.EXPIRE;
+                if(status.phase == phases.FOCUS){
+                    status.pomodoros_since_start += 1;
+                }
                 return status
             })
             this.unsubscribe_from_timer()

@@ -40,7 +40,8 @@
         "128": "images/browser-action.png"
     },
     "web_accessible_resources": [
-        "css/*"
+        "css/*",
+        "images/*"
     ],
     "minimum_chrome_version": "55",
     "content_security_policy": "script-src 'self'; object-src 'self'"

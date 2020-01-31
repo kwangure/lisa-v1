@@ -17,6 +17,7 @@
     import { mmss } from "./utils"
 
     let timer = timer_readable();
+    let chrome = window.chrome;
 
     let timer_stopped_modal = null;
     let visible = true;
@@ -96,26 +97,37 @@
         [phases.LONG_BREAK]: "Extend long break by",
     }[$timer.phase];
 
-    $: pomodoros.length = $timer.pomodoros_since_start || 0
+    $: pomodoros.length = $timer.pomodoros_since_start || 0;
+
+    let s = val => val == 1 ? "" : "s";
 </script>
 
 {#if $timer && $timer.is_stopped}
     <berry-modal bind:this={timer_stopped_modal} visible={true} closable={false}>
-        <div slot="content">
-            {#if pomodoros > 0}
-                <div class="pomodoro-wrapper">
-                    <div>Pomodoros Today</div>
+        <div slot="content" class="content">
+            <div class="pomodoro-wrapper">
+                {#if pomodoros.length > 0}
+                    <div>{$timer.pomodoros_since_start} focus interval{s($timer.pomodoros_since_start)} completed today</div>
                     <div class="pomodoros">
                         {#each pomodoros as pomodoro}
                             <span></span>
                         {/each}
                     </div>
+                    {#if $timer.has_long_break && $timer.next_phase !== phases.LONG_BREAK}
+                        <div>
+                            {$timer.pomodoros_until_long_break} more until long break.
+                        </div>
+                    {/if}
+                {:else}
                     <div>
-                        {$timer.pomodoros_since_start} Pomodoros Until Long Break
+                        You haven't completed any focus intervals today. Get started!
+                        <div class="emoji">
+                            <img src={chrome.runtime.getURL("/images/rocket.png")} alt="rocket">
+                        </div>
                     </div>
-                </div>
-            {/if}
-            <div class="stopped-controls">
+                {/if}
+            </div>
+            <!--div class="stopped-controls">
                 <berry-tooltip label="Restart pomodoro cycle">
                     <berry-button 
                         on:click={ timer.restart } 
@@ -137,7 +149,7 @@
                         color="none" 
                         class="action"/>
                 </berry-tooltip>
-            </div>
+            </div-->
             {#if $timer.previous_phase}
                 <div class="timer-card">
                     {extend_phase_text}
@@ -258,6 +270,9 @@
     .main:hover{
         opacity: 1;
     }
+    .content {
+        user-select: none;
+    }
     .timer {
         display: flex;
         justify-content: center;
@@ -334,8 +349,13 @@
         animation: blink 1s linear infinite;
     }
     .pomodoro-wrapper {
-        margin-top: 10px;
+        margin: 10px 0;
         text-align: center;
+    }
+    .pomodoro-wrapper .emoji img {
+        margin-top: 10px;
+        font-size: 40px;
+        filter: drop-shadow(0px 0px 3px rgb(0,0,0,0.3));
     }
     .pomodoros {
         display: flex;
