@@ -47,7 +47,7 @@ async function notify(pomodoro, pomodoro_state, settings) {
     let count = pomodoro_state.pomodoros_until_long_break;
 
     if (count > 0) {
-        messages.push(`${count} Pomodoro ${count > 1 ?'s':''} Until Long Break`);
+        messages.push(`${count} pomodoro${count > 1 ?'s':''} until long break`);
     }
 
     /*let pomodorosToday = await this.history.countToday();
@@ -88,12 +88,6 @@ async function notify(pomodoro, pomodoro_state, settings) {
 
     let notification_id = 'pomodoro-notification'
     chrome.notifications.create('pomodoro-notification', options, ()=>{});
-    
-    play(settings.sound).then((ss)=>{
-        console.log("success", ss);
-    }).catch((e)=>{
-        console.log("error", e)
-    })
 
     let clicked = id => {
         if (id !== notification_id) {
