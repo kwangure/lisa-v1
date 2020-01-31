@@ -74,7 +74,7 @@
                     </div>
                     <span> { $settings.focus.duration == 1 ? "minute": "minutes" }</span>
                 </div>
-                <div class="section-field">
+                <!--div class="section-field">
                     <span>Timer sound </span>
                     <div class="input-wrapper">
                         {#await sound_client.get_timer_sounds() then sounds}
@@ -102,7 +102,7 @@
                         </div>
                         <span>beats per minute</span>
                     </Tooltip>
-                </div>
+                </div-->
                 <div class="section-field">
                     When complete
                 </div>
