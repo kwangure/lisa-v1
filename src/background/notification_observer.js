@@ -32,7 +32,10 @@ async function play(filename) {
     });
 }
 
-async function notify(pomodoro, pomodoro_state, settings) {
+let notifications = new Map();
+let pomodoro = null;
+
+async function notify(pomodoro_state) {
     let title = {
         [phases.FOCUS]: "Start focusing",
         [phases.SHORT_BREAK]: (
@@ -62,16 +65,6 @@ async function notify(pomodoro, pomodoro_state, settings) {
         [phases.LONG_BREAK]: "Start long break now"
     }[pomodoro_state.next_phase];
 
-    let action = {
-        [phases.FOCUS]: "Start focusing",
-        [phases.SHORT_BREAK]: (
-            pomodoro_state.has_long_break
-                ? "Start short break"
-                : "Start break"
-        ),
-        [phases.LONG_BREAK]: "Start long break"
-    }[pomodoro_state.next_phase];
-
     let buttons = [
         { title: buttonText },
     ]
@@ -81,26 +74,29 @@ async function notify(pomodoro, pomodoro_state, settings) {
         title,
         message,
         iconUrl: "images/browser-action.png",
-        buttons
+        buttons,
+        requireInteraction: true,
     };
 
-    let notification_id = 'pomodoro-notification'
-    chrome.notifications.create('pomodoro-notification', options, () => { });
+    let notification_id = 'pomodoro-notification';
+    chrome.notifications.create(notification_id, options, notification_id => {
+        notifications.set(notification_id, notification_id);
+    });
 
     let clicked = id => {
-        if (id !== notification_id) {
-            return;
-        }
-        pomodoro.start();
-        chrome.notifications.clear(notification_id);
-    }
+        chrome.notifications.clear(id, was_cleared => {
+            if (was_cleared) {
+                pomodoro.start();
+            }
+        });
+    };
 
-    let button_clicked = (id, button_index) => {
-        if (id !== notification_id) {
-            return;
-        }
-        pomodoro.start();
-        chrome.notifications.clear(notification_id);
+    let button_clicked = id => {
+        chrome.notifications.clear(id, was_cleared => {
+            if (was_cleared) {
+                pomodoro.start();
+            }
+        });
     };
 
     let closed = id => {
@@ -112,27 +108,25 @@ async function notify(pomodoro, pomodoro_state, settings) {
         chrome.notifications.onClosed.removeListener(closed);
     };
 
-    let unsubscribe = () => { };
-    unsubscribe = pomodoro.subscribe(value => {
-        const { transition } = value;
-        if (transition == events.START) {
-            chrome.notifications.clear(notification_id);
-            unsubscribe();
-        }
-    });
-
     chrome.notifications.onClicked.addListener(clicked);
     chrome.notifications.onButtonClicked.addListener(button_clicked);
     chrome.notifications.onClosed.addListener(closed);
 }
 
 export default new Map([
-    [events.EXPIRE, (pomodoro_state, pomodoro) => {
+    [events.EXPIRE, (pomodoro_state, pomodoro_store) => {
+        pomodoro = pomodoro_store;
         let phase = pomodoro_state.phase;
         let notification_settings = pomodoro_state.settings[phase].notifications;
 
         if (notification_settings.desktop) {
-            notify(pomodoro, pomodoro_state, notification_settings);
+            notify(pomodoro_state);
         }
     }],
-]); 
+    [events.START, (_pomodoro_state, pomodoro_store) => {
+        pomodoro = pomodoro_store;
+        notifications.forEach(notification_id => {
+            chrome.notifications.clear(notification_id);
+        });
+    }],
+]);
