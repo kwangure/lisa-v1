@@ -3,7 +3,7 @@
     "short_name": "Lisa",
     "description": "Become more productive",
     "default_locale":"en",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "homepage_url": "https://github.com/kwangure/lisa",
     "manifest_version": 2,
     "offline_enabled": true,
