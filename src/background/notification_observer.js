@@ -113,8 +113,16 @@ async function notify(pomodoro_state) {
     chrome.notifications.onClosed.addListener(closed);
 }
 
+function clearNotifications(_pomodoro_state, pomodoro_store) {
+    pomodoro = pomodoro_store;
+    notifications.forEach(notification_id => {
+        chrome.notifications.clear(notification_id);
+    });
+}
+
 export default new Map([
     [events.EXPIRE, (pomodoro_state, pomodoro_store) => {
+        clearNotifications();
         pomodoro = pomodoro_store;
         let phase = pomodoro_state.phase;
         let notification_settings = pomodoro_state.settings[phase].notifications;
@@ -123,10 +131,6 @@ export default new Map([
             notify(pomodoro_state);
         }
     }],
-    [events.START, (_pomodoro_state, pomodoro_store) => {
-        pomodoro = pomodoro_store;
-        notifications.forEach(notification_id => {
-            chrome.notifications.clear(notification_id);
-        });
-    }],
+    [events.START, clearNotifications],
+    [events.EXTEND, clearNotifications],
 ]);
