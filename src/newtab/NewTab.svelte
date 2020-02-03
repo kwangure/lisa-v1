@@ -47,7 +47,7 @@
 </script>
 
 <div class="main" 
-    style="background-image: url('../images/newtab/{rand_between(1, 30)}.webp');">
+    style="background-image: url('../images/newtab/{rand_between(1, 12)}.webp');">
     <div class="header">
         <div class="clock">{clock}</div>
     </div>
