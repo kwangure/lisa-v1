@@ -177,6 +177,7 @@
     .controls :global(button.action:focus),
     .controls :global(button.action:hover) {
         background-color: rgba(255,255,255,0.3) !important;
+        color: #fff !important;
     }
     .controls :global(button.action .button-prefix) {
         padding: 10px 5px;
