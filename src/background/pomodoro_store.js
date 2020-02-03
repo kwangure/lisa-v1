@@ -333,7 +333,9 @@ export function pomodoro_readable(timer, settings){
             pomodoro_store.update(status => {
                 status.extended_duration = duration; 
                 status.phase = status.previous_phase;
-                status.pomodoros_since_start -= 1;
+                if(status.phase == phases.FOCUS){
+                    status.pomodoros_since_start -= 1;
+                }
                 status.state = states.RUNNING;
                 status.event = events.EXTEND;
                 return status;
