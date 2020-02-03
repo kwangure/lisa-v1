@@ -23,11 +23,7 @@
         "default_icon": "images/browser-action.png"
     },
     "permissions": [
-        "alarms",
-        "contextMenus",
         "notifications",
-        "storage",
-        "tabs",
         "activeTab"
     ],
     "background": { 
