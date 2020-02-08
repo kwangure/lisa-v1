@@ -70,7 +70,7 @@
                             { next_phase_text }
                         </Button>
                         <Button class="action text" icon={mdiRestart} on:click={restart_cycle}>
-                            Restart Pomodoro Cycle
+                            Restart focus cycle
                         </Button>
                     {/if}
                 </div>
