@@ -4,7 +4,7 @@ import commonjs from 'rollup-plugin-commonjs'
 import globals from 'rollup-plugin-node-globals'
 import resolve from 'rollup-plugin-node-resolve'
 import svelte from 'rollup-plugin-svelte'
-import config from "@deimimi/strawberry/strawberry.config";
+import { customElementsPreprocess } from "@deimimi/strawberry/config";
 
 const production = !process.env.ROLLUP_WATCH
 
@@ -20,7 +20,7 @@ export default [
 			svelte({
 				// enable run-time checks when not in production
 				dev: !production,
-				...config,
+				preprocess: customElementsPreprocess,
 				css: css => {
 					css.write(`package/css/newtab.css`)
 				},
@@ -95,7 +95,7 @@ export default [
 			svelte({
 				// enable run-time checks when not in production
 				dev: !production,
-				...config,
+				preprocess: customElementsPreprocess,
 				css: css => {
 					css.write(`package/css/options.css`)
 				},
@@ -136,10 +136,7 @@ export default [
 			svelte({
 				// enable run-time checks when not in production
 				dev: !production,
-				...config,
-				css: css => {
-					css.write(`package/css/content.css`)
-				},
+				preprocess: customElementsPreprocess,
 				// Tell the compiler to output a custom element.
 				customElement: true,
 			}),
