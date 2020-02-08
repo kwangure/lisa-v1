@@ -9,10 +9,7 @@
     "offline_enabled": true,
     "content_scripts": [{
         "matches": ["<all_urls>"],
-        "js": ["js/content.js"],
-        "css": [
-            "css/content.css"
-        ]
+        "js": ["js/content.js"]
     }],
     "options_page": "/static/options.html",
     "chrome_url_overrides":{
