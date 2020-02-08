@@ -7,7 +7,7 @@ async function readBinary(file) {
 }
 
 async function play(filename) {
-    if (!filename) {
+    if (!filename && filename !== "none") {
         return;
     }
 
@@ -35,7 +35,7 @@ async function play(filename) {
 let notifications = new Map();
 let pomodoro = null;
 
-async function notify(pomodoro_state) {
+async function notify(pomodoro_state, settings) {
     let title = {
         [phases.FOCUS]: "Start focusing",
         [phases.SHORT_BREAK]: (
@@ -80,6 +80,7 @@ async function notify(pomodoro_state) {
 
     let notification_id = 'pomodoro-notification';
     chrome.notifications.create(notification_id, options, notification_id => {
+        play(settings.sound);
         notifications.set(notification_id, notification_id);
     });
 
@@ -128,7 +129,7 @@ export default new Map([
         let notification_settings = pomodoro_state.settings[phase].notifications;
 
         if (notification_settings.desktop) {
-            notify(pomodoro_state);
+            notify(pomodoro_state, notification_settings);
         }
     }],
     [events.START, clearNotifications],
