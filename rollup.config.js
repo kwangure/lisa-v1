@@ -13,7 +13,7 @@ export default [
 		output: {
 			file: `package/js/newtab.js`,
 			format: 'iife',
-			sourcemap: true,
+			sourcemap: "inline",
 		},
 		plugins: [
 			svelte({
@@ -56,7 +56,7 @@ export default [
 		output: {
 			file: `package/js/background.js`,
 			format: 'iife',
-			sourcemap: true,
+			sourcemap: "inline",
 		},
 		plugins: [
 			// If you have external dependencies installed from
@@ -86,7 +86,7 @@ export default [
 		output: {
 			file: `package/js/options.js`,
 			format: 'iife',
-			sourcemap: true,
+			sourcemap: "inline",
 		},
 		plugins: [
 			svelte({
@@ -126,7 +126,7 @@ export default [
 		output: {
 			file: `package/js/content.js`,
 			format: 'iife',
-			sourcemap: true,
+			sourcemap: "inline",
 		},
 		plugins: [
 			svelte({
