@@ -229,7 +229,7 @@
 {/if}
 
 <style>
-    @import "@deimimi/strawberry/css/strawberry.css";
+    @import "@deimimi/strawberry/src/css/shared.css";
 
     .main {
         padding: 10px 20px;

@@ -1,9 +1,8 @@
 import { terser } from 'rollup-plugin-terser'
-import builtins from 'rollup-plugin-node-builtins'
-import commonjs from 'rollup-plugin-commonjs'
-import globals from 'rollup-plugin-node-globals'
-import resolve from 'rollup-plugin-node-resolve'
+import commonjs from '@rollup/plugin-commonjs'
+import resolve from '@rollup/plugin-node-resolve'
 import svelte from 'rollup-plugin-svelte'
+import nodePolyfills from 'rollup-plugin-node-polyfills';
 import { customElementsPreprocess } from "@deimimi/strawberry/config";
 
 const production = !process.env.ROLLUP_WATCH
@@ -37,8 +36,7 @@ export default [
 				preferBuiltins: true
 			}),
 			commonjs(),
-			globals(),
-			builtins(),
+			nodePolyfills(),
 			// If we're building for production (npm run build
 			// instead of npm run dev), minify
 			production && terser()
@@ -71,8 +69,7 @@ export default [
 				preferBuiltins: true
 			}),
 			commonjs(),
-			globals(),
-			builtins(),
+			nodePolyfills(),
 			// If we're building for production (npm run build
 			// instead of npm run dev), minify
 			production && terser()
@@ -112,8 +109,7 @@ export default [
 				preferBuiltins: true 
 			}),
 			commonjs(),
-			globals(),
-			builtins(),
+			nodePolyfills(),
 			// If we're building for production (npm run build
 			// instead of npm run dev), minify
 			production && terser(),
@@ -151,8 +147,7 @@ export default [
 				preferBuiltins: true 
 			}),
 			commonjs(),
-			globals(),
-			builtins(),
+			nodePolyfills(),
 			// If we're building for production (npm run build
 			// instead of npm run dev), minify
 			production && terser()

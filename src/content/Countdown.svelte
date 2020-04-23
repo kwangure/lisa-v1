@@ -10,7 +10,7 @@
         mdiRestart, 
         mdiPause, 
         mdiPictureInPictureBottomRightOutline,
-        mdiSettingsOutline,
+        mdiCogOutline,
         mdiVolumeOff
     } from '@mdi/js'
     import { onDestroy, onMount } from 'svelte'
@@ -230,7 +230,7 @@
 <svelte:options tag="lisa-timer"/>
 
 <style>
-    @import "@deimimi/strawberry/css/strawberry.css";
+    @import "@deimimi/strawberry/src/css/shared.css";
     :host {
         font-size: 14px;
         font-family: var(--font);

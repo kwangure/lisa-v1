@@ -1,6 +1,6 @@
 <script>
     import { Button } from "@deimimi/strawberry";
-    import { mdiHistory, mdiSettings } from "@mdi/js";
+    import { mdiHistory, mdiCog } from "@mdi/js";
     import { timer_readable } from "../content/timer_store";
     import { mmss } from "../content/utils";
     import { phases } from "../background/pomodoro_store";
@@ -88,7 +88,7 @@
 </div>
 
 <style>
-    @import "@deimimi/strawberry/css/strawberry.css";
+    @import "@deimimi/strawberry/src/css/shared.css";
     .main {
         display: flex;
         flex-direction: column;
