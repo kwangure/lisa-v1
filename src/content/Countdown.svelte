@@ -160,7 +160,7 @@
                     { extend_timer_by == 1 ? "minute" : "minutes" }
                     <div class="extend">
                         <berry-button color="primary"
-                            on:click={() => timer.extend(extend_timer_by) }>
+                            on:click={() => timer.extend(extend_timer_by * 60) }>
                             Extend
                         </berry-button>
                     </div>

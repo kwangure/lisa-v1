@@ -71,7 +71,7 @@ export function pomodoro_readable(timer, settings){
                     [phases.FOCUS]: this.settings.focus.duration,
                     [phases.SHORT_BREAK]: this.settings.short_break.duration,
                     [phases.LONG_BREAK]: this.settings.long_break.duration,
-                } [this.phase] * 60;
+                } [this.phase];
             },
             enumerable: true,
         },
@@ -81,7 +81,7 @@ export function pomodoro_readable(timer, settings){
         },
         extended_duration: {
             get: function () {
-                return this._extended_duration * 60;
+                return this._extended_duration;
             },
             set: function (duration) {
                 if (duration < 0) {
@@ -272,6 +272,7 @@ export function pomodoro_readable(timer, settings){
                     status.phase = status.next_phase;
                 }
                 status.elapsed = 0;
+                status.extended_duration = 0;
                 status.state = states.RUNNING;
                 status.event = events.START;
                 return status
@@ -296,7 +297,6 @@ export function pomodoro_readable(timer, settings){
             pomodoro_store.update(status => {
                 status.previous_phase = status.phase;
                 status.state = states.STOPPED;
-                status.extended_duration = 0;
                 status.event = events.EXPIRE;
                 if(status.phase == phases.FOCUS){
                     status.pomodoros_since_start += 1;
@@ -308,6 +308,7 @@ export function pomodoro_readable(timer, settings){
         restart: function () {
             pomodoro_store.update(status => {
                 status.elapsed = 0;
+                status.extended_duration = 0;
                 status.state = states.RUNNING;
                 status.event = events.START;
                 return status
@@ -331,7 +332,7 @@ export function pomodoro_readable(timer, settings){
         },
         extend: function (duration) {
             pomodoro_store.update(status => {
-                status.extended_duration = duration; 
+                status.extended_duration += duration;
                 status.phase = status.previous_phase;
                 if(status.phase == phases.FOCUS){
                     status.pomodoros_since_start -= 1;

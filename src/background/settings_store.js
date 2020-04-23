@@ -4,7 +4,7 @@ const { writable } = persist("lisa-ext-settings");
 // hide destroy operation
 const { get, set, update, subscribe, reset } = writable({
     focus: {
-        duration: 50,
+        duration: 50 * 60,
         timer_sound: {
             file: null,
             bpm: 60,
@@ -16,7 +16,7 @@ const { get, set, update, subscribe, reset } = writable({
         }
     },
     short_break: {
-        duration: 10,
+        duration: 10 * 60,
         timer_sound: {
             file: null,
             bpm: 60,
@@ -28,7 +28,7 @@ const { get, set, update, subscribe, reset } = writable({
         }
     },
     long_break: {
-        duration: 30,
+        duration: 30 * 60,
         interval: 4,
         timer_sound: {
             file: null,
