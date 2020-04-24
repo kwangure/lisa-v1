@@ -58,6 +58,17 @@
         // Allows us to change the listener dynamically
         stop_sound_helper()
     }
+
+    $: set_input_seconds = (interval) => {
+        return function handleOnchange(event) {
+            $settings[interval].duration = event.target.value * 60;
+        }
+    }
+    
+    $: get_input_minutes = (interval) => {
+        let seconds = $settings[interval].duration / 60;
+        return seconds;
+    }
 </script>
 {#if $settings && $settings.focus}
     <div class="main">
@@ -68,9 +79,10 @@
                     <span> Duration </span>
                     <div class="input-wrapper">
                         <Input.Number
-                            min="1"
+                            min="0.1"
                             max="999"
-                            bind:value={$settings.focus.duration}/>
+                            value={get_input_minutes("focus")}
+                            on:change={set_input_seconds("focus")}/>
                     </div>
                     <span> { $settings.focus.duration == 1 ? "minute": "minutes" }</span>
                 </div>
@@ -135,9 +147,10 @@
                     <span>Duration</span>
                     <div class="input-wrapper">
                         <Input.Number
-                            min="1"
+                            min="0.1"
                             max="999"
-                            bind:value={$settings.short_break.duration}/>
+                            value={get_input_minutes("short_break")}
+                            on:change={set_input_seconds("short_break")}/>
                     </div>
                     <span>{ $settings.short_break.duration == 1 ? "minute": "minutes" }</span>
                 </div>
@@ -192,11 +205,12 @@
                         <span>Duration</span>
                         <div class="input-wrapper">
                             <Input.Number
-                                min="1"
+                                min="0.1"
                                 max="999"
-                                bind:value={$settings.long_break.duration}/>
+                                value={get_input_minutes("long_break")}
+                                on:change={set_input_seconds("long_break")}/>
                         </div>
-                        <span>{ $settings.long_break.duration == 1 ? "minute": "minutes" }</span>
+                        <span>{ $settings.long_break.duration === 60 ? "minute": "minutes" }</span>
                     </div>
                     <div class="section-field">When complete:</div>
                     <div class="section-field-group">
