@@ -1,20 +1,14 @@
 <script>
-    import { timer_readable } from "./timer_store"
-    import { Button, Dropdown, Input, Modal, Tooltip } from "@deimimi/strawberry"
-    import { phases } from "../background/pomodoro_store"
-    import { 
+    import { timer_readable } from "./timer_store";
+    import { phases } from "../background/pomodoro_store";
+    import {
         mdiDotsHorizontal,
-        mdiEyeOffOutline,
-        mdiHistory,
-        mdiPlayOutline, 
-        mdiRestart, 
-        mdiPause, 
+        mdiPlayOutline,
+        mdiPause,
         mdiPictureInPictureBottomRightOutline,
-        mdiCogOutline,
-        mdiVolumeOff
-    } from '@mdi/js'
-    import { onDestroy, onMount } from 'svelte'
-    import { mmss } from "./utils"
+    } from "@mdi/js";
+    import { onDestroy, onMount } from "svelte";
+    import { mmss } from "./utils";
 
     let timer = timer_readable();
     let chrome = window.chrome;
@@ -26,72 +20,68 @@
     let extend_timer_by = 5;
 
     function toggle_right(){
-        right = !right
+        right = !right;
     }
 
-    let dropdownItems = [ 
-        { 
+    let dropdownItems = [
+        {
             value: "Restart pomodoro cycle",
             clickFn: timer.restart_cycle,
-        }, 
-        { 
+        },
+        {
             value: "Restart current timer",
             clickFn: timer.restart,
         },
-        /*{ 
-            value: "Open settings page",
-            clickFn: ()=>{},
-        }*/
-    ]
+    ];
 
-    const ARROW_LEFT = 37
-    const ARROW_UP = 38
-    const ARROW_RIGHT = 39
-    const ARROW_DOWN = 40
+    const ARROW_LEFT = 37;
+    const ARROW_UP = 38;
+    const ARROW_RIGHT = 39;
+    const ARROW_DOWN = 40;
     
     function onKeyDown(e) {
         if(!e.altKey || !e.shiftKey) return;
-        
+    
         if (e.keyCode == ARROW_LEFT) {
-            right = false
+            right = false;
         } else if (e.keyCode == ARROW_UP) {
-            visible = true
+            visible = true;
         } else if (e.keyCode == ARROW_RIGHT) {
-            right = true
+            right = true;
         } else if (e.keyCode == ARROW_DOWN) {
-            visible = false
+            visible = false;
         }
     }
 
     onMount(()=>{
-        document.addEventListener('keydown', onKeyDown)
-    })
+        document.addEventListener("keydown", onKeyDown);
+    });
     onDestroy(() => {
-        document.removeEventListener('keydown', onKeyDown)
-    })
+        document.removeEventListener("keydown", onKeyDown);
+    });
 
     $: time = mmss(($timer && $timer.remaining)|| 0);
 
-    $: timer_class = $timer.is_stopped? 'stop' : {
-            null: '',
-            [phases.FOCUS]: 'focus',
-            [phases.SHORT_BREAK]: 'break',
-            [phases.LONG_BREAK]: 'break'
-        }[$timer.phase]
+    $: timer_class = $timer.is_stopped? "stop" : {
+        null: "",
+        [phases.FOCUS]: "focus",
+        [phases.SHORT_BREAK]: "break",
+        [phases.LONG_BREAK]: "break",
+    }[$timer.phase];
     $: next_phase_text = (()=> {
         if(!$timer.previous_phase) {
-            return "Start focusing"
+            return "Start focusing";
         }
         return {
-            null: '',
+            null: "",
             [phases.FOCUS]: "Start focusing",
             [phases.SHORT_BREAK]: $timer.has_long_break ? "Take a short break" : "Take a break",
-            [phases.LONG_BREAK]: "Take a long break"
+            [phases.LONG_BREAK]: "Take a long break",
         }[$timer.next_phase];
-    })()
+    })();
     
     $: extend_phase_text = {
-        null: '',
+        null: "",
         [phases.FOCUS]: "Extend focus by",
         [phases.SHORT_BREAK]: "Extend short break by",
         [phases.LONG_BREAK]: "Extend long break by",
@@ -198,7 +188,7 @@
                             <berry-button 
                                 on:click={toggle_right} 
                                 icon={mdiPictureInPictureBottomRightOutline}
-                                iconProps={{flip: 'horizontal'}}
+                                iconProps={{flip: "horizontal"}}
                                 color="none" 
                                 class="action"/>
                         </berry-tooltip>

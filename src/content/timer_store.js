@@ -6,17 +6,17 @@ import { pomodoro_client } from "../client";
 let pomodoro = writable({});
 
 (async function init() {
-    pomodoro.set(await pomodoro_client.get_status())
-})()
+    pomodoro.set(await pomodoro_client.get_status());
+})();
 
 Object.values(events).forEach(event => {
     pomodoro_client.on(event, state => {
-        pomodoro.set(state)
-    })
-})
+        pomodoro.set(state);
+    });
+});
 
 export function timer_readable() {
-    return { 
+    return {
         subscribe: pomodoro.subscribe,
         start: function () {
             return pomodoro_client.start();
@@ -39,5 +39,5 @@ export function timer_readable() {
         restart_cycle: function () {
             return pomodoro_client.start_cycle();
         },
-    }
+    };
 }

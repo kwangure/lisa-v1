@@ -1,12 +1,14 @@
-import timer from './timer'
-import { pomodoro_readable, events as pomodoro_events } from './pomodoro_store'
-import { sound_store } from './sound_store'
-import { settings_writable, events as settings_events } from './settings_store'
-import emit from './emit'
-import { service_requests } from './service';
-import notification_observer from './notification_observer';
+/* global chrome */
+import timer from "./timer";
+import { pomodoro_readable, events as pomodoro_events } from "./pomodoro_store";
+import { sound_store } from "./sound_store";
+import { settings_writable, events as settings_events } from "./settings_store";
+import emit from "./emit";
+import { service_requests } from "./service";
+import notification_observer from "./notification_observer";
 
 (function () {
+    // @ts-ignore
     chrome.runtime.onUpdateAvailable.addListener(() => {
         // We must listen to (but do nothing with) the onUpdateAvailable event in order to
         // defer updating the extension until the next time Chrome is restarted. We do not want
@@ -36,19 +38,19 @@ import notification_observer from './notification_observer';
     let stores = [
         pomodoro,
         settings,
-    ]
+    ];
 
     // marry all events and listeners from observers
     subscriptions.forEach((subscribers, event) => {
         observers.forEach(observer => {
             if(observer.has(event)) {
                 let event_fn = observer.get(event);
-                subscribers.push(event_fn)
+                subscribers.push(event_fn);
             }
         });
-        
+
         subscriptions.set(event, subscribers);
-    })
+    });
 
     // subscribe to emit events to background and external scripts
     stores.forEach(store => {
@@ -67,11 +69,11 @@ import notification_observer from './notification_observer';
 
     // listen to requests from outside background script
     service_requests.listen({
-        pomodoro, 
+        pomodoro,
         settings,
         sound,
     });
-    
+
     // Begin pomodoro in stopped state
     pomodoro.stop();
-})()
+})();

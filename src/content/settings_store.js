@@ -1,25 +1,23 @@
-
 import { writable } from "svelte/store";
-import { events } from "../background/pomodoro_store";
 import { settings_client } from "../client";
 
 let settings = writable({});
 
 (async function init() {
     settings.set(await settings_client.get());
-})()
+})();
 
-settings_client.on("settings-change", state => settings.set(state))
+settings_client.on("settings-change", state => settings.set(state));
 
 export function settings_writable() {
-    return { 
+    return {
         subscribe: settings.subscribe,
         set: function (state) {
             settings_client.set(state);
         },
         update: async function (update_fn) {
             let state = update_fn(await this.get());
-            settings_client.set(state)
+            settings_client.set(state);
         },
         get: function () {
             return settings_client.get();
@@ -42,5 +40,5 @@ export function settings_writable() {
         restart_cycle: function () {
             return settings_client.start_cycle();
         },
-    }
+    };
 }

@@ -44,5 +44,6 @@ module.exports = {
             "always"
         ],
         "comma-dangle": ["error", "always-multiline"],
+        "no-trailing-spaces": "error",
     }
 };

@@ -1,4 +1,4 @@
-import { persist } from './store';
+import { persist } from "./store";
 
 const { writable } = persist("lisa-ext-settings");
 // hide destroy operation
@@ -12,8 +12,8 @@ const { get, set, update, subscribe, reset } = writable({
         notifications: {
             desktop: true,
             tab: true,
-            sound: null
-        }
+            sound: null,
+        },
     },
     short_break: {
         duration: 10 * 60,
@@ -24,8 +24,8 @@ const { get, set, update, subscribe, reset } = writable({
         notifications: {
             desktop: true,
             tab: true,
-            sound: null
-        }
+            sound: null,
+        },
     },
     long_break: {
         duration: 30 * 60,
@@ -37,17 +37,17 @@ const { get, set, update, subscribe, reset } = writable({
         notifications: {
             desktop: true,
             tab: true,
-            sound: null
-        }
+            sound: null,
+        },
     },
 });
 
 export function settings_writable () {
-    return { get, set, update, subscribe, reset }
+    return { get, set, update, subscribe, reset };
 }
 export function settings_readable () {
-    return { get, subscribe }
+    return { get, subscribe };
 }
 export const events = {
     CHANGE: "settings-change",
-}
+};

@@ -1,48 +1,28 @@
 <script>
-    import { settings_writable } from '../content/settings_store'
-    import { sound_client } from '../client'
-    import { Button, Input, Icon, Select, Tooltip } from '@deimimi/strawberry'
-    import { mdiVolumeHigh } from '@mdi/js'
+    import { settings_writable } from "../content/settings_store";
+    import { sound_client } from "../client";
+    import { Input, Select } from "@deimimi/strawberry";
 
     let settings = settings_writable();
     let notification_sounds = sound_client.get_notification_sounds();
 
-    let stop_sound_helper = () => {};
-
     $: can_play_sound = (() => {
         let loaded = $settings && $settings.focus;
         let sound_selected = (
-            loaded && 
-            $settings.focus.timer_sound.file && 
+            loaded &&
+            $settings.focus.timer_sound.file &&
             $settings.focus.timer_sound.file != "none"
         );
 
         return sound_selected;
     })();
 
-    async function play_timer_sound() {
-        let interval = Math.floor(60 / $settings.focus.timer_sound.bpm) * 1000;
-        let audio = new Audio(`..${$settings.focus.timer_sound.file}`);
-        let bpm = $settings.focus.timer_sound.bpm;
-        if(bpm){
-            let interval_id = setInterval(async function player() {
-                await audio.play()
-            }, interval);
-            stop_sound_helper = async () => {
-                clearInterval(interval_id)
-            };
-        } else {
-            await audio.play()
-            stop_sound_helper = audio.pause;
-        }  
-    }
-
     function sounds_to_options(options) {
         options = options.map(({file, name, ...rest}) => (
-                    { value: file, text: name, ...rest}
-                ))
-        options.unshift({text:"None",value:"none"})
-        return options
+            { value: file, text: name, ...rest}
+        ));
+        options.unshift({text:"None",value:"none"});
+        return options;
     }
 
     async function play_sound(sound) {
@@ -50,25 +30,20 @@
 
         if(can_play) {
             let audio = new Audio(`..${sound}`);
-            await audio.play()
+            await audio.play();
         }
-    }
-
-    function stop_sound() {
-        // Allows us to change the listener dynamically
-        stop_sound_helper()
     }
 
     $: set_input_seconds = (interval) => {
         return function handleOnchange(event) {
             $settings[interval].duration = event.target.value * 60;
-        }
-    }
+        };
+    };
     
     $: get_input_minutes = (interval) => {
         let seconds = $settings[interval].duration / 60;
         return seconds;
-    }
+    };
 </script>
 {#if $settings && $settings.focus}
     <div class="main">
@@ -86,35 +61,6 @@
                     </div>
                     <span> { $settings.focus.duration == 1 ? "minute": "minutes" }</span>
                 </div>
-                <!--div class="section-field">
-                    <span>Timer sound </span>
-                    <div class="input-wrapper">
-                        {#await sound_client.get_timer_sounds() then sounds}
-                            <Select bind:value={$settings.focus.timer_sound.file} 
-                                options={sounds_to_options(sounds)}/>
-                        {/await}
-                    </div>
-                    <span> during focus </span>
-                    {#if can_play_sound}
-                        <span on:mouseover={play_timer_sound} on:mouseout={stop_sound} class="preview">
-                            (
-                                <span class="icon"><Icon path={mdiVolumeHigh} size={18}/></span> 
-                                Hover to preview
-                            )
-                        </span>
-                    {/if}
-                </div>
-                <div class="section-field" class:disabled={!can_play_sound}>
-                    <Tooltip label={can_play_sound ? "": "Disabled. Set timer sound first."}>
-                        <span>Speed: </span>
-                        <div class="input-wrapper">
-                            <Input.Number disabled={!can_play_sound}
-                                min="0" max="1000"
-                                bind:value={$settings.focus.timer_sound.bpm}/>
-                        </div>
-                        <span>beats per minute</span>
-                    </Tooltip>
-                </div-->
                 <div class="section-field">
                     When complete:
                 </div>
@@ -124,11 +70,6 @@
                             bind:checked={$settings.focus.notifications.desktop}
                             label="Show desktop notificiation"/>
                     </div>
-                    <!--div class="section-field">
-                        <Input.Checkbox 
-                            bind:checked={$settings.focus.notifications.tab}
-                            label="Show new tab notification"/>
-                    </div-->
                     <div class="section-field">
                         <span>Play audio notification</span>
                         <div class="input-wrapper">
@@ -161,11 +102,6 @@
                             bind:checked={$settings.short_break.notifications.desktop}
                             label="Show desktop notification"/>
                     </div>
-                    <!--div class="section-field">
-                        <Input.Checkbox
-                            bind:checked={$settings.short_break.notifications.tab}
-                            label="Show new tab notification"/>
-                    </div-->
                     <div class="section-field">
                         <span>Play audio notification</span>
                         <div class="input-wrapper">
@@ -219,11 +155,6 @@
                                 bind:checked={$settings.long_break.notifications.desktop}
                                 label="Show desktop notification"/>
                         </div>
-                        <!--div class="section-field">
-                            <Input.Checkbox
-                                bind:checked={$settings.long_break.notifications.tab}
-                                label="Show new tab notification"/>
-                        </div-->
                         <div class="section-field">
                             <span>Play audio notification</span>
                             <div class="input-wrapper">
@@ -288,3 +219,4 @@
         color: inherit;
     }
 </style>
+

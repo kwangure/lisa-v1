@@ -6,7 +6,7 @@ const states = {
     STOPPED: "stopped",
     RUNNING: "running",
     PAUSED: "paused",
-}
+};
 
 const phases = {
     FOCUS: "focus",
@@ -221,48 +221,48 @@ export function pomodoro_readable(timer, settings){
                 }
                 this._event = event;
             },
-        }
-    })
+        },
+    });
 
     let pomodoro_store = writable(pomodoro);
 
     pomodoro_store.subscribe(value => {
         pomodoro = value;
-    })
+    });
 
     let actions = {
         subscribe: function(subscriber){
-            if (typeof subscriber != 'function') {
+            if (typeof subscriber != "function") {
                 throw new Error(errors.INVALID_SUBSCRIBER);
             }
-            return pomodoro_store.subscribe(subscriber)
+            return pomodoro_store.subscribe(subscriber);
         },
         get_status: function(){
-            return pomodoro
+            return pomodoro;
         },
         start_cycle: function () {
-            this.stop()
-            this.start()
+            this.stop();
+            this.start();
         },
         start_focus: function () {
             pomodoro_store.update(state => {
                 state.phase = phases.FOCUS;
                 return state;
-            })
+            });
             this.start();
         },
         start_short_break: function () {
             pomodoro_store.update(state => {
                 state.phase = phases.SHORT_BREAK;
                 return state;
-            })
+            });
             this.start();
         },
         start_long_break: function () {
             pomodoro_store.update(state => {
                 state.phase = phases.LONG_BREAK;
                 return state;
-            })
+            });
             this.start();
         },
         start: function () {
@@ -275,21 +275,21 @@ export function pomodoro_readable(timer, settings){
                 status.extended_duration = 0;
                 status.state = states.RUNNING;
                 status.event = events.START;
-                return status
-            })
+                return status;
+            });
             this.subscribe_to_timer();
         },
         stop: function () {
             pomodoro_store.update(status => {
                 status.elapsed = 0;
                 status.pomodoros_since_start = 0;
-                status.state = states.STOPPED; 
+                status.state = states.STOPPED;
                 status.previous_phase = null;
                 status.phase = phases.FOCUS;
                 status.event = events.STOP;
-                return status
-            })
-            this.unsubscribe_from_timer()
+                return status;
+            });
+            this.unsubscribe_from_timer();
         },
         // Avoid calling expire directly. It should be system only
         // Use `stop` instead.
@@ -301,9 +301,9 @@ export function pomodoro_readable(timer, settings){
                 if(status.phase == phases.FOCUS){
                     status.pomodoros_since_start += 1;
                 }
-                return status
-            })
-            this.unsubscribe_from_timer()
+                return status;
+            });
+            this.unsubscribe_from_timer();
         },
         restart: function () {
             pomodoro_store.update(status => {
@@ -311,8 +311,8 @@ export function pomodoro_readable(timer, settings){
                 status.extended_duration = 0;
                 status.state = states.RUNNING;
                 status.event = events.START;
-                return status
-            })
+                return status;
+            });
         },
         pause: function () {
             if(pomodoro.state != states.RUNNING) return;
@@ -320,7 +320,7 @@ export function pomodoro_readable(timer, settings){
                 status.state = states.PAUSED;
                 status.event = events.PAUSE;
                 return status;
-            })
+            });
         },
         resume: function () {
             if(pomodoro.state != states.PAUSED) return;
@@ -328,7 +328,7 @@ export function pomodoro_readable(timer, settings){
                 status.state = states.RUNNING;
                 status.event = events.RESUME;
                 return status;
-            })
+            });
         },
         extend: function (duration) {
             pomodoro_store.update(status => {
@@ -348,9 +348,9 @@ export function pomodoro_readable(timer, settings){
                 this.expire();
             } else if (pomodoro.state == states.RUNNING) {
                 pomodoro_store.update(status => {
-                    status.elapsed += 1
+                    status.elapsed += 1;
                     status.event = events.TICK;
-                    return status
+                    return status;
                 });
             }
         },
@@ -359,17 +359,17 @@ export function pomodoro_readable(timer, settings){
 
             let unsubscribe = timer.subscribe(() => {
                 this.tick();
-            })
-            
+            });
+
             this.unsubscribe_from_timer = function () {
                 unsubscribe();
                 this.unsubscribe_from_timer = noop;
-            }
+            };
         },
-        unsubscribe_from_timer: noop
-    }
+        unsubscribe_from_timer: noop,
+    };
 
-    return actions
+    return actions;
 }
 
-export { states, phases, events }
+export { states, phases, events };

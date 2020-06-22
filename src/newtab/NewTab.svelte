@@ -1,10 +1,8 @@
 <script>
     import { Button } from "@deimimi/strawberry";
-    import { mdiHistory, mdiCog } from "@mdi/js";
     import { timer_readable } from "../content/timer_store";
     import { mmss } from "../content/utils";
     import { phases } from "../background/pomodoro_store";
-    import { onDestroy, onMount } from "svelte";
     import { mdiPlayOutline, mdiRestart, mdiPause } from "@mdi/js";
 
     let clock;
@@ -14,7 +12,7 @@
         let hours = date.getHours();
         let minutes = date.getMinutes();
         let session = hours > 11 ? "pm": "am";
-        
+    
         hours = hours == 0 ? 12 : hours;
         hours = hours > 12 ? hours - 12: hours;
         minutes = (minutes < 10) ? "0" + minutes : minutes;
@@ -22,28 +20,28 @@
         clock = `${hours}:${minutes} ${session}`;
 
         setTimeout(show_time, 1000);
-    })()
+    })();
 
-    function rand_between(min, max) { // min and max included 
+    function rand_between(min, max) { // min and max included
         return Math.floor(Math.random() * (max - min + 1) + min);
     }
 
     let timer = timer_readable();
-    const { start, stop, pause, resume, restart_cycle, restart_timer } = timer;
+    const { start, pause, resume, restart_cycle, restart_timer } = timer;
 
     $: time = mmss(($timer && $timer.remaining)|| 0);
     
     $: next_phase_text = (()=> {
         if(!$timer.previous_phase) {
-            return "Start focusing"
+            return "Start focusing";
         }
         return {
-            null: '',
+            null: "",
             [phases.FOCUS]: "Start focusing",
             [phases.SHORT_BREAK]: $timer.has_long_break ? "Take a short break" : "Take a break",
-            [phases.LONG_BREAK]: "Take a long break"
+            [phases.LONG_BREAK]: "Take a long break",
         }[$timer.next_phase];
-    })()
+    })();
 </script>
 
 <div class="main" 

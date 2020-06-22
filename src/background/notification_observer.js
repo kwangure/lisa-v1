@@ -1,6 +1,8 @@
-import { events, phases } from "./pomodoro_store"
+/* global chrome */
+import { events, phases } from "./pomodoro_store";
 
 async function readBinary(file) {
+    // @ts-ignore
     let url = chrome.runtime.getURL(file);
     let response = await fetch(url);
     return await response.arrayBuffer();
@@ -27,7 +29,7 @@ async function play(filename) {
         source.onended = () => {
             context.close();
             resolve();
-        }
+        };
         source.start();
     });
 }
@@ -50,7 +52,7 @@ async function notify(pomodoro_state, settings) {
     let count = pomodoro_state.pomodoros_until_long_break;
 
     if (count > 0) {
-        messages.push(`${count} pomodoro${count > 1 ? 's' : ''} until long break`);
+        messages.push(`${count} pomodoro${count > 1 ? "s" : ""} until long break`);
     }
 
     let message = messages.join("\n");
@@ -62,12 +64,12 @@ async function notify(pomodoro_state, settings) {
                 ? "Start short break now"
                 : "Start break now"
         ),
-        [phases.LONG_BREAK]: "Start long break now"
+        [phases.LONG_BREAK]: "Start long break now",
     }[pomodoro_state.next_phase];
 
     let buttons = [
         { title: buttonText },
-    ]
+    ];
 
     let options = {
         type: "basic",
@@ -78,13 +80,15 @@ async function notify(pomodoro_state, settings) {
         requireInteraction: true,
     };
 
-    let notification_id = 'pomodoro-notification';
+    let notification_id = "pomodoro-notification";
+    // @ts-ignore
     chrome.notifications.create(notification_id, options, notification_id => {
         play(settings.sound);
         notifications.set(notification_id, notification_id);
     });
 
     let clicked = id => {
+        // @ts-ignore
         chrome.notifications.clear(id, was_cleared => {
             if (was_cleared) {
                 pomodoro.start();
@@ -93,6 +97,7 @@ async function notify(pomodoro_state, settings) {
     };
 
     let button_clicked = id => {
+        // @ts-ignore
         chrome.notifications.clear(id, was_cleared => {
             if (was_cleared) {
                 pomodoro.start();
@@ -104,19 +109,26 @@ async function notify(pomodoro_state, settings) {
         if (id !== notification_id) {
             return;
         }
+        // @ts-ignore
         chrome.notifications.onClicked.removeListener(clicked);
+        // @ts-ignore
         chrome.notifications.onButtonClicked.removeListener(button_clicked);
+        // @ts-ignore
         chrome.notifications.onClosed.removeListener(closed);
     };
 
+    // @ts-ignore
     chrome.notifications.onClicked.addListener(clicked);
+    // @ts-ignore
     chrome.notifications.onButtonClicked.addListener(button_clicked);
+    // @ts-ignore
     chrome.notifications.onClosed.addListener(closed);
 }
 
 function clearNotifications(_pomodoro_state, pomodoro_store) {
     pomodoro = pomodoro_store;
     notifications.forEach(notification_id => {
+        // @ts-ignore
         chrome.notifications.clear(notification_id);
     });
 }

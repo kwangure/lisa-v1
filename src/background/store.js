@@ -1,9 +1,9 @@
-import { writable, readable } from 'svelte/store';
+import { writable, readable } from "svelte/store";
 
 function storage_available() {
     try {
-        var storage = window['localStorage'],
-            x = '__storage_test__';
+        var storage = window["localStorage"],
+            x = "__storage_test__";
         storage.setItem(x, x);
         storage.removeItem(x);
         return true;
@@ -11,17 +11,17 @@ function storage_available() {
     catch(e) {
         console.error(
             e instanceof DOMException && (
-            e.code === 22 ||
+                e.code === 22 ||
             e.code === 1014 ||
-            e.name === 'QuotaExceededError' ||
-            e.name === 'NS_ERROR_DOM_QUOTA_REACHED') &&
-            storage && storage.length !== 0
+            e.name === "QuotaExceededError" ||
+            e.name === "NS_ERROR_DOM_QUOTA_REACHED") &&
+            storage && storage.length !== 0,
         );
         return false;
     }
 }
 
-function get_storage_JSON(key) { 
+function get_storage_JSON(key) {
     let value = localStorage.getItem(key);
     try {
         return JSON.parse(value);
@@ -37,18 +37,18 @@ function noop() { }
 export function persist(storeName) {
     if (!storage_available()) return {
         writable:{},
-        readable:{}
-    }
-    
+        readable:{},
+    };
+
     let key = storeName;
     let store = function (value, start=noop) {
         let old_value = get_storage_JSON(key);
-        const { subscribe, set } = writable(old_value, start);        
+        const { subscribe, set } = writable(old_value, start);
         const subscribers = [];
 
         let actions = {
             get: function() {
-                return get_storage_JSON(key)
+                return get_storage_JSON(key);
             },
             set: function(new_value) {
                 localStorage.setItem(key, JSON.stringify(new_value));
@@ -70,20 +70,20 @@ export function persist(storeName) {
                 value = get_storage_JSON(key);
                 localStorage.removeItem(key);
                 return value;
-            }
-        }
+            },
+        };
 
-        if(!old_value && value) actions.set(value)
+        if(!old_value && value) actions.set(value);
 
-        return actions
-    }
+        return actions;
+    };
 
     let readable = function(value) {
-        let { get, subscribe, destroy } = store(value)
-        return { get, subscribe, destroy }
-    }
+        let { get, subscribe, destroy } = store(value);
+        return { get, subscribe, destroy };
+    };
 
-    return { writable: store, readable }
+    return { writable: store, readable };
 }
 
-export { writable, readable }
+export { writable, readable };
