@@ -117,29 +117,6 @@
                     </div>
                 {/if}
             </div>
-            <!--div class="stopped-controls">
-                <berry-tooltip label="Restart pomodoro cycle">
-                    <berry-button 
-                        on:click={ timer.restart } 
-                        icon={ mdiRestart }
-                        color="none" 
-                        class="action"/>
-                </berry-tooltip>
-                <berry-tooltip label="Open history page">
-                    <berry-button 
-                        on:click={()=>{} } 
-                        icon={mdiHistory}
-                        color="none" 
-                        class="action"/>
-                </berry-tooltip>
-                <berry-tooltip label="Open settings page">
-                    <berry-button 
-                        on:click={()=>{} } 
-                        icon={mdiSettingsOutline}
-                        color="none" 
-                        class="action"/>
-                </berry-tooltip>
-            </div-->
             {#if $timer.previous_phase}
                 <div class="timer-card">
                     {extend_phase_text}
