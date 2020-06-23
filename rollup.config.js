@@ -144,11 +144,19 @@ export default [
                 fix: production,
             }),
             svelte({
-                // enable run-time checks when not in production
                 dev: !production,
                 preprocess: customElementsPreprocess,
-                // Tell the compiler to output a custom element.
+                exclude: /\.wc\.svelte$/,
+                css: css => {
+                    css.write("package/css/content.css");
+                },
+            }),
+            svelte({
+                dev: !production,
+                preprocess: customElementsPreprocess,
+                // compile `*.wc.svelte` files as custom elements
                 customElement: true,
+                include: /\.wc\.svelte$/,
             }),
             // If you have external dependencies installed from
             // npm, you'll most likely need these plugins. In
@@ -170,6 +178,13 @@ export default [
             if (message.code === "CIRCULAR_DEPENDENCY") {
                 return;
             }
+
+            const customElementsWarning = message.pluginCode === "missing-custom-element-compile-options" && /[/\\]strawberry[/\\]/.test(message.filename);
+            const unusedCSSWarning = message.pluginCode === "css-unused-selector" && /[/\\]strawberry[/\\]/.test(message.filename);
+            if (customElementsWarning || unusedCSSWarning) {
+                return;
+            }
+
             warn(message);
         },
     },

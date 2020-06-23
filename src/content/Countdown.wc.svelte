@@ -1,6 +1,7 @@
 <script>
     import { timer_readable } from "./timer_store";
     import { phases } from "../background/pomodoro_store";
+    import { Button, Input, Dropdown, Modal, Tooltip } from "@deimimi/strawberry";
     import {
         mdiDotsHorizontal,
         mdiPlayOutline,
@@ -92,8 +93,12 @@
     let s = val => val == 1 ? "" : "s";
 </script>
 
+<svelte:options tag="lisa-timer"/>
+
+<link rel="stylesheet" href={chrome.extension.getURL("css/content.css")}/>
+
 {#if $timer && $timer.is_stopped}
-    <berry-modal bind:this={timer_stopped_modal} visible={true} closable={false}>
+    <Modal bind:this={timer_stopped_modal} visible={true} closable={false}>
         <div slot="content" class="content">
             <div class="pomodoro-wrapper">
                 {#if pomodoros.length > 0}
@@ -121,15 +126,15 @@
                 <div class="timer-card">
                     {extend_phase_text}
                     <div class="input-wrapper">
-                        <berry-input-number value={extend_timer_by} min={1}
+                        <Input.Number value={extend_timer_by} min={1}
                             on:input={(event) => extend_timer_by = event.target.value}/>
                     </div>
                     { extend_timer_by == 1 ? "minute" : "minutes" }
                     <div class="extend">
-                        <berry-button color="primary"
+                        <Button color="primary"
                             on:click={() => timer.extend(extend_timer_by * 60) }>
                             Extend
-                        </berry-button>
+                        </Button>
                     </div>
                 </div>
                 <div class="separator">or</div>
@@ -138,7 +143,7 @@
                 {next_phase_text}
             </div>
         </div>
-    </berry-modal>
+    </Modal>
 {:else if visible }
     <div class="countdown {right? 'bottom-right':''}">
         <div class="main">
@@ -148,53 +153,51 @@
                 </div>
                 <div class="controls">
                     {#if $timer.is_paused}
-                        <berry-tooltip label="Resume timer">
-                            <berry-button on:click={timer.resume} icon={mdiPlayOutline} color="none"/>
-                        </berry-tooltip>
+                        <Tooltip label="Resume timer">
+                            <Button on:click={timer.resume} icon={mdiPlayOutline} color="none"/>
+                        </Tooltip>
                     {:else if $timer.is_running}
-                        <berry-tooltip label="Pause timer">
-                            <berry-button on:click={timer.pause} icon={mdiPause} color="none"/>
-                        </berry-tooltip>
+                        <Tooltip label="Pause timer">
+                            <Button on:click={timer.pause} icon={mdiPause} color="none"/>
+                        </Tooltip>
                     {:else if $timer.is_stopped}
-                        <berry-tooltip label="Start timer">
-                            <berry-button on:click={timer.start} icon={mdiPlayOutline} color="none"/>
-                        </berry-tooltip>
+                        <Tooltip label="Start timer">
+                            <Button on:click={timer.start} icon={mdiPlayOutline} color="none"/>
+                        </Tooltip>
                     {/if}
                     {#if right}
-                        <berry-tooltip label="Move timer left">
-                            <berry-button 
+                        <Tooltip label="Move timer left">
+                            <Button 
                                 on:click={toggle_right} 
                                 icon={mdiPictureInPictureBottomRightOutline}
                                 iconProps={{flip: "horizontal"}}
                                 color="none" 
                                 class="action"/>
-                        </berry-tooltip>
+                        </Tooltip>
                     {:else}
-                        <berry-tooltip label="Move timer right">
-                            <berry-button 
+                        <Tooltip label="Move timer right">
+                            <Button 
                                 on:click={toggle_right} 
                                 icon={mdiPictureInPictureBottomRightOutline}
                                 color="none" 
                                 class="action"/>
-                        </berry-tooltip>
+                        </Tooltip>
                     {/if}
-                    <berry-dropdown placement="topRight">
+                    <Dropdown placement="topRight">
                         <div slot="button">
-                            <berry-button color="none" icon={mdiDotsHorizontal}/>
+                            <Button color="none" icon={mdiDotsHorizontal}/>
                         </div>
                         {#each dropdownItems as item}
-                            <berry-dropdown-item on:click={item.clickFn}>
+                            <Dropdown.Item on:click={item.clickFn}>
                                 {item.value}
-                            </berry-dropdown-item>
+                            </Dropdown.Item>
                         {/each}
-                    </berry-dropdown>
+                    </Dropdown>
                 </div>
             </div>
         </div>
     </div>
 {/if}
-
-<svelte:options tag="lisa-timer"/>
 
 <style>
     @import "@deimimi/strawberry/src/css/shared.css";
@@ -202,8 +205,8 @@
         font-size: 14px;
         font-family: var(--font);
     }
-    .countdown, 
-    berry-modal {
+    .countdown,
+    :global(.berry-modal) {
         --text: var(--grey-dark);
     }
     .countdown {
