@@ -57,17 +57,17 @@
             <div class="controls-wrapper">
                 <div class="controls">
                     {#if $timer.is_paused}
-                        <Button class="action" icon={mdiRestart} on:click={restart_timer}/>
-                        <Button class="action" icon={mdiPlayOutline}
+                        <Button icon={mdiRestart} on:click={restart_timer}/>
+                        <Button icon={mdiPlayOutline}
                             on:click={ resume }/>
                     {:else if $timer.is_running}
-                        <Button class="action" icon={mdiPause} on:click={pause}/>
+                        <Button icon={mdiPause} on:click={pause}/>
                     {:else if $timer.is_stopped }
-                        <Button class="action text" icon={mdiPlayOutline}
+                        <Button icon={mdiPlayOutline}
                             on:click={ start }>
                             { next_phase_text }
                         </Button>
-                        <Button class="action text" icon={mdiRestart} on:click={restart_cycle}>
+                        <Button icon={mdiRestart} on:click={restart_cycle}>
                             Restart focus cycle
                         </Button>
                     {/if}
@@ -76,10 +76,8 @@
         </div>
         <div class="actions-wrapper">
             <!--div class="actions">
-                <Button class="settings action" icon={mdiSettings}
-                    on:click={showSettings}/>
-                <Button class="history action" icon={mdiHistory}
-                    on:click={showHistory}/>
+                <Button icon={mdiSettings} on:click={showSettings}/>
+                <Button icon={mdiHistory} on:click={showHistory}/>
             </div-->
         </div>
     </div>
@@ -121,13 +119,13 @@
     .actions {
         margin-left: auto;
     }
-    .actions :global(button.action){
+    .actions :global(button){
         background-color: transparent;
         color: #fff;
         border: none !important;
         height: auto;
     }
-    .actions :global(button.action .button-prefix) {
+    .actions :global(button .button-prefix) {
         padding: 10px 5px;
     }
     .clock {
@@ -166,21 +164,21 @@
     .controls {
         margin-left: auto;
     }
-    .controls :global(button.action){
+    .controls :global(button){
         background-color: transparent;
         color: #fff;
         border-color: #fff !important;
         height: auto;
     }
-    .controls :global(button.action:focus),
-    .controls :global(button.action:hover) {
+    .controls :global(button:focus),
+    .controls :global(button:hover) {
         background-color: rgba(255,255,255,0.3) !important;
         color: #fff !important;
     }
-    .controls :global(button.action .button-prefix) {
+    .controls :global(button .button-prefix) {
         padding: 10px 5px;
     }
-    .controls :global(button.action.text){
+    .controls :global(button){
         font-size: 18px;
     }
 </style>

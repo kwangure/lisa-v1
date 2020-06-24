@@ -203,11 +203,11 @@
     @import "@deimimi/strawberry/src/css/shared.css";
     :host {
         font-size: 14px;
-        font-family: var(--font);
+        font-family: var(--br-font);
     }
     .countdown,
     :global(.berry-modal) {
-        --text: var(--grey-dark);
+        --text: var(--br-grey-dark);
     }
     .countdown {
         position: fixed;
@@ -233,7 +233,7 @@
         padding: 10px;
         border-radius: 4px;
         box-shadow: 0 8px 18px rgba(100 ,100 ,100 , .6);
-        background-color: var(--white);
+        background-color: var(--br-white);
         opacity: 0.9;
     }
     :global(.countdown:hover) .main,
@@ -255,8 +255,8 @@
         align-items: center;
     }
     .timer-card.phase{
-        background-color: var(--primary-light);
-        color: var(--primary);
+        background-color: var(--br-primary-light);
+        color: var(--br-primary);
         justify-content: center;
         cursor: pointer;
     }
@@ -290,16 +290,16 @@
         text-align: center;
     }
     .time.stop {
-        background-color: var(--red-light);
-        color: var(--red);
+        background-color: var(--br-red-light);
+        color: var(--br-red);
     }
     .time.focus {
-        background-color: var(--blue-light);
-        color: var(--blue);
+        background-color: var(--br-blue-light);
+        color: var(--br-blue);
     }
     .time.break {
-        background-color: var(--green-light);
-        color: var(--green);
+        background-color: var(--br-green-light);
+        color: var(--br-green);
     }
     @keyframes blink  {
         0% {
