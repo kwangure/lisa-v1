@@ -23,7 +23,7 @@
   },
   "author": "Kafungo Wangure",
   "dependencies": {
-    "@deimimi/strawberry": "^0.15.5",
+    "@deimimi/strawberry": "^0.17.0",
     "@mdi/js": "^5.1.45",
     "@webcomponents/custom-elements": "^1.4.1",
     "page": "^1.11.6"
