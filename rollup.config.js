@@ -5,7 +5,7 @@ import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
 import svelte from "rollup-plugin-svelte";
 import nodePolyfills from "rollup-plugin-node-polyfills";
-import { customElementsPreprocess } from "@deimimi/strawberry/config";
+import { preprocessConfig } from "@deimimi/strawberry/config";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -24,7 +24,7 @@ export default [
             svelte({
                 // enable run-time checks when not in production
                 dev: !production,
-                preprocess: customElementsPreprocess,
+                preprocess: preprocessConfig,
                 css: css => {
                     css.write("package/css/newtab.css");
                 },
@@ -103,7 +103,7 @@ export default [
             svelte({
                 // enable run-time checks when not in production
                 dev: !production,
-                preprocess: customElementsPreprocess,
+                preprocess: preprocessConfig,
                 css: css => {
                     css.write("package/css/options.css");
                 },
@@ -145,7 +145,7 @@ export default [
             }),
             svelte({
                 dev: !production,
-                preprocess: customElementsPreprocess,
+                preprocess: preprocessConfig,
                 exclude: /\.wc\.svelte$/,
                 css: css => {
                     css.write("package/css/content.css");
@@ -153,7 +153,7 @@ export default [
             }),
             svelte({
                 dev: !production,
-                preprocess: customElementsPreprocess,
+                preprocess: preprocessConfig,
                 // compile `*.wc.svelte` files as custom elements
                 customElement: true,
                 include: /\.wc\.svelte$/,
