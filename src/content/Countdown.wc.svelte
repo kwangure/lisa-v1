@@ -204,6 +204,7 @@
     :host {
         font-size: 14px;
         font-family: var(--br-font);
+        color: var(--br-black);
     }
     .countdown,
     :global(.berry-modal) {
