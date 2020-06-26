@@ -119,13 +119,13 @@
     .actions {
         margin-left: auto;
     }
-    .actions :global(button){
+    .actions :global(button.berry-button){
         background-color: transparent;
         color: #fff;
         border: none !important;
         height: auto;
     }
-    .actions :global(button .button-prefix) {
+    .actions :global(button.berry-button .button-prefix) {
         padding: 10px 5px;
     }
     .clock {
@@ -164,18 +164,18 @@
     .controls {
         margin-left: auto;
     }
-    .controls :global(button){
+    .controls :global(button.berry-button){
         background-color: transparent;
         color: #fff;
         border-color: #fff !important;
         height: auto;
     }
-    .controls :global(button:focus),
-    .controls :global(button:hover) {
+    .controls :global(button.berry-button:focus),
+    .controls :global(button.berry-button:hover) {
         background-color: rgba(255,255,255,0.3) !important;
         color: #fff !important;
     }
-    .controls :global(button .button-prefix) {
+    .controls :global(button.berry-button .button-prefix) {
         padding: 10px 5px;
     }
     .controls :global(button){
