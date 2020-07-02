@@ -169,6 +169,7 @@
         color: #fff;
         border-color: #fff !important;
         height: auto;
+        font-size: 18px;
     }
     .controls :global(button.berry-button:focus),
     .controls :global(button.berry-button:hover) {
@@ -177,8 +178,5 @@
     }
     .controls :global(button.berry-button .button-prefix) {
         padding: 10px 5px;
-    }
-    .controls :global(button){
-        font-size: 18px;
     }
 </style>
