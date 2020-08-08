@@ -1,0 +1,29 @@
+{
+  "name": "extension-svelte-boilerplate",
+  "version": "0.1.0",
+  "description": "",
+  "dependencies": {
+    "rollup": "^2.23.0",
+    "rollup-plugin-copy": "^3.3.0",
+    "rollup-plugin-eslint": "^7.0.0",
+    "rollup-plugin-postcss": "^3.1.4",
+    "rollup-plugin-svelte": "^5.2.3",
+    "rollup-plugin-terser": "^6.1.0",
+    "svelte": "^3.24.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kwangure/extension-svelte-boilerplate.git"
+  },
+  "keywords": [],
+  "author": "Kafungo Wangure",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kwangure/extension-svelte-boilerplate/issues"
+  },
+  "homepage": "https://github.com/kwangure/extension-svelte-boilerplate#readme"
+}
