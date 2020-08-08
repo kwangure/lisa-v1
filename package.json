@@ -1,5 +1,5 @@
 {
-  "name": "extension-svelte-boilerplate",
+  "name": "lisa-v2",
   "version": "0.1.0",
   "description": "",
   "dependencies": {
@@ -17,13 +17,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kwangure/extension-svelte-boilerplate.git"
+    "url": "git+https://github.com/kwangure/lisa-v2.git"
   },
   "keywords": [],
   "author": "Kafungo Wangure",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kwangure/extension-svelte-boilerplate/issues"
+    "url": "https://github.com/kwangure/lisa-v2/issues"
   },
-  "homepage": "https://github.com/kwangure/extension-svelte-boilerplate#readme"
+  "homepage": "https://github.com/kwangure/lisa-v2#readme"
 }
