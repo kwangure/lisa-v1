@@ -12,7 +12,9 @@
     "svelte": "^3.24.1",
     "xstate": "^4.11.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint-plugin-svelte3": "^2.7.3"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
