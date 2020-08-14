@@ -50,7 +50,7 @@ function createPhaseMachine({ settings }) {
         delays: phaseDelays,
         actions: phaseActions,
     };
-    
+
     return createMachine(pomodoroMachine, machineOptions);
 }
 

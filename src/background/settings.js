@@ -6,19 +6,19 @@ const defaultSettings = {
         duration: minutesToMilliseconds(50),
         notification: {
             sound: null,
-        }
+        },
     },
     shortBreak: {
         duration: minutesToMilliseconds(10),
         notification: {
             sound: null,
-        }
+        },
     },
     longBreak: {
         duration: minutesToMilliseconds(30),
         notification: {
             sound: null,
-        }
+        },
     },
 };
 

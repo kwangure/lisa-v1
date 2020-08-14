@@ -51,4 +51,4 @@ export function createPhaseStates({ duration, elapsed = 0 }) {
     };
 
     return phaseStates;
-};
+}
