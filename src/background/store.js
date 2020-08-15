@@ -3,6 +3,7 @@ import { writable as svelteWritable } from "svelte/store";
 export function createLocalStorageWritable(name) {
     return function writable(defaultValue, start) {
         let existingStore = JSON.parse(localStorage.getItem(name));
+        let cachedValue = null;
 
         if (existingStore === null) {
             localStorage.setItem(name, JSON.stringify(defaultValue));
@@ -13,9 +14,13 @@ export function createLocalStorageWritable(name) {
 
         const unsubscribe = subscribe((newValue) => {
             localStorage.setItem(name, JSON.stringify(newValue));
+            cachedValue = newValue;
         });
 
         return {
+            value() {
+                return cachedValue;
+            },
             set,
             update,
             subscribe,
