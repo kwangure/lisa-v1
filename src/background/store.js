@@ -2,17 +2,17 @@ import { writable as svelteWritable } from "svelte/store";
 
 export function createLocalStorageWritable(name) {
     return function writable(defaultValue, start) {
-        let existingStore = localStorage.getItem(name);
+        let existingStore = JSON.parse(localStorage.getItem(name));
 
         if (existingStore === null) {
-            localStorage.setItem(name, defaultValue);
+            localStorage.setItem(name, JSON.stringify(defaultValue));
             existingStore = defaultValue;
         }
 
         const { set, update, subscribe } = svelteWritable(existingStore, start);
 
         const unsubscribe = subscribe((newValue) => {
-            localStorage.setItem(name, newValue);
+            localStorage.setItem(name, JSON.stringify(newValue));
         });
 
         return {
