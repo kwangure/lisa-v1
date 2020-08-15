@@ -1,72 +1,59 @@
 import { createMachine, interpret } from "xstate";
-import { createPhaseStates, phaseActions, phaseDelays } from "./phaseStates.js";
-import { readable } from "svelte/store";
+import { createPhaseRunnerMachine } from "./phaseStates.js";
+import { defaultSettings } from "../settings.js";
 
-function createPhaseMachine({ settings }) {
-    const { focus, shortBreak, longBreak } = settings;
+export function createPomodoroMachine() {
+    const focusPhaseRunner = createPhaseRunnerMachine("focus");
+    const shortBreakPhaseRunner = createPhaseRunnerMachine("shortBreak");
+    const longBreakPhaseRunner = createPhaseRunnerMachine("longBreak");
 
-    const focusPhaseStates = createPhaseStates({ duration: focus.duration });
-    const shortBreakPhaseStates = createPhaseStates({ duration: shortBreak.duration });
-    const longBreakPhaseStates = createPhaseStates({ duration: longBreak.duration });
-
-    const pomodoroMachine = {
+    const pomodoroMachine = createMachine({
         id: "pomodoro",
         initial: "focus",
         context: {
-            // TODO(kwangure): update this dynamically
+            settings: defaultSettings,
             nextPhase: "shortBreak",
         },
         states: {
             focus: {
-                ...focusPhaseStates,
-                on: {
-                    COMPLETE: [
+                invoke: {
+                    src: focusPhaseRunner,
+                    data: {
+                        duration: (context) => context.settings.focus.duration,
+                    },
+                    onDone: [
                         {
                             target: "shortBreak",
                             cond: (context) => context.nextPhase === "shortBreak",
-                        },
-                        {
-                            target: "longBreak",
                         },
                     ],
                 },
             },
             shortBreak: {
-                ...shortBreakPhaseStates,
-                on: {
-                    COMPLETE: "focus",
+                invoke: {
+                    src: shortBreakPhaseRunner,
+                    data: {
+                        duration: (context) => context.settings.shortBreak.duration,
+                    },
+                    onDone: "focus",
                 },
             },
             longBreak: {
-                ...longBreakPhaseStates,
-                on: {
-                    COMPLETE: "focus",
+                invoke: {
+                    src: longBreakPhaseRunner,
+                    data: {
+                        duration: (context) => context.settings.longBreak.duration,
+                    },
+                    onDone:  "focus",
                 },
             },
         },
-    };
-
-    const machineOptions = {
-        delays: phaseDelays,
-        actions: phaseActions,
-    };
-
-    return createMachine(pomodoroMachine, machineOptions);
-}
-
-export default function startPomodoroService(options) {
-    const { settings = {} } = options;
-
-    const phaseMachine = createPhaseMachine(settings);
-    const pomodoroService = interpret(phaseMachine);
-
-    const pomodoroReadable = readable({}, function start(setStoreValue) {
-        pomodoroService.onTransition((state) => {
-            if (state.changed) {
-                setStoreValue(state.value);
-            }
-        });
     });
 
-    return { pomodoroReadable, pomodoroService };
+    return pomodoroMachine;
+}
+
+export function createPomodoroService(pomodoroMachine) {
+    const pomodoroService = interpret(pomodoroMachine);
+    return pomodoroService;
 }

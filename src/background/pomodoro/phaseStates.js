@@ -1,40 +1,39 @@
-import { assign } from "xstate";
+import { assign, Machine } from "xstate";
 
 const ONE_SECOND = 1000;
 
-export const phaseActions = {
-    elapseSecond: assign({
-        elapse: context => context.elapsed + ONE_SECOND,
-    }),
-};
-
-export const phaseDelays = {
-    ONE_SECOND,
-};
-
-export function createPhaseStates({ duration, elapsed = 0 }) {
-    const phaseStates = {
+export function createPhaseRunnerMachine(phaseName) {
+    const phaseRunnerMachine = Machine({
+        id: phaseName,
         initial: "paused",
         context: {
-            duration,
-            elapsed,
+            duration: 0,
+            elapsed: 0,
         },
         states: {
             running: {
-                entry: "elapseSecond",
-                after: {
-                    ONE_SECOND: [
-                        {
-                            target: "completed",
-                            cond: context => context.duration === context.elapsed,
-                        },
-                        {
-                            target: "running",
-                        },
-                    ],
+                invoke: {
+                    id: "elapseSecond",
+                    src: () => {
+                        return function  callbackHandler(callback) {
+                            const id = setInterval(() => callback("TICK"), 1000);
+
+                            return function cleanUp() {
+                                clearInterval(id);
+                            };
+                        };
+                    },
+                },
+                always: {
+                    target: "completed",
+                    cond: context => context.elapsed >= context.duration,
                 },
                 on: {
-                    COMPLETE: "completed",
+                    TICK: {
+                        actions: assign({
+                            elapsed: context => context.elapsed + ONE_SECOND,
+                        }),
+                    },
                     PAUSE: "paused",
                 },
             },
@@ -45,10 +44,29 @@ export function createPhaseStates({ duration, elapsed = 0 }) {
                 },
             },
             completed: {
+                always: {
+                    target: "running",
+                    cond: context => context.elapsed < context.duration,
+                },
                 type: "final",
             },
         },
-    };
+        on: {
+            "DURATION.EXTEND": {
+                actions: assign({
+                    duration: (context, event) => {
+                        console.log("extending duration", { context, event });
+                        return context.duration + event.value;
+                    },
+                }),
+            },
+            RESET: {
+                actions: assign({
+                    elapsed: 0,
+                }),
+            },
+        },
+    });
 
-    return phaseStates;
+    return phaseRunnerMachine;
 }

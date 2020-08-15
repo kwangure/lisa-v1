@@ -1,7 +1,7 @@
 import { minutesToMilliseconds } from "../utils/time.js";
 import { createLocalStorageWritable } from "./store.js";
 
-const defaultSettings = {
+export const defaultSettings = {
     focus: {
         duration: minutesToMilliseconds(50),
         notification: {
