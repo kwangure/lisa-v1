@@ -19,9 +19,10 @@ export const JS_OUT = "js";
 export default {
     plugins: [
         replace({
-            "import.meta.env.MODE": MODE,
+            "import.meta.env.MODE": `"${MODE}"`,
             "import.meta.env.DEV": String(DEV),
             "import.meta.env.PROD": String(PRODUCTION),
+            "process.env.NODE_ENV": `"${MODE}"`,
         }),
         eslint({
             fix: PRODUCTION,
