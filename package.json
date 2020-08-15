@@ -20,6 +20,7 @@
     "rollup-plugin-terser": "^6.1.0"
   },
   "scripts": {
+    "dev": "rollup -cw",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
