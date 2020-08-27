@@ -1,6 +1,6 @@
 import { preprocessConfig } from "@deimimi/strawberry/config";
 import common, { CSS_OUT, DEV, JS_OUT, OUT_DIR } from "./common.js";
-import path from "path";
+import postcss from "rollup-plugin-postcss";
 import svelte from "rollup-plugin-svelte";
 
 const WEB_COMPONET_POSTFIX = "wc.svelte";
@@ -21,14 +21,14 @@ export default {
             preprocess: preprocessConfig,
             exclude: `**/*.${WEB_COMPONET_POSTFIX}`,
             emitCss: true,
-            css: css => {
-                css.write(path.join(OUT_DIR, CSS_OUT, "content.css"), true);
-            },
         }),
         svelte({
             dev: DEV,
             customElement: true,
             include: `**/*.${WEB_COMPONET_POSTFIX}`,
+        }),
+        postcss({
+            extract: `${CSS_OUT}/content.css`,
         }),
     ],
 };

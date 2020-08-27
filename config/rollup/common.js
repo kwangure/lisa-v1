@@ -4,7 +4,6 @@ import { terser } from "rollup-plugin-terser";
 import commonjs from "@rollup/plugin-commonjs";
 import copy from "rollup-plugin-copy";
 import path from "path";
-import postcss from "rollup-plugin-postcss";
 import replace from "@rollup/plugin-replace";
 import resolve from "@rollup/plugin-node-resolve";
 
@@ -31,9 +30,6 @@ export default {
             browser: true,
             dedupe: importee => importee === "svelte" || importee.startsWith("svelte/"),
             preferBuiltins: true,
-        }),
-        postcss({
-            extract: `${CSS_OUT}/common.css`,
         }),
         PRODUCTION && terser(),
         commonjs(),
