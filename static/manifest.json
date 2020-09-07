@@ -1,6 +1,6 @@
 {
-    "name": "Extract COVID Data",
-    "short_name": "ecd",
+    "name": "Lisa",
+    "short_name": "lisa",
     "description": "Become more productive",
     "version": "0.1.2",
     "manifest_version": 2,
@@ -12,7 +12,7 @@
         "persistent": true
     },
     "content_scripts": [{
-        "matches": ["https://www.health.go.ke/wp-content/*"],
+        "matches": ["<all_urls>"],
         "js": ["js/content.js"],
         "css": ["css/content.css"]
     }],
