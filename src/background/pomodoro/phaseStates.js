@@ -5,7 +5,7 @@ const ONE_SECOND = 1000;
 export function createPhaseRunnerMachine(phaseName) {
     const phaseRunnerMachine = Machine({
         id: phaseName,
-        initial: "paused",
+        initial: "running",
         context: {
             duration: 0,
             elapsed: 0,
@@ -31,7 +31,9 @@ export function createPhaseRunnerMachine(phaseName) {
                 on: {
                     TICK: {
                         actions: assign({
-                            elapsed: context => context.elapsed + ONE_SECOND,
+                            elapsed: context => {
+                                return isNaN(context.elapsed) ? 0 : context.elapsed + ONE_SECOND;
+                            },
                         }),
                     },
                     PAUSE: "paused",
