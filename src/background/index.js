@@ -1,3 +1,4 @@
+import emitEventToAllContexts from "./emit.js";
 import settingsWritable from "./settings.js";
 import { createPomodoroMachine, createPomodoroService} from "./pomodoro/pomodoro.js";
 
@@ -7,6 +8,6 @@ pomodoroMachine.withContext({ settings });
 
 const pomodoroService = createPomodoroService(pomodoroMachine);
 pomodoroService.onTransition((state) => {
-    console.log("transitioning", { state });
+    emitEventToAllContexts(state.event.type, state);
 });
 pomodoroService.start();
