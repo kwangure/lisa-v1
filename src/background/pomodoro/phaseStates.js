@@ -1,4 +1,4 @@
-import { assign, Machine } from "xstate";
+import { assign, Machine, sendParent } from "xstate";
 
 const ONE_SECOND = 1000;
 
@@ -30,11 +30,17 @@ export function createPhaseRunnerMachine(phaseName) {
                 },
                 on: {
                     TICK: {
-                        actions: assign({
-                            elapsed: context => {
-                                return isNaN(context.elapsed) ? 0 : context.elapsed + ONE_SECOND;
-                            },
-                        }),
+                        actions: [
+                            assign({
+                                elapsed: context => {
+                                    return isNaN(context.elapsed) ? 0 : context.elapsed + ONE_SECOND;
+                                },
+                            }),
+                            sendParent((context) => ({
+                                type: "TICK",
+                                remaining: context.duration - context.elapsed,
+                            })),
+                        ],
                     },
                     PAUSE: "paused",
                 },

@@ -1,4 +1,4 @@
-import { createMachine, interpret } from "xstate";
+import { assign, createMachine, interpret } from "xstate";
 import { createPhaseRunnerMachine } from "./phaseStates.js";
 import { defaultSettings } from "../settings.js";
 
@@ -13,6 +13,7 @@ export function createPomodoroMachine() {
         context: {
             settings: defaultSettings,
             nextPhase: "shortBreak",
+            remaining: 0,
         },
         states: {
             focus: {
@@ -27,6 +28,13 @@ export function createPomodoroMachine() {
                             cond: (context) => context.nextPhase === "shortBreak",
                         },
                     ],
+                },
+                on: {
+                    TICK: {
+                        actions: assign({
+                            remaining: (_, event) => event.remaining,
+                        }),
+                    },
                 },
             },
             shortBreak: {
