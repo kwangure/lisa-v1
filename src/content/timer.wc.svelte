@@ -1,7 +1,23 @@
 <script>
+    import { millisecondsToHumanReadableTime } from "./utils";
     import Controls from "./controls.svelte";
-
+    import createTickListener from "./tickListener.js";
+    
     const chrome = window.chrome;
+    let phase = "";
+    let time = "";
+    let remaining = 0;
+    let tickListener = null;
+    (async () => {
+        tickListener = await createTickListener();
+    })();
+
+    $: {
+        if (tickListener) {
+            ({ phase, remaining } = $tickListener);
+            time = millisecondsToHumanReadableTime(remaining);
+        }
+    }
 </script>
 
 <svelte:options tag="lisa-timer"/>
@@ -10,8 +26,8 @@
 
 <div class="countdown-wrapper bottom-right">
     <div class="countdown">
-        <div class="timer">
-            14:06
+        <div class="timer {phase}">
+            {time}
         </div>
         <Controls/>
     </div>
@@ -55,15 +71,15 @@
         line-height: 50px;
         padding: 0 20px;
     }
-    .timer/*.stop*/ {
+    .timer.stop {
         background-color: var(--br-red-light);
         color: var(--br-red);
     }
-    .timer/*.focus*/{
+    .timer.focus {
         background-color: var(--br-blue-light);
         color: var(--br-blue);
     }
-    .timer/*.break*/{
+    .timer.break {
         background-color: var(--br-green-light);
         color: var(--br-green);
     }

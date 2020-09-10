@@ -20,7 +20,7 @@ function sendMessageToRuntime(message) {
 }
 
 export default function emitEventToAllContexts(eventName, data) {
-    const message = { eventName, data };
+    const message = { event: eventName, data };
     sendMessageToTabs(message);
     sendMessageToRuntime(message);
 }
