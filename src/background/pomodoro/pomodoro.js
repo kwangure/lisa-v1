@@ -1,13 +1,30 @@
-import { assign, createMachine, interpret } from "xstate";
-import { createPhaseRunnerMachine } from "./phaseStates.js";
+import { assign, Machine, forwardTo, interpret } from "xstate";
+import { createPhaseMachine } from "./phaseStates.js";
 import { defaultSettings } from "../settings.js";
 
 export function createPomodoroMachine() {
-    const focusPhaseRunner = createPhaseRunnerMachine("focus");
-    const shortBreakPhaseRunner = createPhaseRunnerMachine("shortBreak");
-    const longBreakPhaseRunner = createPhaseRunnerMachine("longBreak");
+    const focusPhaseId = "focus";
+    const shortBreakPhaseId = "shortBreak";
+    const longBreakPhaseId = "longBreak";
 
-    const pomodoroMachine = createMachine({
+    const eventsToForwardTo = (child) => {
+        return {
+            PAUSE: {
+                actions: forwardTo(child),
+            },
+            PLAY: {
+                actions: forwardTo(child),
+            },
+            COMPLETE: {
+                actions: forwardTo(child),
+            },
+            RESET: {
+                actions: forwardTo(child),
+            },
+        };
+    };
+
+    const pomodoroMachine = Machine({
         id: "pomodoro",
         initial: "focus",
         context: {
@@ -18,7 +35,8 @@ export function createPomodoroMachine() {
         states: {
             focus: {
                 invoke: {
-                    src: focusPhaseRunner,
+                    id: focusPhaseId,
+                    src: createPhaseMachine(),
                     data: {
                         duration: (context) => context.settings.focus.duration,
                     },
@@ -35,24 +53,33 @@ export function createPomodoroMachine() {
                             remaining: (_, event) => event.remaining,
                         }),
                     },
+                    ...eventsToForwardTo(focusPhaseId),
                 },
             },
             shortBreak: {
                 invoke: {
-                    src: shortBreakPhaseRunner,
+                    id: shortBreakPhaseId,
+                    src: createPhaseMachine(),
                     data: {
                         duration: (context) => context.settings.shortBreak.duration,
                     },
                     onDone: "focus",
                 },
+                on: {
+                    ...eventsToForwardTo(shortBreakPhaseId),
+                },
             },
             longBreak: {
                 invoke: {
-                    src: longBreakPhaseRunner,
+                    id: longBreakPhaseId,
+                    src: createPhaseMachine(),
                     data: {
                         duration: (context) => context.settings.longBreak.duration,
                     },
-                    onDone:  "focus",
+                    onDone: "focus",
+                },
+                on: {
+                    ...eventsToForwardTo(longBreakPhaseId),
                 },
             },
         },
