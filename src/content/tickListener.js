@@ -1,7 +1,7 @@
 import { readable } from "svelte/store";
-import BackgroundListener from "./backgroundListener.js";
+import { EventListener } from "../common/events";
 
-const backgroundListener = new BackgroundListener();
+const backgroundListener = new EventListener();
 
 async function getFirstTick() {
     return new Promise(resolve => {
