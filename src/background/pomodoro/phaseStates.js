@@ -1,10 +1,7 @@
 import { assign, Machine, sendParent } from "xstate";
 
-const ONE_SECOND = 1000;
-
-export function createPhaseRunnerMachine(phaseName) {
-    const phaseRunnerMachine = Machine({
-        id: phaseName,
+export function createPhaseMachine() {
+    return Machine({
         initial: "running",
         context: {
             duration: 0,
@@ -33,7 +30,7 @@ export function createPhaseRunnerMachine(phaseName) {
                         actions: [
                             assign({
                                 elapsed: context => {
-                                    return isNaN(context.elapsed) ? 0 : context.elapsed + ONE_SECOND;
+                                    return isNaN(context.elapsed) ? 0 : context.elapsed + 1000/* one second */;
                                 },
                             }),
                             sendParent((context) => ({
@@ -75,6 +72,4 @@ export function createPhaseRunnerMachine(phaseName) {
             },
         },
     });
-
-    return phaseRunnerMachine;
 }
