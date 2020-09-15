@@ -1,7 +1,7 @@
 import { readable } from "svelte/store";
 import { EventListener } from "../common/events";
 
-const backgroundListener = new EventListener();
+const backgroundListener = new EventListener("TIMER");
 
 async function getFirstTick() {
     return new Promise(resolve => {

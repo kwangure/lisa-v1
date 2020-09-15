@@ -1,18 +1,24 @@
 /* global chrome */
+import { escapeRegExp } from "../../utils/regex.js";
+
 export class EventListener {
-    constructor() {
+    constructor(namespace = "") {
         this._onEventListeners = new Map();
         this._allEventListeners = new Set();
 
         chrome.runtime.onMessage.addListener((message) => {
             const { event: emittedEvent, data } = message;
-            const onEventListeners = this._onEventListeners.get(emittedEvent) || [];
+            if (!emittedEvent.startsWith(namespace)) return;
+
+            const namespaceRegExp = new RegExp(`^${escapeRegExp(namespace)}\\.`);
+            const eventName = emittedEvent.replace(namespaceRegExp, "");
+            const onEventListeners = this._onEventListeners.get(eventName) || [];
             for (const listener of onEventListeners) {
                 listener(data);
             }
 
             for (const listener of this._allEventListeners) {
-                listener(emittedEvent, data);
+                listener(eventName, data);
             }
         });
     }

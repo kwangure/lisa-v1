@@ -19,8 +19,11 @@ function sendMessageToRuntime(message) {
     });
 }
 
-export function emitEventToAllContexts(eventName, data) {
-    const message = { event: eventName, data };
+export function emit({ event, data, namespace = ""}) {
+    const message = {
+        event: namespace ? `${namespace}.${event}` : event,
+        data,
+    };
     sendMessageToTabs(message);
     sendMessageToRuntime(message);
 }

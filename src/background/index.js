@@ -1,6 +1,6 @@
-import { emitEventToAllContexts, EventListener } from "../common/events";
-import settingsWritable from "./settings.js";
+import { emit, EventListener } from "../common/events";
 import { createPomodoroMachine, createPomodoroService} from "./pomodoro/pomodoro.js";
+import settingsWritable from "./settings.js";
 
 const pomodoroMachine = createPomodoroMachine();
 const settings = settingsWritable.value();
@@ -8,12 +8,15 @@ pomodoroMachine.withContext({ settings });
 
 const pomodoroService = createPomodoroService(pomodoroMachine);
 pomodoroService.onTransition((state) => {
-    emitEventToAllContexts(state.event.type, state);
+    emit({
+        event: state.event.type,
+        data: state,
+        namespace: "TIMER",
+    });
 });
+pomodoroService.start();
 
-const clientListener = new EventListener();
-clientListener.all((event, data) => {
+const timerEventsListener = new EventListener("TIMER");
+timerEventsListener.all((event, data) => {
     pomodoroService.send(event, { value: data });
 });
-
-pomodoroService.start();
