@@ -20,3 +20,8 @@ const timerEventsListener = new EventListener("TIMER");
 timerEventsListener.all((event, data) => {
     pomodoroService.send(event, { value: data });
 });
+
+const pomdoroEventsListener = new EventListener("BACKGROUND.TIMER");
+pomdoroEventsListener.on("DATA", (_, respond) => {
+    respond(pomodoroService.state);
+});

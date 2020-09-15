@@ -6,7 +6,7 @@ export class EventListener {
         this._onEventListeners = new Map();
         this._allEventListeners = new Set();
 
-        chrome.runtime.onMessage.addListener((message) => {
+        chrome.runtime.onMessage.addListener((message, _sender, sendResponseFn) => {
             const { event: emittedEvent, data } = message;
             if (!emittedEvent.startsWith(namespace)) return;
 
@@ -14,7 +14,7 @@ export class EventListener {
             const eventName = emittedEvent.replace(namespaceRegExp, "");
             const onEventListeners = this._onEventListeners.get(eventName) || [];
             for (const listener of onEventListeners) {
-                listener(data);
+                listener(data, sendResponseFn);
             }
 
             for (const listener of this._allEventListeners) {

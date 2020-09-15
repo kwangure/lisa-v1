@@ -1,15 +1,10 @@
 import { readable } from "svelte/store";
-import { EventListener } from "../common/events";
+import { EventListener, request } from "../common/events";
 
 const backgroundListener = new EventListener("TIMER");
 
-async function getFirstTick() {
-    return new Promise(resolve => {
-        const unsubscribe = backgroundListener.on("TICK", (state) => {
-            unsubscribe();
-            resolve(getPomodoroDataFromState(state));
-        });
-    });
+async function getPomodoroState() {
+    return request({ namespace: "BACKGROUND.TIMER", query: "DATA" });
 }
 
 function getPomodoroDataFromState(state) {
@@ -19,7 +14,7 @@ function getPomodoroDataFromState(state) {
 }
 
 export default async function createTickListener() {
-    const initialValue = await getFirstTick();
+    const initialValue = await getPomodoroState();
 
     return readable(initialValue, (setReadableValue) => {
         const unsubscribe = backgroundListener.on("TICK", (state) => {

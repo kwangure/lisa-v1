@@ -27,3 +27,14 @@ export function emit({ event, data, namespace = ""}) {
     sendMessageToTabs(message);
     sendMessageToRuntime(message);
 }
+
+export function request(options) {
+    const { namespace = "", query } = options;
+    const event = namespace ? `${namespace}.${query}` : query;
+    return new Promise((resolve) => {
+        chrome.runtime.sendMessage({ event }, function (response) {
+            chrome.runtime.lastError;
+            resolve(response);
+        });
+    });
+}
