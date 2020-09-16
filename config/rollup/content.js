@@ -1,6 +1,7 @@
 import { preprocessConfig } from "@deimimi/strawberry/config";
-import common, { CSS_OUT, DEV, JS_OUT, OUT_DIR } from "./common.js";
+import common, { CONTENT_OUT, CONTENT_DIR, CSS_OUT, DEV, JS_ENTRY_OUT } from "./common.js";
 import postcss from "rollup-plugin-postcss";
+import replace from "@rollup/plugin-replace";
 import svelte from "rollup-plugin-svelte";
 
 const WEB_COMPONET_POSTFIX = "wc.svelte";
@@ -8,14 +9,16 @@ const WEB_COMPONET_POSTFIX = "wc.svelte";
 export default {
     input: "src/content/index.js",
     output: {
-        dir: OUT_DIR,
+        dir: CONTENT_OUT,
+        entryFileNames: JS_ENTRY_OUT,
         format: "esm",
-        entryFileNames: `${JS_OUT}/content.js`,
-        chunkFileNames: `${JS_OUT}/[name].[hash].js`,
         sourcemap: "inline",
     },
     plugins: [
         ...common.plugins,
+        replace({
+            "__CONTENT_CSS__": `${CONTENT_DIR}/${CSS_OUT}`,
+        }),
         svelte({
             dev: DEV,
             preprocess: preprocessConfig,
@@ -28,7 +31,7 @@ export default {
             include: `**/*.${WEB_COMPONET_POSTFIX}`,
         }),
         postcss({
-            extract: `${CSS_OUT}/content.css`,
+            extract: `${CSS_OUT}`,
         }),
     ],
 };

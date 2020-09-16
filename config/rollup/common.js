@@ -12,8 +12,16 @@ export const PRODUCTION = MODE === "production";
 export const DEV = MODE === "development";
 
 export const OUT_DIR = path.resolve("dist");
-export const CSS_OUT = "css";
-export const JS_OUT = "js";
+export const BACKGROUND_DIR = "background";
+export const BACKGROUND_OUT = `${OUT_DIR}/${BACKGROUND_DIR}`;
+export const CONTENT_DIR = "content";
+export const CONTENT_OUT = `${OUT_DIR}/${CONTENT_DIR}`;
+export const OPTIONS_DIR = "options";
+export const OPTIONS_OUT = `${OUT_DIR}/${OPTIONS_DIR}`;
+export const NEWTAB_DIR = "newtab";
+export const NEWTAB_OUT = `${OUT_DIR}/${NEWTAB_DIR}`;
+export const JS_ENTRY_OUT = "bundle.js";
+export const CSS_OUT = "bundle.css";
 
 export default {
     plugins: [
@@ -22,6 +30,7 @@ export default {
             "import.meta.env.DEV": String(DEV),
             "import.meta.env.PROD": String(PRODUCTION),
             "process.env.NODE_ENV": `"${MODE}"`,
+            "__SCRIPT__": JS_ENTRY_OUT,
         }),
         eslint({
             fix: PRODUCTION,
@@ -33,10 +42,19 @@ export default {
         }),
         PRODUCTION && terser(),
         commonjs(),
-        copy({
-            targets: [
-                { src: "static/*", dest: "dist" },
-            ],
-        }),
     ],
 };
+
+export function copyHTMLPlugin({ script = JS_ENTRY_OUT, title = "Lisa", dir } ) {
+    return copy({
+        targets: [{ 
+            src: "static/index.html", 
+            dest: dir,
+            transform: (contents) => {
+                contents = contents.toString().replace("__SCRIPT__", script);
+                contents = contents.replace("__TITLE__", title);
+                return contents;
+            }
+        }],
+    });
+}

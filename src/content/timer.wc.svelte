@@ -22,7 +22,7 @@
 
 <svelte:options tag="lisa-timer"/>
 
-<link rel="stylesheet" href={chrome.extension.getURL("css/content.css")}/>
+<link rel="stylesheet" href={chrome.extension.getURL("__CONTENT_CSS__")}/>
 
 <div class="countdown-wrapper bottom-right">
     <div class="countdown">

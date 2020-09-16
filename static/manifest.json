@@ -3,36 +3,32 @@
     "short_name": "lisa",
     "description": "Become more productive",
     "version": "0.1.2",
+    "homepage_url": "https://github.com/kwangure/lisa",
     "manifest_version": 2,
     "offline_enabled": true,
     "background": { 
-        "scripts": [
-            "js/background.js"
-        ],
+        "scripts": ["__BACKGROUND_JS__"],
         "persistent": true
     },
     "content_scripts": [{
         "matches": ["<all_urls>"],
-        "js": ["js/content.js"],
-        "css": ["css/content.css"]
+        "js": ["__CONTENT_JS__"]
     }],
+    "options_page": "__OPTIONS_PAGE__",
     "browser_action": {
-        "default_title": "ECD",
-        "default_icon": "images/browser-action.png"
+        "default_title": "Lisa",
+        "default_icon": "browser-action.png"
     },
     "permissions": [
         "notifications",
-        "activeTab",
-        "webRequest",
-        "webRequestBlocking",
-        "https://www.health.go.ke/wp-content/*"
+        "activeTab"
     ],
     "icons": {
-        "128": "images/browser-action.png"
+        "128": "browser-action.png"
     },
     "web_accessible_resources": [
-        "css/*",
-        "static/*"
+        "**/bundle.js",
+        "**/bundle.css"
     ],
     "minimum_chrome_version": "55",
     "content_security_policy": "script-src 'self'; object-src 'self'"

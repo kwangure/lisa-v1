@@ -1,12 +1,11 @@
-import common, { JS_OUT, OUT_DIR } from "./common.js";
+import common, { BACKGROUND_OUT, JS_ENTRY_OUT } from "./common.js";
 
 export default {
     input: "src/background/index.js",
     output: {
-        dir: OUT_DIR,
+        dir: BACKGROUND_OUT,
         format: "esm",
-        entryFileNames: `${JS_OUT}/background.js`,
-        chunkFileNames: `${JS_OUT}/[name].[hash].js`,
+        entryFileNames: JS_ENTRY_OUT,
         sourcemap: "inline",
     },
     plugins: [
