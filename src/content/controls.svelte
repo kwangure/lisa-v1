@@ -1,16 +1,18 @@
 <script>
     import Button from "@deimimi/strawberry/components/Button";
-    import { mdiPause, mdiPictureInPictureBottomRightOutline } from "@mdi/js";
-    import { emit } from "../common/events/emit.js";
+    import { mdiPause, mdiPictureInPictureBottomRightOutline, mdiPlay, } from "@mdi/js";
+    import { timer } from "../common/events";
 
-    function pause() {
-        emit({ event: "PAUSE", namespace: "TIMER" });
-    }
+    export let paused = false;
 </script>
 
 <div class="controls">
-    <Button icon={mdiPause} on:click={pause}/>
-    <Button icon={mdiPictureInPictureBottomRightOutline} iconProps={{flip: "horizontal"}} color="none"/>
+    {#if paused}
+        <Button icon={mdiPlay} on:click={timer.play}/>
+    {:else}
+        <Button icon={mdiPause} on:click={timer.pause}/>
+    {/if}
+    <Button icon={mdiPictureInPictureBottomRightOutline} iconProps={{flip: "horizontal"}}/>
 </div>
 
 <style>

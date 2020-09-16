@@ -19,7 +19,7 @@ function sendMessageToRuntime(message) {
     });
 }
 
-export function emit({ event, data, namespace = ""}) {
+export function emit({ event, data = {}, namespace = ""}) {
     const message = {
         event: namespace ? `${namespace}.${event}` : event,
         data,
