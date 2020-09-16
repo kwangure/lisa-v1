@@ -1,5 +1,5 @@
 <script>
-    import { millisecondsToHumanReadableTime } from "./utils";
+    import { millisecondsToHumanReadableTime } from "../utils/time.js";
     import Controls from "./controls.svelte";
     import createTickListener from "./tickListener.js";
     
