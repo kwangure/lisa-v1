@@ -1,5 +1,5 @@
 <script>
-    import { setContext } from "svelte";    
+    import { setContext } from "svelte";
     import Layout from "./_layout.svelte";
 
     export let error = false;

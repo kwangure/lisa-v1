@@ -1,6 +1,6 @@
 <script>
     import Button from "@deimimi/strawberry/components/Button";
-    import { mdiPause, mdiPictureInPictureBottomRightOutline, mdiPlay, } from "@mdi/js";
+    import { mdiPause, mdiPictureInPictureBottomRightOutline, mdiPlay } from "@mdi/js";
     import { timer } from "../common/events";
 
     export let paused = false;
