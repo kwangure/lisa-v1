@@ -25,3 +25,8 @@ const pomdoroEventsListener = new EventListener("BACKGROUND.TIMER");
 pomdoroEventsListener.on("DATA", (_, respond) => {
     respond(pomodoroService.state);
 });
+
+const settingsEventsListener = new EventListener("BACKGROUND.SETTINGS");
+settingsEventsListener.on("DATA", (_, respond) => {
+    respond(settingsWritable.value());
+});
