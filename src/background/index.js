@@ -1,5 +1,5 @@
 import { emit, EventListener } from "../common/events";
-import { createPomodoroMachine, createPomodoroService} from "./pomodoro/pomodoro.js";
+import { createPomodoroMachine, createPomodoroService } from "./pomodoro/pomodoro.js";
 import settingsWritable from "./settings.js";
 
 const pomodoroMachine = createPomodoroMachine();
@@ -22,11 +22,11 @@ timerEventsListener.all((event, data) => {
 });
 
 const pomdoroEventsListener = new EventListener("BACKGROUND.TIMER");
-pomdoroEventsListener.on("DATA", (_, respond) => {
+pomdoroEventsListener.on("FETCH", (_, respond) => {
     respond(pomodoroService.state);
 });
 
 const settingsEventsListener = new EventListener("BACKGROUND.SETTINGS");
-settingsEventsListener.on("DATA", (_, respond) => {
+settingsEventsListener.on("FETCH", (_, respond) => {
     respond(settingsWritable.value());
 });

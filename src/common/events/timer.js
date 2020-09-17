@@ -1,7 +1,7 @@
 import { emit, request } from "./emit.js";
 
 async function getState() {
-    return request({ namespace: "BACKGROUND.TIMER", query: "DATA" });
+    return request({ namespace: "BACKGROUND.TIMER", query: "FETCH" });
 }
 
 async function pause() {
