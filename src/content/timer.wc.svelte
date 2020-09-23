@@ -79,7 +79,8 @@
         background-color: var(--br-blue-light);
         color: var(--br-blue);
     }
-    .timer.break {
+    .timer.shortBreak,
+    .timer.longBreak {
         background-color: var(--br-green-light);
         color: var(--br-green);
     }
