@@ -47,14 +47,14 @@ export default {
 
 export function copyHTMLPlugin({ script = JS_ENTRY_OUT, title = "Lisa", dir } ) {
     return copy({
-        targets: [{ 
-            src: "static/index.html", 
+        targets: [{
+            src: "static/index.html",
             dest: dir,
             transform: (contents) => {
                 contents = contents.toString().replace("__SCRIPT__", script);
                 contents = contents.replace("__TITLE__", title);
                 return contents;
-            }
+            },
         }],
     });
 }

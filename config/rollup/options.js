@@ -19,13 +19,13 @@ export default {
             emitCss: true,
         }),
         postcss({
-            extract: `${CSS_OUT}`,
+            extract: CSS_OUT,
         }),
         copyHTMLPlugin({
             dir: OPTIONS_OUT,
             title: "Lisa Options",
             script: JS_ENTRY_OUT,
-        })
+        }),
     ],
     watch: {
         clearScreen: false,
