@@ -31,7 +31,7 @@ const settingsEventsListener = new EventListener("BACKGROUND.SETTINGS");
 settingsEventsListener.on("FETCH", (_, respond) => {
     respond(settingsWritable.value());
 });
-settingsEventsListener.on("CHANGE", (data) => {
+settingsEventsListener.on("UPDATE", (data) => {
     settingsWritable.set(data);
     emit({ namespace: "BACKGROUND.SETTINGS", event: "CHANGED", data });
 });
