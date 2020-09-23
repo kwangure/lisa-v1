@@ -8,7 +8,12 @@ async function reset() {
     emit({ event: "RESET", namespace: "BACKGROUND.SETTINGS" });
 }
 
+async function update(settings) {
+    return emit({ namespace: "BACKGROUND.SETTINGS", event: "UPDATE", data: settings });
+}
+
 export const settings = {
     getState,
     reset,
+    update,
 };

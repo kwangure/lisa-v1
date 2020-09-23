@@ -3,6 +3,7 @@ import { createPomodoroMachine, createPomodoroService } from "./pomodoro/pomodor
 import settingsWritable from "./settings.js";
 
 const pomodoroMachine = createPomodoroMachine();
+// TODO(kwangure): remember to `settingsWritable.cleanUp();` somewhere
 const settings = settingsWritable.value();
 pomodoroMachine.withContext({ settings });
 
@@ -29,4 +30,8 @@ pomdoroEventsListener.on("FETCH", (_, respond) => {
 const settingsEventsListener = new EventListener("BACKGROUND.SETTINGS");
 settingsEventsListener.on("FETCH", (_, respond) => {
     respond(settingsWritable.value());
+});
+settingsEventsListener.on("CHANGE", (data) => {
+    settingsWritable.set(data);
+    emit({ namespace: "BACKGROUND.SETTINGS", event: "CHANGED", data });
 });
