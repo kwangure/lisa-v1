@@ -14,17 +14,23 @@ export default {
     },
     plugins: [
         copy({
-            targets: [{
-                src: ["static/**/*", "!static/index.html"],
-                dest: OUT_DIR,
-                transform: contents => {
-                    contents = contents.toString();
-                    contents = contents.replace("__OPTIONS_PAGE__", `${OPTIONS_DIR}/index.html`);
-                    contents = contents.replace("__BACKGROUND_JS__", `${BACKGROUND_DIR}/${JS_ENTRY_OUT}`);
-                    contents = contents.replace("__CONTENT_JS__", `${CONTENT_DIR}/${JS_ENTRY_OUT}`);
-                    return contents;
+            targets: [
+                {
+                    src: ["static/**/*", "!static/index.html", "!static/audio/**"],
+                    dest: OUT_DIR,
+                    transform: contents => {
+                        contents = contents.toString();
+                        contents = contents.replace("__OPTIONS_PAGE__", `${OPTIONS_DIR}/index.html`);
+                        contents = contents.replace("__BACKGROUND_JS__", `${BACKGROUND_DIR}/${JS_ENTRY_OUT}`);
+                        contents = contents.replace("__CONTENT_JS__", `${CONTENT_DIR}/${JS_ENTRY_OUT}`);
+                        return contents;
+                    },
                 },
-            }],
+                {
+                    src: "static/audio/*",
+                    dest: `${OUT_DIR}/audio`,
+                },
+            ],
         }),
     ],
 };
