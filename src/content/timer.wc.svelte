@@ -1,37 +1,38 @@
 <script>
     import { millisecondsToHumanReadableTime } from "../utils/time.js";
+    import { timer } from "../common/events";
+    import Button from "@deimimi/strawberry/components/Button";
     import Controls from "./controls.svelte";
-    import createTickListener from "./tickListener.js";
+    import createTimerStore from "./timer.js";
+    import Modal from "@deimimi/strawberry/components/Modal";
     
     const chrome = window.chrome;
-    let phase = "";
-    let time = "";
-    let remaining = 0;
-    let tickListener = null;
-    (async () => {
-        tickListener = await createTickListener();
-    })();
+    const timerStore = createTimerStore();
 
-    $: {
-        if (tickListener) {
-            ({ phase, remaining } = $tickListener);
-            time = millisecondsToHumanReadableTime(remaining);
-        }
-    }
+    $: ({ isInitialized, phase, remaining } = $timerStore);
+    $: time = millisecondsToHumanReadableTime(remaining ?? 0);
 </script>
 
 <svelte:options tag="lisa-timer"/>
 
 <link rel="stylesheet" href={chrome.extension.getURL("__CONTENT_CSS__")}/>
 
-<div class="countdown-wrapper bottom-right">
-    <div class="countdown">
-        <div class="timer {phase}">
-            {time}
+{#if isInitialized}
+    <div class="countdown-wrapper bottom-right">
+        <div class="countdown">
+            <div class="timer {phase}">
+                {time}
+            </div>
+            <Controls/>
         </div>
-        <Controls/>
     </div>
-</div>
+{:else if isInitialized === false}
+    <Modal visible>
+        <div slot="content">
+            <Button on:click={() => timer.start()}>Start timer</Button>
+        </div>
+    </Modal>
+{/if}
 
 <style>
     .countdown-wrapper {

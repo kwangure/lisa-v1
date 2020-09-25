@@ -15,14 +15,19 @@ pomodoroService.onTransition((state) => {
         namespace: "BACKGROUND.TIMER",
     });
 });
-pomodoroService.start();
-
 const timerEventsListener = new EventListener("BACKGROUND.TIMER");
 timerEventsListener.all((event, data) => {
     pomodoroService.send(event, { value: data });
 });
+timerEventsListener.on("IS_INITIALIZED", (_, respond) => {
+    respond(pomodoroService.initialized);
+});
 timerEventsListener.on("FETCH", (_, respond) => {
     respond(pomodoroService.state);
+});
+timerEventsListener.on("START", () => {
+    console.log("heard start");
+    pomodoroService.start();
 });
 
 const settingsEventsListener = new EventListener("BACKGROUND.SETTINGS");
