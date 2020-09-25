@@ -9,6 +9,7 @@ export function createPhaseMachine() {
         },
         states: {
             running: {
+                entry: ["elapseSecond", "sendParentTick"],
                 invoke: {
                     id: "elapseSecond",
                     src: () => {
@@ -27,17 +28,7 @@ export function createPhaseMachine() {
                 },
                 on: {
                     TICK: {
-                        actions: [
-                            assign({
-                                elapsed: context => {
-                                    return isNaN(context.elapsed) ? 0 : context.elapsed + 1000/* one second */;
-                                },
-                            }),
-                            sendParent((context) => ({
-                                type: "TICK",
-                                remaining: context.duration - context.elapsed,
-                            })),
-                        ],
+                        actions: ["elapseSecond", "sendParentTick"],
                     },
                     PAUSE: "paused",
                 },
@@ -70,6 +61,19 @@ export function createPhaseMachine() {
                     elapsed: 0,
                 }),
             },
+        },
+    },
+    {
+        actions: {
+            elapseSecond: assign({
+                elapsed: context => {
+                    return isNaN(context.elapsed) ? 0 : context.elapsed + 1000/* one second */;
+                },
+            }),
+            sendParentTick: sendParent((context) => ({
+                type: "TICK",
+                remaining: context.duration - context.elapsed,
+            })),
         },
     });
 }
