@@ -1,14 +1,14 @@
 <script>
-    import { settings } from "../../common/events";
+    import { createSettingsWritable } from "../settings_store.js";
+    import { readable } from "svelte/store";
+    import Phase from "./phase.svelte";
 
-    let settingsStore = null;
+    let settingStore = readable({});
     (async() => {
-        settingsStore = await settings.getState();
+        settingStore = await createSettingsWritable();
     })();
 </script>
 
-
-
-<style>
-    
-</style>
+{#each Object.keys($settingStore) as phase}
+    <Phase name="{phase}" bind:value={$settingStore[phase]}/>
+{/each}

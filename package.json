@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "description": "",
   "dependencies": {
-    "@deimimi/strawberry": "^0.20.1",
+    "@deimimi/strawberry": "^0.21.0-alpha.0",
     "@deimimi/svelte-pagejs-router": "^0.1.1",
     "@webcomponents/custom-elements": "^1.4.2",
-    "svelte": "^3.24.1",
+    "svelte": "^3.26.0",
     "xstate": "^4.11.0"
   },
   "devDependencies": {
