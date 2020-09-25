@@ -12,18 +12,16 @@ pomodoroService.onTransition((state) => {
     emit({
         event: state.event.type,
         data: state,
-        namespace: "TIMER",
+        namespace: "BACKGROUND.TIMER",
     });
 });
 pomodoroService.start();
 
-const timerEventsListener = new EventListener("TIMER");
+const timerEventsListener = new EventListener("BACKGROUND.TIMER");
 timerEventsListener.all((event, data) => {
     pomodoroService.send(event, { value: data });
 });
-
-const pomdoroEventsListener = new EventListener("BACKGROUND.TIMER");
-pomdoroEventsListener.on("FETCH", (_, respond) => {
+timerEventsListener.on("FETCH", (_, respond) => {
     respond(pomodoroService.state);
 });
 
