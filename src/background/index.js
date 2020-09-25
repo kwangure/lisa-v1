@@ -1,11 +1,12 @@
-import { emit, EventListener } from "../common/events";
+import { emit, timer, settings } from "../common/events";
 import { createPomodoroMachine, createPomodoroService } from "./pomodoro/pomodoro.js";
 import settingsWritable from "./settings.js";
 
 const pomodoroMachine = createPomodoroMachine();
 // TODO(kwangure): remember to `settingsWritable.cleanUp();` somewhere
-const settings = settingsWritable.value();
-pomodoroMachine.withContext({ settings });
+pomodoroMachine.withContext({
+    settings: settingsWritable.value(),
+});
 
 const pomodoroService = createPomodoroService(pomodoroMachine);
 pomodoroService.onTransition((state) => {
@@ -15,26 +16,24 @@ pomodoroService.onTransition((state) => {
         namespace: "BACKGROUND.TIMER",
     });
 });
-const timerEventsListener = new EventListener("BACKGROUND.TIMER");
-timerEventsListener.all((event, data) => {
+timer.all((event, data) => {
     pomodoroService.send(event, { value: data });
 });
-timerEventsListener.on("IS_INITIALIZED", (_, respond) => {
+timer.on("IS_INITIALIZED", (_, respond) => {
     respond(pomodoroService.initialized);
 });
-timerEventsListener.on("FETCH", (_, respond) => {
+timer.on("FETCH", (_, respond) => {
     respond(pomodoroService.state);
 });
-timerEventsListener.on("START", () => {
+timer.on("START", () => {
     console.log("heard start");
     pomodoroService.start();
 });
 
-const settingsEventsListener = new EventListener("BACKGROUND.SETTINGS");
-settingsEventsListener.on("FETCH", (_, respond) => {
+settings.on("FETCH", (_, respond) => {
     respond(settingsWritable.value());
 });
-settingsEventsListener.on("UPDATE", (data) => {
+settings.on("UPDATE", (data) => {
     settingsWritable.set(data);
     emit({ namespace: "BACKGROUND.SETTINGS", event: "CHANGED", data });
 });
