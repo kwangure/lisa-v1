@@ -1,15 +1,14 @@
 import { assign, Machine, sendParent } from "xstate";
 
-export function createPhaseMachine() {
+export function createPhaseMachine(duration) {
     return Machine({
         initial: "running",
         context: {
-            duration: 0,
-            elapsed: 0,
+            duration,
         },
         states: {
             running: {
-                entry: ["elapseSecond", "sendParentTick"],
+                entry: ["elapseSecond", "calculateRemaining", "sendParentTick"],
                 invoke: {
                     id: "elapseSecond",
                     src: () => {
@@ -28,7 +27,7 @@ export function createPhaseMachine() {
                 },
                 on: {
                     TICK: {
-                        actions: ["elapseSecond", "sendParentTick"],
+                        actions: ["elapseSecond", "calculateRemaining", "sendParentTick"],
                     },
                     PAUSE: "paused",
                 },
@@ -45,6 +44,7 @@ export function createPhaseMachine() {
                     cond: context => context.elapsed < context.duration,
                 },
                 type: "final",
+                onEntry: sendParent("DONE"),
             },
         },
         on: {
@@ -70,10 +70,10 @@ export function createPhaseMachine() {
                     return isNaN(context.elapsed) ? 0 : context.elapsed + 1000/* one second */;
                 },
             }),
-            sendParentTick: sendParent((context) => ({
-                type: "TICK",
-                remaining: context.duration - context.elapsed,
-            })),
+            calculateRemaining: assign({
+                remaining: context => context.duration - context.elapsed,
+            }),
+            sendParentTick: sendParent("TICK"),
         },
     });
 }

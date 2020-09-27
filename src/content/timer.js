@@ -5,9 +5,10 @@ export default function createTimerStore() {
     const defaultValue = { isInitialized: null, phase: null, remaining: 0 };
 
     return readable(defaultValue, async (setReadableValue) => {
-        function handleState(state) {
-            const { value: phase, event: { remaining }} = state;
-            setReadableValue({ isInitialized: true , phase, remaining });
+        function handleState(pomodoro) {
+            const phase = pomodoro.state;
+            const { state, context: { remaining }} = pomodoro.context.timerMachine;
+            setReadableValue({ isInitialized: true , phase, remaining, state });
         }
 
         const unsubscribeTick = timer.on("TICK", handleState);

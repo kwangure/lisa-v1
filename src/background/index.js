@@ -1,5 +1,6 @@
 import { emit, timer, settings } from "../common/events";
 import { createPomodoroMachine, createPomodoroService } from "./pomodoro/pomodoro.js";
+import { Interpreter } from "xstate";
 import settingsWritable from "./settings.js";
 
 const pomodoroMachine = createPomodoroMachine();
@@ -8,13 +9,27 @@ pomodoroMachine.withContext({
     settings: settingsWritable.value(),
 });
 
+function serializeState(state) {
+    const context = {};
+    for (const [key, value] of Object.entries(state.context)) {
+        if(value instanceof Interpreter) {
+            context[key] = serializeState(value.state);
+        } else {
+            context[key] = value;
+        }
+    }
+    return  {
+        state: state.value,
+        event: state.event.type,
+        context,
+        done: state.done,
+    };
+}
+
 const pomodoroService = createPomodoroService(pomodoroMachine);
 pomodoroService.onTransition((state) => {
-    emit({
-        event: state.event.type,
-        data: state,
-        namespace: "BACKGROUND.TIMER",
-    });
+    const { event, ...data } = serializeState(state);
+    emit({ event, data, namespace: "BACKGROUND.TIMER" });
 });
 timer.all((event, data) => {
     pomodoroService.send(event, { value: data });

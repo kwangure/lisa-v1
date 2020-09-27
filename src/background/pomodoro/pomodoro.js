@@ -1,4 +1,4 @@
-import { assign, Machine, forwardTo, interpret } from "xstate";
+import { assign, Machine, forwardTo, interpret, spawn } from "xstate";
 import { createPhaseMachine } from "./phaseStates.js";
 import { defaultSettings } from "../settings.js";
 
@@ -31,54 +31,48 @@ export function createPomodoroMachine() {
             settings: defaultSettings,
             nextPhase: "shortBreak",
             remaining: 0,
+            timerMachine: null,
         },
         states: {
             focus: {
-                invoke: {
-                    id: focusPhaseId,
-                    src: createPhaseMachine(),
-                    data: {
-                        duration: (context) => context.settings.focus.duration,
+                entry: assign({
+                    timerMachine: ({ settings }) => {
+                        const timerMachine = createPhaseMachine(settings.focus.duration);
+                        return spawn(timerMachine, { sync: true });
                     },
-                    onDone: [
-                        {
-                            target: "shortBreak",
-                            cond: (context) => context.nextPhase === "shortBreak",
-                        },
-                    ],
-                },
+                }),
                 on: {
-                    TICK: {
-                        actions: assign({
-                            remaining: (_, event) => event.remaining,
-                        }),
+                    DONE: [{
+                        target: "shortBreak",
+                        cond: (context) => context.nextPhase === "shortBreak",
                     },
+                    {
+                        target: "longBreak",
+                    }],
                     ...eventsToForwardTo(focusPhaseId),
                 },
             },
             shortBreak: {
-                invoke: {
-                    id: shortBreakPhaseId,
-                    src: createPhaseMachine(),
-                    data: {
-                        duration: (context) => context.settings.shortBreak.duration,
+                entry: assign({
+                    timerMachine: ({ settings }) => {
+                        const timerMachine = createPhaseMachine(settings.shortBreak.duration);
+                        return spawn(timerMachine, { sync: true });
                     },
-                    onDone: "focus",
-                },
+                }),
                 on: {
+                    DONE: "focus",
                     ...eventsToForwardTo(shortBreakPhaseId),
                 },
             },
             longBreak: {
-                invoke: {
-                    id: longBreakPhaseId,
-                    src: createPhaseMachine(),
-                    data: {
-                        duration: (context) => context.settings.longBreak.duration,
+                entry: assign({
+                    timerMachine: ({ settings }) => {
+                        const timerMachine = createPhaseMachine(settings.longBreak.duration);
+                        return spawn(timerMachine, { sync: true });
                     },
-                    onDone: "focus",
-                },
+                }),
                 on: {
+                    DONE: "focus",
                     ...eventsToForwardTo(longBreakPhaseId),
                 },
             },
