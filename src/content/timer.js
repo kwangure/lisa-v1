@@ -11,10 +11,14 @@ export default function createTimerStore() {
             unsubscribeFns.push(unsubscribeFn);
         }
 
-        function handleState(pomodoro) {
-            const phase = pomodoro.state;
-            const { state, context: { remaining }} = pomodoro.context.timerMachine;
-            setReadableValue({ isInitialized: true , phase, remaining, state });
+        function handleState(phase) {
+            const timer = phase.context.timerMachine;
+            setReadableValue({
+                isInitialized: true ,
+                phase: phase.value,
+                remaining: timer.context.remaining,
+                state: timer.value,
+            });
         }
 
         if (!await timer.isInitialized()) {

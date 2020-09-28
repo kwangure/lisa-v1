@@ -1,8 +1,8 @@
 import { assign, Machine, interpret, spawn } from "xstate";
-import { createPhaseMachine } from "./phaseStates.js";
+import { createTimerMachine } from "./timer.js";
 import { defaultSettings } from "../settings.js";
 
-export function createPomodoroMachine() {
+export function createPhaseMachine() {
     function forwardToChild(context, event) {
         return context.timerMachine.send(event.type, event.value);
     }
@@ -24,8 +24,8 @@ export function createPomodoroMachine() {
         };
     };
 
-    const pomodoroMachine = Machine({
-        id: "pomodoro",
+    const phaseMachine = Machine({
+        id: "phase",
         initial: "focus",
         context: {
             settings: defaultSettings,
@@ -37,7 +37,7 @@ export function createPomodoroMachine() {
             focus: {
                 entry: assign({
                     timerMachine: ({ settings }) => {
-                        const timerMachine = createPhaseMachine(settings.focus.duration);
+                        const timerMachine = createTimerMachine(settings.focus.duration);
                         return spawn(timerMachine, { sync: true });
                     },
                 }),
@@ -55,7 +55,7 @@ export function createPomodoroMachine() {
             shortBreak: {
                 entry: assign({
                     timerMachine: ({ settings }) => {
-                        const timerMachine = createPhaseMachine(settings.shortBreak.duration);
+                        const timerMachine = createTimerMachine(settings.shortBreak.duration);
                         return spawn(timerMachine, { sync: true });
                     },
                 }),
@@ -67,7 +67,7 @@ export function createPomodoroMachine() {
             longBreak: {
                 entry: assign({
                     timerMachine: ({ settings }) => {
-                        const timerMachine = createPhaseMachine(settings.longBreak.duration);
+                        const timerMachine = createTimerMachine(settings.longBreak.duration);
                         return spawn(timerMachine, { sync: true });
                     },
                 }),
@@ -79,7 +79,7 @@ export function createPomodoroMachine() {
         },
     });
 
-    return pomodoroMachine;
+    return phaseMachine;
 }
 
 export function createPomodoroService(pomodoroMachine) {

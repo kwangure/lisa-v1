@@ -1,11 +1,11 @@
 import { emit, timer, settings } from "../common/events";
-import { createPomodoroMachine, createPomodoroService } from "./pomodoro/pomodoro.js";
+import { createPhaseMachine, createPomodoroService } from "./phase/phase.js";
 import { Interpreter } from "xstate";
 import settingsWritable from "./settings.js";
 
-const pomodoroMachine = createPomodoroMachine();
+const phaseMachine = createPhaseMachine();
 // TODO(kwangure): remember to `settingsWritable.cleanUp();` somewhere
-pomodoroMachine.withContext({
+phaseMachine.withContext({
     settings: settingsWritable.value(),
 });
 
@@ -19,14 +19,14 @@ function serializeState(state) {
         }
     }
     return  {
-        state: state.value,
+        value: state.value,
         event: state.event.type,
         context,
         done: state.done,
     };
 }
 
-const pomodoroService = createPomodoroService(pomodoroMachine);
+const pomodoroService = createPomodoroService(phaseMachine);
 pomodoroService.onTransition((state) => {
     const { event, ...data } = serializeState(state);
     emit({ event, data, namespace: "BACKGROUND.TIMER" });
@@ -41,7 +41,6 @@ timer.on("FETCH", (_, respond) => {
     respond(pomodoroService.state);
 });
 timer.on("START", () => {
-    console.log("heard start");
     pomodoroService.start();
 });
 

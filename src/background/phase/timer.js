@@ -1,6 +1,6 @@
 import { assign, Machine, sendParent } from "xstate";
 
-export function createPhaseMachine(duration) {
+export function createTimerMachine(duration) {
     return Machine({
         initial: "running",
         context: {
