@@ -1,11 +1,9 @@
 import { assign, Machine, sendParent } from "xstate";
 
-export function createTimerMachine(duration) {
-    return Machine({
+export function createTimerMachine(withContext = {}) {
+    const timerMachine = Machine({
         initial: "running",
-        context: {
-            duration,
-        },
+        context: {},
         states: {
             running: {
                 entry: ["elapseSecond", "calculateRemaining", "sendParentTick"],
@@ -75,5 +73,10 @@ export function createTimerMachine(duration) {
             }),
             sendParentTick: sendParent("TICK"),
         },
+    });
+
+    return timerMachine.withContext({
+        ...timerMachine.context,
+        ...withContext,
     });
 }

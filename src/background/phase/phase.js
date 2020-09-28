@@ -1,10 +1,21 @@
-import { assign, Machine, interpret, spawn } from "xstate";
+import { assign, Machine, spawn } from "xstate";
 import { createTimerMachine } from "./timer.js";
-import { defaultSettings } from "../settings.js";
 
-export function createPhaseMachine() {
+export function createPhaseMachine(withContext = {}) {
     function forwardToChild(context, event) {
         return context.timerMachine.send(event.type, event.value);
+    }
+
+    function assignTimerMachine(phase) {
+        return assign({
+            timerMachine: (phaseContext) => {
+                const timerContext = {
+                    duration: phaseContext.settings[phase].duration,
+                };
+                const timerMachine = createTimerMachine(timerContext);
+                return spawn(timerMachine, { sync: true });
+            },
+        });
     }
 
     const eventsToForwardToChild = () => {
@@ -28,19 +39,12 @@ export function createPhaseMachine() {
         id: "phase",
         initial: "focus",
         context: {
-            settings: defaultSettings,
             nextPhase: "shortBreak",
-            remaining: 0,
             timerMachine: null,
         },
         states: {
             focus: {
-                entry: assign({
-                    timerMachine: ({ settings }) => {
-                        const timerMachine = createTimerMachine(settings.focus.duration);
-                        return spawn(timerMachine, { sync: true });
-                    },
-                }),
+                entry: assignTimerMachine("focus"),
                 on: {
                     DONE: [{
                         target: "shortBreak",
@@ -53,24 +57,14 @@ export function createPhaseMachine() {
                 },
             },
             shortBreak: {
-                entry: assign({
-                    timerMachine: ({ settings }) => {
-                        const timerMachine = createTimerMachine(settings.shortBreak.duration);
-                        return spawn(timerMachine, { sync: true });
-                    },
-                }),
+                entry: assignTimerMachine("shortBreak"),
                 on: {
                     DONE: "focus",
                     ...eventsToForwardToChild(),
                 },
             },
             longBreak: {
-                entry: assign({
-                    timerMachine: ({ settings }) => {
-                        const timerMachine = createTimerMachine(settings.longBreak.duration);
-                        return spawn(timerMachine, { sync: true });
-                    },
-                }),
+                entry: assignTimerMachine("longBreak"),
                 on: {
                     DONE: "focus",
                     ...eventsToForwardToChild(),
@@ -79,10 +73,8 @@ export function createPhaseMachine() {
         },
     });
 
-    return phaseMachine;
-}
-
-export function createPomodoroService(pomodoroMachine) {
-    const pomodoroService = interpret(pomodoroMachine);
-    return pomodoroService;
+    return phaseMachine.withContext({
+        ...phaseMachine.context,
+        ...withContext,
+    });
 }

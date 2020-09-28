@@ -1,13 +1,13 @@
 import { emit, timer, settings } from "../common/events";
-import { createPhaseMachine, createPomodoroService } from "./phase/phase.js";
-import { Interpreter } from "xstate";
+import { createPhaseMachine } from "./phase/phase.js";
+import { Interpreter, interpret } from "xstate";
+// TODO(kwangure): remember to `settingsWritable.cleanUp();` somewhere
 import settingsWritable from "./settings.js";
 
-const phaseMachine = createPhaseMachine();
-// TODO(kwangure): remember to `settingsWritable.cleanUp();` somewhere
-phaseMachine.withContext({
+const phaseContext = {
     settings: settingsWritable.value(),
-});
+};
+const phaseMachine = createPhaseMachine(phaseContext);
 
 function serializeState(state) {
     const context = {};
@@ -26,7 +26,7 @@ function serializeState(state) {
     };
 }
 
-const pomodoroService = createPomodoroService(phaseMachine);
+const pomodoroService = interpret(phaseMachine);
 pomodoroService.onTransition((state) => {
     const { event, ...data } = serializeState(state);
     emit({ event, data, namespace: "BACKGROUND.TIMER" });
