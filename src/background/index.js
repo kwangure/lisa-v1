@@ -37,7 +37,9 @@ pomodoroService.onTransition((state) => {
     emit({ event, data, namespace: "BACKGROUND.TIMER" });
 });
 timer.all((event, data) => {
-    pomodoroService.send(event, { value: data });
+    if(pomodoroService.initialized) {
+        pomodoroService.send(event, { value: data });
+    }
 });
 timer.on("IS_INITIALIZED", (_, respond) => {
     respond(pomodoroService.initialized);
