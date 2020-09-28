@@ -1,8 +1,13 @@
 import { emit, timer, settings } from "../common/events";
 import { createPhaseMachine } from "./phase/phase.js";
 import { Interpreter, interpret } from "xstate";
+import { reloadOnFileChange } from "./reload.js";
 // TODO(kwangure): remember to `settingsWritable.cleanUp();` somewhere
 import settingsWritable from "./settings.js";
+
+if(import.meta.env.DEV) {
+    reloadOnFileChange();
+}
 
 const phaseContext = {
     settings: settingsWritable.value(),
