@@ -1,25 +1,25 @@
-import { assign, Machine, forwardTo, interpret, spawn } from "xstate";
+import { assign, Machine, interpret, spawn } from "xstate";
 import { createPhaseMachine } from "./phaseStates.js";
 import { defaultSettings } from "../settings.js";
 
 export function createPomodoroMachine() {
-    const focusPhaseId = "focus";
-    const shortBreakPhaseId = "shortBreak";
-    const longBreakPhaseId = "longBreak";
+    function forwardToChild(context, event) {
+        return context.timerMachine.send(event.type, event.value);
+    }
 
-    const eventsToForwardTo = (child) => {
+    const eventsToForwardToChild = () => {
         return {
             PAUSE: {
-                actions: forwardTo(child),
+                actions: forwardToChild,
             },
             PLAY: {
-                actions: forwardTo(child),
+                actions: forwardToChild,
             },
             COMPLETE: {
-                actions: forwardTo(child),
+                actions: forwardToChild,
             },
             RESET: {
-                actions: forwardTo(child),
+                actions: forwardToChild,
             },
         };
     };
@@ -49,7 +49,7 @@ export function createPomodoroMachine() {
                     {
                         target: "longBreak",
                     }],
-                    ...eventsToForwardTo(focusPhaseId),
+                    ...eventsToForwardToChild(),
                 },
             },
             shortBreak: {
@@ -61,7 +61,7 @@ export function createPomodoroMachine() {
                 }),
                 on: {
                     DONE: "focus",
-                    ...eventsToForwardTo(shortBreakPhaseId),
+                    ...eventsToForwardToChild(),
                 },
             },
             longBreak: {
@@ -73,7 +73,7 @@ export function createPomodoroMachine() {
                 }),
                 on: {
                     DONE: "focus",
-                    ...eventsToForwardTo(longBreakPhaseId),
+                    ...eventsToForwardToChild(),
                 },
             },
         },

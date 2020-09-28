@@ -9,7 +9,7 @@
     const chrome = window.chrome;
     const timerStore = createTimerStore();
 
-    $: ({ isInitialized, phase, remaining } = $timerStore);
+    $: ({ isInitialized, phase, remaining, state } = $timerStore);
     $: time = millisecondsToHumanReadableTime(remaining ?? 0);
 </script>
 
@@ -23,7 +23,7 @@
             <div class="timer {phase}">
                 {time}
             </div>
-            <Controls/>
+            <Controls paused={state==="paused" || state === "completed"}/>
         </div>
     </div>
 {:else if isInitialized === false}

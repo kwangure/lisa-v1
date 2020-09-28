@@ -1,6 +1,6 @@
 <script>
     import Button from "@deimimi/strawberry/components/Button";
-    import { mdiPause, mdiPictureInPictureBottomRightOutline, mdiPlay } from "@mdi/js";
+    import { mdiPause, mdiPictureInPictureBottomRightOutline, mdiPlayOutline } from "@mdi/js";
     import { timer } from "../common/events";
 
     export let paused = false;
@@ -8,7 +8,7 @@
 
 <div class="controls">
     {#if paused}
-        <Button icon={mdiPlay} on:click={timer.play}/>
+        <Button icon={mdiPlayOutline} on:click={timer.play}/>
     {:else}
         <Button icon={mdiPause} on:click={timer.pause}/>
     {/if}
