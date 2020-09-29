@@ -9,7 +9,7 @@ if(import.meta.env.DEV) {
 }
 
 const phaseContext = {
-    settings: settingsWritable.value(),
+    settings: settingsWritable.value().phaseSettings,
 };
 const phaseMachine = createPhaseMachine(phaseContext);
 

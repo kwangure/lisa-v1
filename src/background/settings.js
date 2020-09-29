@@ -2,22 +2,24 @@ import { minutesToMilliseconds } from "../utils/time.js";
 import { createLocalStorageWritable } from "./store.js";
 
 export const defaultSettings = {
-    focus: {
-        duration: minutesToMilliseconds(50),
-        notification: {
-            sound: null,
+    phaseSettings: {
+        focus: {
+            duration: minutesToMilliseconds(50),
+            notification: {
+                sound: null,
+            },
         },
-    },
-    shortBreak: {
-        duration: minutesToMilliseconds(10),
-        notification: {
-            sound: null,
+        shortBreak: {
+            duration: minutesToMilliseconds(10),
+            notification: {
+                sound: null,
+            },
         },
-    },
-    longBreak: {
-        duration: minutesToMilliseconds(30),
-        notification: {
-            sound: null,
+        longBreak: {
+            duration: minutesToMilliseconds(30),
+            notification: {
+                sound: null,
+            },
         },
     },
 };
