@@ -1,5 +1,5 @@
-import { fileEntryToFile, getFilesIn } from "../common/chrome/file";
-import chrome from "../common/chrome/promisify.js";
+import { fileEntryToFile, getFilesIn } from "../../common/chrome/file";
+import chrome from "../../common/chrome/promisify.js";
 
 async function geAllFileTimestmaps(dirEntry) {
     const fileEntries = await getFilesIn(dirEntry);

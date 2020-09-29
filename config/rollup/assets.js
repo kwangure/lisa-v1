@@ -4,6 +4,7 @@ import {
     OPTIONS_DIR,
     OUT_DIR,
     JS_ENTRY_OUT,
+    WATCH_ENTRY_OUT,
 } from "./common.js";
 import copy from "rollup-plugin-copy";
 
@@ -22,6 +23,7 @@ export default {
                         contents = contents.toString();
                         contents = contents.replace("__OPTIONS_PAGE__", `${OPTIONS_DIR}/index.html`);
                         contents = contents.replace("__BACKGROUND_JS__", `${BACKGROUND_DIR}/${JS_ENTRY_OUT}`);
+                        contents = contents.replace("__RELOAD_JS__", `${BACKGROUND_DIR}/${WATCH_ENTRY_OUT}`);
                         contents = contents.replace("__CONTENT_JS__", `${CONTENT_DIR}/${JS_ENTRY_OUT}`);
                         return contents;
                     },

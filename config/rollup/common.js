@@ -21,6 +21,7 @@ export const OPTIONS_OUT = `${OUT_DIR}/${OPTIONS_DIR}`;
 export const NEWTAB_DIR = "newtab";
 export const NEWTAB_OUT = `${OUT_DIR}/${NEWTAB_DIR}`;
 export const JS_ENTRY_OUT = "bundle.js";
+export const WATCH_ENTRY_OUT = "watch.js";
 export const CSS_OUT = "bundle.css";
 
 export default {
