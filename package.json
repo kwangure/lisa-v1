@@ -4,7 +4,7 @@
   "description": "",
   "dependencies": {
     "@deimimi/strawberry": "^0.21.0-alpha.0",
-    "@deimimi/svelte-pagejs-router": "^0.1.1",
+    "@deimimi/svelte-pagejs-router": "^0.1.2",
     "@webcomponents/custom-elements": "^1.4.2",
     "svelte": "^3.26.0",
     "xstate": "^4.11.0"

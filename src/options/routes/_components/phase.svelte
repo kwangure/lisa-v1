@@ -1,6 +1,6 @@
 <script>
-    import { millisecondsToHumanReadableTime } from "../../utils/time.js";
-    import { notificationSounds } from "../../common/audio";
+    import { millisecondsToHumanReadableTime } from "../../../utils/time.js";
+    import { notificationSounds } from "../../../common/audio";
     import { Number } from "@deimimi/strawberry/components/Input";
     import Select, { Option } from "@deimimi/strawberry/components/Select";
 

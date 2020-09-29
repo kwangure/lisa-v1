@@ -3,6 +3,9 @@ import { minutesToMilliseconds } from "../../utils/time";
 import { settings, EventListener } from "../events";
 
 export const defaultSettings = {
+    appearanceSettings: {
+
+    },
     phaseSettings: {
         focus: {
             duration: minutesToMilliseconds(50),

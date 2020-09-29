@@ -1,17 +1,40 @@
 <script>
+    import Sidebar, { Item } from "@deimimi/strawberry/components/Sidebar";
     export let path = "";
+
+    function createItem(name, route) {
+        return { name, route };
+    }
+
+    const items = [
+        createItem("Timer", "/"),
+        createItem("Appearance", "/appearance"),
+    ];
 </script>
 
 <div class="app-layout">
-    <slot {path}></slot>
+    <div class="sidebar">
+        <Sidebar>
+            {#each items as {name, route}}
+                <Item active={route === path}>
+                    <a href="#!{route}">{name}</a>
+                </Item>
+            {/each}
+        </Sidebar>
+    </div>
+    <div>
+        <slot {path}></slot>
+    </div>
 </div>
 
 <style>
     .app-layout {
         display: flex;
-        flex-direction: column;
-        flex: auto;
-        min-height: 100%;
+        height: 100%;
         font-size: 14px;
+    }
+    .sidebar {
+        padding: 10px 0;
+        color: var(--br-grey-dark);
     }
 </style>

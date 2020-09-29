@@ -4,7 +4,6 @@
 
     let settingStore = createSettingsWritable();
 </script>
-
-{#each Object.keys($settingStore.phaseSettings) as phase}
-    <Phase name="{phase}" bind:value={$settingStore.phaseSettings[phase]}/>
+{#each Object.keys($settingStore.appearanceSettings) as phase}
+    <Phase name="{phase}" bind:value={$settingStore.appearanceSettings[phase]}/>
 {/each}
