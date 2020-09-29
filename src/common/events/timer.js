@@ -27,6 +27,10 @@ async function reset() {
     emit({ event: "RESET", namespace: "BACKGROUND.TIMER" });
 }
 
+async function destroy() {
+    emit({ event: "DESTROY", namespace: "BACKGROUND.TIMER" });
+}
+
 function on(event, eventListener) {
     const unsubscribeFn = timerEventsListener.on(event, eventListener);
     return unsubscribeFn;
@@ -39,11 +43,13 @@ function all(eventListener) {
 
 export const timer = {
     all,
+    destroy,
     getState,
     isInitialized,
     on,
     pause,
     play,
+    removeListeners: timerEventsListener.removeListeners,
     reset,
     start,
 };
