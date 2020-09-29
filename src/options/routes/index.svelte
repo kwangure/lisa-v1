@@ -1,5 +1,5 @@
 <script>
-    import { createSettingsWritable } from "../settings_store.js";
+    import { createSettingsWritable } from "../../common/store/settings_store.js";
     import { readable } from "svelte/store";
     import Phase from "./phase.svelte";
 

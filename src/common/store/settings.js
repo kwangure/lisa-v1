@@ -1,5 +1,5 @@
 import { readable } from "svelte/store";
-import { settings, EventListener } from "../common/events";
+import { settings, EventListener } from "../events";
 
 export async function createSettingsWritable() {
     const initialValue = await settings.getState();
