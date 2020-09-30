@@ -1,9 +1,15 @@
 <script>
-    import { createSettingsWritable } from "../../common/store/settings.js";
-    import Phase from "./_components/phase.svelte";
-
-    let settingStore = createSettingsWritable();
+    export let settingStore;
 </script>
-{#each Object.keys($settingStore.appearanceSettings) as phase}
-    <Phase name="{phase}" bind:value={$settingStore.appearanceSettings[phase]}/>
+
+{#each Object.keys($settingStore.appearanceSettings) as appearance}
+    {appearance}
 {/each}
+
+<script context="module">
+    import { createSettingsWritable } from "../../common/store/settings.js";
+    export async function preload() {
+        const settingStore = await createSettingsWritable();
+        return { settingStore };
+    }
+</script>

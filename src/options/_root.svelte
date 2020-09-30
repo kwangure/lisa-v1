@@ -8,6 +8,7 @@
     export let path;
     export let params;
     export let query;
+    export let preload = {};
 
     export let component;
 
@@ -22,6 +23,6 @@
             <h1>Error displaying {status}</h1>
         {/await}
 	{:else}
-		<svelte:component this={component}/>
+		<svelte:component this={component} {...preload}/>
 	{/if}
 </Layout>

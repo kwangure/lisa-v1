@@ -28,11 +28,13 @@ export const defaultSettings = {
     },
 };
 
-export function createSettingsWritable() {
-    const settingsReadable = readable(defaultSettings, (setReadableValue) => {
+export async function createSettingsWritable() {
+    const initialSettings = await settings.getState();
+
+    const settingsReadable = readable(initialSettings, (setReadableValue) => {
         const settingsEventsListener = new EventListener("BACKGROUND.SETTINGS");
-        const unsubscribe = settingsEventsListener.on("CHANGED", (settings ) => {
-            setReadableValue(settings );
+        const unsubscribe = settingsEventsListener.on("CHANGED", (settings) => {
+            setReadableValue(settings);
         });
         return unsubscribe;
     });
