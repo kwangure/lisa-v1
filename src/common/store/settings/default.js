@@ -1,13 +1,19 @@
 import { minutesToMilliseconds } from "../../../utils/time";
 
 export const timerPositions = {
-    BOTTOM_LEFT: "bottom-left",
-    BOTTOM_RIGHT: "bottom-right",
+    BOTTOM_LEFT: {
+        value: "bottom-left",
+        name: "Bottom left",
+    },
+    BOTTOM_RIGHT:{
+        value: "bottom-right",
+        name: "Bottom right",
+    },
 };
 
 export const defaultSettings = {
     appearanceSettings: {
-        timerPosition: timerPositions.BOTTOM_RIGHT,
+        timerPosition: timerPositions.BOTTOM_RIGHT.value,
     },
     phaseSettings: {
         focus: {

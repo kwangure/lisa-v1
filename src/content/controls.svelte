@@ -14,12 +14,12 @@
     {:else}
         <Button icon={mdiPause} on:click={timer.pause}/>
     {/if}
-    {#if position === timerPositions.BOTTOM_RIGHT}
+    {#if position === timerPositions.BOTTOM_RIGHT.value}
         <Button icon={mdiPictureInPictureBottomRightOutline} iconProps={{flip: {horizontal: true}}}
-            on:click={() => position = timerPositions.BOTTOM_LEFT}/>
+            on:click={() => position = timerPositions.BOTTOM_LEFT.value}/>
     {:else}
         <Button icon={mdiPictureInPictureBottomRightOutline}
-            on:click={() => position = timerPositions.BOTTOM_RIGHT}/>
+            on:click={() => position = timerPositions.BOTTOM_RIGHT.value}/>
     {/if}
 </div>
 
