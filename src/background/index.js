@@ -51,5 +51,7 @@ settings.on("FETCH", (_, respond) => {
 });
 settings.on("UPDATE", (data) => {
     settingsWritable.set(data);
-    emit({ namespace: "BACKGROUND.SETTINGS", event: "CHANGED", data });
+});
+settingsWritable.subscribe((settings) => {
+    emit({ namespace: "BACKGROUND.SETTINGS", event: "CHANGED", data: settings });
 });
