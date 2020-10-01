@@ -3,8 +3,6 @@ import { minutesToMilliseconds } from "../../../utils/time";
 export const timerPositions = {
     BOTTOM_LEFT: "bottom-left",
     BOTTOM_RIGHT: "bottom-right",
-    TOP_RIGHT: "top-right",
-    TOP_LEFT: "top-left",
 };
 
 export const defaultSettings = {
