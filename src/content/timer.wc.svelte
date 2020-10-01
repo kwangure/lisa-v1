@@ -1,15 +1,23 @@
+<script context="module">
+    import createTimerStore from "./timer.js";
+    
+    export async function preload() {
+        const timerStore  = await createTimerStore();
+
+        return { timerStore };
+    }
+</script>
+
 <script>
     import { millisecondsToHumanReadableTime } from "../utils/time.js";
     import { timer } from "../common/events";
     import Button from "@deimimi/strawberry/components/Button";
     import Controls from "./controls.svelte";
-    import createTimerStore from "./timer.js";
     import Modal from "@deimimi/strawberry/components/Modal";
     
     const chrome = window.chrome;
-    const timerStore = createTimerStore();
-
-    $: ({ isInitialized, phase, remaining, state } = $timerStore);
+    export let timerStore;
+    $: ({ initialized, phase, remaining, state } = $timerStore || {});
     $: time = millisecondsToHumanReadableTime(remaining ?? 0);
 </script>
 
@@ -17,7 +25,7 @@
 
 <link rel="stylesheet" href={chrome.extension.getURL("__CONTENT_CSS__")}/>
 
-{#if isInitialized}
+{#if initialized}
     <div class="countdown-wrapper bottom-right">
         <div class="countdown">
             <div class="timer {phase}">
@@ -26,7 +34,7 @@
             <Controls paused={state==="paused" || state === "completed"}/>
         </div>
     </div>
-{:else if isInitialized === false}
+{:else if initialized === false}
     <Modal visible>
         <div slot="content">
             <Button on:click={() => timer.start()}>Start timer</Button>

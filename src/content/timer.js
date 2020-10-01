@@ -1,10 +1,22 @@
 import { readable } from "svelte/store";
 import { timer } from "../common/events";
 
-export default function createTimerStore() {
-    const defaultValue = { isInitialized: null, phase: null, remaining: 0 };
+function buildStoreData(phase) {
+    const { initialized, value, context: { timerMachine } } = phase;
+    return {
+        initialized,
+        phase: value,
+        remaining: timerMachine.context.remaining,
+        state: timerMachine.value,
+    };
+}
+export default async function createTimerStore() {
+    const isInitialized = await timer.isInitialized();
+    const initialState = isInitialized
+        ? buildStoreData(await timer.getState())
+        : { initialized: false };
 
-    return readable(defaultValue, async (setReadableValue) => {
+    return readable(initialState, (setReadableValue) => {
         const unsubscribeFns = [];
 
         function queueUnsubscribe(unsubscribeFn) {
@@ -12,18 +24,8 @@ export default function createTimerStore() {
         }
 
         function handleState(phase) {
-            const timer = phase.context.timerMachine;
-            setReadableValue({
-                isInitialized: true ,
-                phase: phase.value,
-                remaining: timer.context.remaining,
-                state: timer.value,
-            });
-        }
-
-        if (!await timer.isInitialized()) {
-            setReadableValue({ ...defaultValue, isInitialized: false });
-            queueUnsubscribe(timer.on("xstate.init", handleState));
+            const data = buildStoreData(phase);
+            setReadableValue(data);
         }
 
         queueUnsubscribe(timer.on("DURATION.CHANGE", handleState));

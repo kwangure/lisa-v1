@@ -8,11 +8,11 @@ const phaseContext = {
 };
 const phaseMachine = createPhaseMachine(phaseContext);
 
-function serializeState(state) {
+function serializeState(state, initialized) {
     const context = {};
     for (const [key, value] of Object.entries(state.context)) {
         if(value instanceof Interpreter) {
-            context[key] = serializeState(value.state);
+            context[key] = serializeState(value.state, value.initialized);
         } else {
             context[key] = value;
         }
@@ -21,13 +21,14 @@ function serializeState(state) {
         value: state.value,
         event: state.event.type,
         context,
+        initialized,
         done: state.done,
     };
 }
 
 const pomodoroService = interpret(phaseMachine);
 pomodoroService.onTransition((state) => {
-    const { event, ...data } = serializeState(state);
+    const { event, ...data } = serializeState(state, pomodoroService.initialized);
     emit({ event, data, namespace: "BACKGROUND.TIMER" });
 });
 timer.all((event, data) => {
@@ -39,7 +40,7 @@ timer.on("IS_INITIALIZED", (_, respond) => {
     respond(pomodoroService.initialized);
 });
 timer.on("FETCH", (_, respond) => {
-    respond(pomodoroService.state);
+    respond(serializeState(pomodoroService.state));
 });
 timer.on("START", () => {
     pomodoroService.start();
