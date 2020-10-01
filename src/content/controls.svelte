@@ -15,7 +15,7 @@
         <Button icon={mdiPause} on:click={timer.pause}/>
     {/if}
     {#if position === timerPositions.BOTTOM_RIGHT}
-        <Button icon={mdiPictureInPictureBottomRightOutline} iconProps={{flip: "horizontal"}}
+        <Button icon={mdiPictureInPictureBottomRightOutline} iconProps={{flip: {horizontal: true}}}
             on:click={() => position = timerPositions.BOTTOM_LEFT}/>
     {:else}
         <Button icon={mdiPictureInPictureBottomRightOutline}
