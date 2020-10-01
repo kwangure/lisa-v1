@@ -16,3 +16,14 @@ export function millisecondsToHumanReadableTime(milliseconds, formatter = format
 
     return formatter({ minutes, seconds });
 }
+
+export function millisecondsToMinutes(time) {
+    return millisecondsToHumanReadableTime(time, function ({ minutes, seconds }) {
+        const formattedSeconds = seconds === 0
+            ? ""
+            : String(seconds/60).replace(/^.*(?=\.)/, "");
+        const isOneMinute = minutes === 1 && seconds === 0;
+        const postFix = isOneMinute ? "minute": "minutes";
+        return `${minutes}${formattedSeconds} ${postFix}`;
+    });
+}

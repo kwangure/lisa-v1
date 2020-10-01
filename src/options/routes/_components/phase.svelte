@@ -1,5 +1,5 @@
 <script>
-    import { millisecondsToHumanReadableTime } from "../../../utils/time.js";
+    import { millisecondsToMinutes } from "../../../utils/time.js";
     import { notificationSounds } from "../../../common/audio";
     import { Number } from "@deimimi/strawberry/components/Input";
     import Select, { Option } from "@deimimi/strawberry/components/Select";
@@ -12,14 +12,7 @@
     }
 
     function formatToReadableTime(time) {
-        return millisecondsToHumanReadableTime(time, function ({ minutes, seconds }) {
-            const formattedSeconds = seconds === 0
-                ? ""
-                : String(seconds/60).replace(/^.*(?=\.)/, "");
-            const isOneMinute = minutes === 1 && seconds === 0;
-            const postFix = isOneMinute ? "minute": "minutes";
-            return `${minutes}${formattedSeconds} ${postFix}`;
-        });
+        return millisecondsToMinutes(time);
     }
 
     function isInvalid(time) {
