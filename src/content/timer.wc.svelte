@@ -1,10 +1,12 @@
 <script context="module">
     import createTimerStore from "./timer.js";
+    import { createSettingsWritable } from "../common/store/settings";
     
     export async function preload() {
         const timerStore  = await createTimerStore();
+        const settingStore = await createSettingsWritable();
 
-        return { timerStore };
+        return { timerStore, settingStore };
     }
 </script>
 
@@ -17,8 +19,17 @@
     
     const chrome = window.chrome;
     export let timerStore;
+    export let settingStore;
+
+    let timerPosition;
+
     $: ({ initialized, phase, remaining, state } = $timerStore || {});
     $: time = millisecondsToHumanReadableTime(remaining ?? 0);
+    $: setTimerPosition($settingStore?.appearanceSettings?.timerPosition);
+
+    function setTimerPosition(position){
+        timerPosition = position;
+    }
 </script>
 
 <svelte:options tag="lisa-timer"/>
@@ -26,12 +37,13 @@
 <link rel="stylesheet" href={chrome.extension.getURL("__CONTENT_CSS__")}/>
 
 {#if initialized}
-    <div class="countdown-wrapper bottom-right">
+    <div class="countdown-wrapper {timerPosition}">
         <div class="countdown">
             <div class="timer {phase}">
                 {time}
             </div>
-            <Controls paused={state==="paused" || state === "completed"}/>
+            <Controls paused={state==="paused" || state === "completed"}
+                bind:position={timerPosition}/>
         </div>
     </div>
 {:else if initialized === false}

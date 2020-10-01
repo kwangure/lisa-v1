@@ -2,8 +2,10 @@
     import Button from "@deimimi/strawberry/components/Button";
     import { mdiPause, mdiPictureInPictureBottomRightOutline, mdiPlayOutline } from "@mdi/js";
     import { timer } from "../common/events";
+    import { timerPositions } from "../common/store/settings";
 
     export let paused = false;
+    export let position;
 </script>
 
 <div class="controls">
@@ -12,7 +14,13 @@
     {:else}
         <Button icon={mdiPause} on:click={timer.pause}/>
     {/if}
-    <Button icon={mdiPictureInPictureBottomRightOutline} iconProps={{flip: "horizontal"}}/>
+    {#if position === timerPositions.BOTTOM_RIGHT}
+        <Button icon={mdiPictureInPictureBottomRightOutline} iconProps={{flip: "horizontal"}}
+            on:click={() => position = timerPositions.BOTTOM_LEFT}/>
+    {:else}
+        <Button icon={mdiPictureInPictureBottomRightOutline}
+            on:click={() => position = timerPositions.BOTTOM_RIGHT}/>
+    {/if}
 </div>
 
 <style>

@@ -9,7 +9,7 @@
 {/each}
 
 <script context="module">
-    import { createSettingsWritable } from "../../common/store/settings.js";
+    import { createSettingsWritable } from "../../common/store/settings";
     export async function preload() {
         const settingStore = await createSettingsWritable();
         
