@@ -6,7 +6,7 @@ function buildStoreData(phase) {
     return {
         initialized,
         phase: value,
-        remaining: timerMachine.context.remaining,
+        ...timerMachine.context,
         state: timerMachine.value,
     };
 }
