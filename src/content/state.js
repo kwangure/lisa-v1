@@ -13,7 +13,9 @@ export function createTimerMachine(options) {
         id: "timer",
         initial: "loading",
         context: {
+            componentStore: null,
             timerStore: null,
+            settingStore: null,
             initializedComponent: null,
             uninitializedComponent: null,
         },
@@ -43,18 +45,36 @@ export function createTimerMachine(options) {
                         },
                     },
                     running: {
-                        invoke: {
-                            src: (_context, event) => {
-                                return function (sendParentEvent) {
-                                    const [timerStore, settingStore] = event.data;
-                                    const componentStore =
-                                        derived([timerStore, settingStore], ([timer, settings]) => {
-                                            const { phase, remaining, state } = timer;
-                                            const time = millisecondsToHumanReadableTime(remaining);
-                                            const { appearanceSettings: { timerPosition } } = settings;
+                        entry: [
+                            assign({
+                                timerStore: (_context, event) => {
+                                    const [timerStore] = event.data;
+                                    return timerStore;
+                                },
+                            }),
+                            assign({
+                                settingStore: (_context, event) => {
+                                    const [,settingStore] = event.data;
+                                    return settingStore;
+                                },
+                            }),
+                            assign({
+                                componentStore: (context) => {
+                                    const { timerStore, settingStore } = context;
+                                    return derived([timerStore, settingStore], ([timer, settings]) => {
+                                        const { phase, remaining, state } = timer;
+                                        const time = millisecondsToHumanReadableTime(remaining);
+                                        const { appearanceSettings: { timerPosition } } = settings;
 
-                                            return { phase, state, time, timerPosition };
-                                        });
+                                        return { phase, state, time, timerPosition };
+                                    });
+                                },
+                            }),
+                        ],
+                        invoke: {
+                            src: (context) => {
+                                return function (sendParentEvent) {
+                                    const { componentStore } = context;
                                     componentStore.subscribe(data => {
                                         sendParentEvent({ type: "COMPONENT.UPDATE", data });
                                     });
