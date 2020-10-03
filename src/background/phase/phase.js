@@ -76,6 +76,14 @@ export function createPhaseMachine(withContext = {}) {
                 },
             ],
         },
+        "POSITION.UPDATE.FORCE_SAVE": {
+            actions: (context, event) => {
+                context.timerMachine.send([
+                    { type: "POSITION.UPDATE", positionUpdate: event.value.position },
+                    { type: "POSITION.UPDATE.SAVE" },
+                ]);
+            },
+        },
     };
 
     const phaseMachine = Machine({

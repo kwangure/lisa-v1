@@ -104,13 +104,13 @@ export function createTimerMachine(options) {
                                 return function (sendParentEvent) {
                                     const { componentStore } = context;
                                     const unsubscribe = componentStore.subscribe(data => {
-                                        const { state, ...componentData } = data;
-                                        if (state.updating === "duration") {
+                                        const { state: { updating } } = data;
+                                        if (updating === "duration") {
                                             sendParentEvent("DURATION.UPDATE");
-                                        } else if (state.updating === "position") {
+                                        } else if (updating === "position") {
                                             sendParentEvent("POSITION.UPDATE");
-                                        } else{
-                                            sendParentEvent({ type: "COMPONENT.UPDATE", data: componentData });
+                                        } else {
+                                            sendParentEvent({ type: "COMPONENT.UPDATE", data });
                                         }
                                     });
                                     return unsubscribe;

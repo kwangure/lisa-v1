@@ -1,5 +1,6 @@
 import { emit, request } from "./emit.js";
 import { EventListener } from "./listen.js";
+import { timerPositions } from "../store/settings";
 
 const timerEventsListener = new EventListener("BACKGROUND.TIMER");
 
@@ -39,8 +40,28 @@ function ignoreUpdate() {
     emit({ event: "DURATION.UPDATE.IGNORE", namespace: "BACKGROUND.TIMER"});
 }
 
-function updatePosition() {
-    emit({ event: "POSITION.UPDATE", namespace: "BACKGROUND.TIMER"});
+function isRightPosition(position) {
+    return timerPositions.BOTTOM_RIGHT.value === position;
+}
+
+function positionLeft() {
+    emit({
+        event: "POSITION.UPDATE.FORCE_SAVE",
+        namespace: "BACKGROUND.TIMER",
+        data: {
+            position: timerPositions.BOTTOM_LEFT.value,
+        },
+    });
+}
+
+function positionRight() {
+    emit({
+        event: "POSITION.UPDATE.FORCE_SAVE",
+        namespace: "BACKGROUND.TIMER",
+        data: {
+            position: timerPositions.BOTTOM_RIGHT.value,
+        },
+    });
 }
 
 function savePositionUpdate() {
@@ -68,13 +89,15 @@ export const timer = {
     ignoreUpdate,
     ignorePositionUpdate,
     isInitialized,
+    isRightPosition,
     on,
     pause,
     play,
+    positionLeft,
+    positionRight,
     removeListeners: timerEventsListener.removeListeners,
     reset,
     saveUpdate,
     savePositionUpdate,
     start,
-    updatePosition,
 };
