@@ -3,10 +3,10 @@ import { createSettingsWritable } from "../common/store/settings";
 import { derived, get } from "svelte/store";
 import { millisecondsToHumanReadableTime } from "../utils/time";
 import { timer } from "../common/events";
-import initialized from "./initialized.svelte";
-import update from "./update.svelte";
-import updatePosition from "./updatePosition.svelte";
-import uninitialized from "./uninitialized.svelte";
+import running from "./timer/running.svelte";
+import updateDuration from "./dialogs/updateDuration.svelte";
+import updatePosition from "./dialogs/updatePosition.svelte";
+import uninitialized from "./timer/uninitialized.svelte";
 import createTimerStore from "./timer.js";
 
 export function createTimerMachine(options) {
@@ -97,7 +97,7 @@ export function createTimerMachine(options) {
                                     });
                                 },
                             }),
-                            createComponent(initialized),
+                            createComponent(running),
                         ],
                         invoke: {
                             src: (context) => {
@@ -146,7 +146,7 @@ export function createTimerMachine(options) {
                                             });
                                         },
                                     }),
-                                    createComponent(update),
+                                    createComponent(updateDuration),
                                 ],
                                 invoke: {
                                     src: (context) => {

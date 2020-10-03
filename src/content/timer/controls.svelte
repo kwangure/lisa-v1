@@ -1,8 +1,8 @@
 <script>
     import Button from "@deimimi/strawberry/components/Button";
     import { mdiPause, mdiPictureInPictureBottomRightOutline, mdiPlayOutline } from "@mdi/js";
-    import { timer } from "../common/events";
-    import { timerPositions } from "../common/store/settings";
+    import { timer } from "../../common/events";
+    import { timerPositions } from "../../common/store/settings";
 
     export let paused = false;
     export let position

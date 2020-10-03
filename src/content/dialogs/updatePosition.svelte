@@ -1,5 +1,5 @@
 <script>
-    import { timer } from "../common/events";
+    import { timer } from "../../common/events";
     import Button from "@deimimi/strawberry/components/Button";
     import Modal from "@deimimi/strawberry/components/Modal";
 
@@ -13,7 +13,7 @@
 
 <Modal visible>
     <div slot="content">
-        The timer position has changed from {name(previousPosition)} to {name(currentPosition)}
+        The timer position settings was changed from {name(previousPosition)} to {name(currentPosition)}.
         What do you want to do?
         <div>
             <Button on:click={() => timer.savePositionUpdate()}>
