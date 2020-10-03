@@ -29,6 +29,7 @@ export default async function createTimerStore() {
         queueUnsubscribe(timer.on("DURATION.UPDATE.SAVE", handleState));
         queueUnsubscribe(timer.on("DURATION.UPDATE.IGNORE", handleState));
         queueUnsubscribe(timer.on("POSITION.UPDATE.SAVE", handleState));
+        queueUnsubscribe(timer.on("POSITION.UPDATE.FORCE_SAVE", handleState));
         queueUnsubscribe(timer.on("POSITION.UPDATE.IGNORE", handleState));
         queueUnsubscribe(timer.on("DURATION.CHANGE", handleState));
         queueUnsubscribe(timer.on("PAUSE", handleState));
