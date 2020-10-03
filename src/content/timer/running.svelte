@@ -45,7 +45,6 @@
         display: flex;
         justify-self: start;
         opacity: 0.9;
-        overflow: hidden;
     }
     .countdown:hover {
         opacity: 1;
@@ -54,6 +53,7 @@
         font-weight: 600;
         line-height: 50px;
         padding: 0 20px;
+        border-radius: var(--br-border-radius);
     }
     .timer.stop {
         background-color: var(--br-red-light);
