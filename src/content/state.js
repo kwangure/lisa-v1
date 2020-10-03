@@ -1,5 +1,4 @@
 import { assign, Machine, interpret } from "xstate";
-import { createSettingsWritable } from "../common/store/settings";
 import { derived, get } from "svelte/store";
 import { millisecondsToHumanReadableTime } from "../utils/time";
 import { timer } from "../common/events";
@@ -31,7 +30,6 @@ export function createTimerMachine(options) {
             component: null,
             componentStore: null,
             timerStore: null,
-            settingStore: null,
         },
         states: {
             loading: {
@@ -49,47 +47,36 @@ export function createTimerMachine(options) {
                 states: {
                     loading: {
                         invoke: {
-                            src: () => Promise.all([createTimerStore(), createSettingsWritable()]),
+                            src: () => createTimerStore(),
                             onDone: [
                                 {
                                     target: "loading",
-                                    cond: context => (
-                                        context.timerStore === null ||
-                                        context.settingStore === null
-                                    ),
+                                    cond: (context) => !!context.timerStore
                                 },
                                 {
                                     target: "updating",
                                     cond: (context) => {
-                                        const { state } = get(context.timerStore);
-                                        return state === "updating";
+                                        const { timerStore } = context;
+                                        if (timerStore) {
+                                            const { state } = get(timerStore);
+                                            return state === "updating";
+                                        }
                                     },
                                 },
                                 { target: "running" },
                             ],
                         },
-                        exit: [
-                            assign({
-                                timerStore: (_context, event) => {
-                                    const [timerStore] = event.data;
-                                    return timerStore;
-                                },
-                            }),
-                            assign({
-                                settingStore: (_context, event) => {
-                                    const [,settingStore] = event.data;
-                                    return settingStore;
-                                },
-                            }),
-                        ],
+                        exit: assign({
+                            timerStore: (_context, event) => event.data,
+                        }),
                     },
                     running: {
                         id: "running",
                         entry: [
                             assign({
                                 componentStore: (context) => {
-                                    const { timerStore, settingStore } = context;
-                                    return derived([timerStore, settingStore], ([timer, settings]) => {
+                                    const { timerStore } = context;
+                                    return derived(timerStore, (timer) => {
                                         const { phase, remaining, state, position } = timer;
                                         const time = millisecondsToHumanReadableTime(remaining);
 
@@ -133,15 +120,15 @@ export function createTimerMachine(options) {
                                 entry: [
                                     assign({
                                         componentStore: (context) => {
-                                            const { timerStore, settingStore } = context;
-                                            return derived([timerStore, settingStore], ([timer, settings]) => {
-                                                const { phase, duration, state } = timer;
+                                            const { timerStore } = context;
+                                            return derived(timerStore, (timer) => {
+                                                const { phase, duration, durationUpdate, state } = timer;
 
                                                 return {
                                                     state,
                                                     phase,
                                                     previousDuration: duration,
-                                                    currentDuration: settings.phaseSettings[phase].duration,
+                                                    currentDuration: durationUpdate,
                                                 };
                                             });
                                         },
@@ -180,14 +167,14 @@ export function createTimerMachine(options) {
                                 entry: [
                                     assign({
                                         componentStore: (context) => {
-                                            const { timerStore, settingStore } = context;
-                                            return derived([timerStore, settingStore], ([timer, settings]) => {
-                                                const { state, position } = timer;
+                                            const { timerStore } = context;
+                                            return derived(timerStore, (timer) => {
+                                                const { state, position, positionUpdate } = timer;
 
                                                 return {
                                                     state,
                                                     previousPosition: position,
-                                                    currentPosition: settings.appearanceSettings.timerPosition,
+                                                    currentPosition: positionUpdate,
                                                 };
                                             });
                                         },
