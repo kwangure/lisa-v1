@@ -36,6 +36,7 @@ export default async function createTimerStore() {
         queueUnsubscribe(timer.on("PLAY", handleState));
         queueUnsubscribe(timer.on("RESET", handleState));
         queueUnsubscribe(timer.on("TICK", handleState));
+        queueUnsubscribe(timer.on("RESET", handleState));
 
         return function unsubscribe() {
             unsubscribeFns.forEach(fn => fn());

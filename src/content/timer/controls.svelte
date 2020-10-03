@@ -1,6 +1,7 @@
 <script>
     import Button from "@deimimi/strawberry/components/Button";
-    import { mdiPause, mdiPictureInPictureBottomRightOutline, mdiPlayOutline } from "@mdi/js";
+    import Dropdown, { Item } from "@deimimi/strawberry/components/Dropdown";
+    import { mdiDotsHorizontal, mdiPause, mdiPictureInPictureBottomRightOutline, mdiPlayOutline } from "@mdi/js";
     import { timer } from "../../common/events";
 
     export let paused = false;
@@ -20,6 +21,12 @@
         <Button icon={mdiPictureInPictureBottomRightOutline}
             on:click={() => timer.positionRight()}/>
     {/if}
+    <Dropdown placement="topRight">
+        <div slot="button">
+            <Button icon={mdiDotsHorizontal}/>
+        </div>
+        <Item on:click={timer.reset}>Reset the running timer</Item>
+    </Dropdown>
 </div>
 
 <style>
