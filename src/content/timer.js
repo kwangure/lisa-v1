@@ -11,10 +11,7 @@ function buildStoreData(phase) {
     };
 }
 export default async function createTimerStore() {
-    const isInitialized = await timer.isInitialized();
-    const initialState = isInitialized
-        ? buildStoreData(await timer.getState())
-        : { initialized: false };
+    const initialState = buildStoreData(await timer.getState());
 
     return readable(initialState, (setReadableValue) => {
         const unsubscribeFns = [];
