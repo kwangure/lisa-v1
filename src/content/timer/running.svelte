@@ -1,10 +1,10 @@
 <script>
     import Controls from "./controls.svelte";
     
-    export let phase = "";
-    export let state = "";
-    export let time = "";
-    export let position = "";
+    export let phase;
+    export let state;
+    export let time;
+    export let position;
 </script>
 
 <div class="countdown-wrapper {position}">
