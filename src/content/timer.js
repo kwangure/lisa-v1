@@ -28,6 +28,7 @@ export default async function createTimerStore() {
             setReadableValue(data);
         }
 
+        queueUnsubscribe(timer.on("SETTINGS.UPDATE", handleState));
         queueUnsubscribe(timer.on("DURATION.CHANGE", handleState));
         queueUnsubscribe(timer.on("PAUSE", handleState));
         queueUnsubscribe(timer.on("PLAY", handleState));

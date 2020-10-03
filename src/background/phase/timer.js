@@ -1,4 +1,4 @@
-import { assign, Machine, sendParent } from "xstate";
+import { assign, Machine, sendParent, send } from "xstate";
 
 export function createTimerMachine(withContext = {}) {
     const timerMachine = Machine({
@@ -36,6 +36,58 @@ export function createTimerMachine(withContext = {}) {
                     PLAY: "running",
                 },
             },
+            updating: {
+                entry: [
+                    assign({
+                        stateBeforeUpdate: (context, _event, meta) => {
+                            const previousState = meta.state.value;
+                            if (context.stateBeforeUpdate) return context.stateBeforeUpdate;
+
+                            return previousState;
+                        },
+                    }),
+                    assign({
+                        durationUpdate: (_context, event) => {
+                            const { from, to } = event;
+                            return { from, to };
+                        },
+                    }),
+                ],
+                on: {
+                    "DURATION.UPDATE.SAVE": {
+                        actions: [
+                            assign({
+                                duration: (context) => {
+                                    return context.durationUpdate.to;
+                                },
+                            }),
+                            send("RESUME"),
+                        ],
+                    },
+                    "DURATION.UPDATE.IGNORE": {
+                        actions: send("RESUME"),
+                    },
+                    RESUME: [
+                        {
+                            target: "paused",
+                            cond: (context) => context.stateBeforeUpdate === "paused",
+                        },
+                        {
+                            target: "completed",
+                            cond: (context) => context.stateBeforeUpdate === "completed",
+                        },
+                        { target: "running" },
+                    ],
+                },
+                exit: [
+                    assign({
+                        durationUpdate: () => null,
+                    }),
+                    assign({
+                        stateBeforeUpdate: () => null,
+                    }),
+                ],
+            },
             completed: {
                 always: {
                     target: "running",
@@ -46,6 +98,7 @@ export function createTimerMachine(withContext = {}) {
             },
         },
         on: {
+            "DURATION.UPDATE": "updating",
             "DURATION.EXTEND": {
                 actions: assign({
                     duration: (context, event) => {

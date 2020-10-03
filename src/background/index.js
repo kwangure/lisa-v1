@@ -54,4 +54,8 @@ settings.on("UPDATE", (data) => {
 });
 settingsWritable.subscribe((settings) => {
     emit({ namespace: "BACKGROUND.SETTINGS", event: "CHANGED", data: settings });
+
+    if (pomodoroService.initialized) {
+        pomodoroService.send("SETTINGS.UPDATE", { value: settings.phaseSettings });
+    }
 });

@@ -31,6 +31,14 @@ async function destroy() {
     emit({ event: "DESTROY", namespace: "BACKGROUND.TIMER" });
 }
 
+function saveUpdate() {
+    emit({ event: "DURATION.UPDATE.SAVE", namespace: "BACKGROUND.TIMER"});
+}
+
+function ignoreUpdate() {
+    emit({ event: "DURATION.UPDATE.IGNORE", namespace: "BACKGROUND.TIMER"});
+}
+
 function on(event, eventListener) {
     const unsubscribeFn = timerEventsListener.on(event, eventListener);
     return unsubscribeFn;
@@ -45,11 +53,13 @@ export const timer = {
     all,
     destroy,
     getState,
+    ignoreUpdate,
     isInitialized,
     on,
     pause,
     play,
     removeListeners: timerEventsListener.removeListeners,
     reset,
+    saveUpdate,
     start,
 };
