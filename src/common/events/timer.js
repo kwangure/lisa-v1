@@ -1,6 +1,6 @@
 import { emit, request } from "./emit.js";
 import { EventListener } from "./listen.js";
-import { timerPositions } from "../store/settings";
+import { timerPositions } from "../store/settings/default";
 
 const timerEventsListener = new EventListener("BACKGROUND.TIMER");
 
