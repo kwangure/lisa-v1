@@ -4,7 +4,7 @@ import { Interpreter, interpret } from "xstate";
 import settingsWritable from "./settings.js";
 
 const phaseContext = {
-    settings: settingsWritable.value().phaseSettings,
+    settings: settingsWritable.value(),
 };
 const phaseMachine = createPhaseMachine(phaseContext);
 
@@ -56,6 +56,6 @@ settingsWritable.subscribe((settings) => {
     emit({ namespace: "BACKGROUND.SETTINGS", event: "CHANGED", data: settings });
 
     if (pomodoroService.initialized) {
-        pomodoroService.send("SETTINGS.UPDATE", { value: settings.phaseSettings });
+        pomodoroService.send("SETTINGS.UPDATE", { value: settings });
     }
 });

@@ -10,7 +10,7 @@ export function createPhaseMachine(withContext = {}) {
         return assign({
             timerMachine: (phaseContext) => {
                 const timerContext = {
-                    duration: phaseContext.settings[phase].duration,
+                    duration: phaseContext.settings.phaseSettings[phase].duration,
                 };
                 const timerMachine = createTimerMachine(timerContext);
                 return spawn(timerMachine, { sync: true });
@@ -50,7 +50,7 @@ export function createPhaseMachine(withContext = {}) {
                 (context, _event, meta) => {
                     const childContext = context.timerMachine.state.context;
                     const currentPhase = meta.state.value;
-                    const settingDuration = context.settings[currentPhase].duration;
+                    const settingDuration = context.settings.phaseSettings[currentPhase].duration;
                     const currentTimerDuration = childContext.duration;
                     if (settingDuration !== currentTimerDuration){
                         context.timerMachine.send("DURATION.UPDATE", {
