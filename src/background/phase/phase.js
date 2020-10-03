@@ -8,9 +8,10 @@ export function createPhaseMachine(withContext = {}) {
 
     function assignTimerMachine(phase) {
         return assign({
-            timerMachine: (phaseContext) => {
+            timerMachine: ({ settings }) => {
                 const timerContext = {
-                    duration: phaseContext.settings.phaseSettings[phase].duration,
+                    duration: settings.phaseSettings[phase].duration,
+                    position: settings.appearanceSettings.timerPosition,
                 };
                 const timerMachine = createTimerMachine(timerContext);
                 return spawn(timerMachine, { sync: true });
@@ -38,6 +39,12 @@ export function createPhaseMachine(withContext = {}) {
             "DURATION.UPDATE.IGNORE": {
                 actions: forwardToChild,
             },
+            "POSITION.UPDATE.SAVE": {
+                actions: forwardToChild,
+            },
+            "POSITION.UPDATE.IGNORE": {
+                actions: forwardToChild,
+            },
         };
     };
 
@@ -48,14 +55,22 @@ export function createPhaseMachine(withContext = {}) {
                     settings: (_context, event) => event.value,
                 }),
                 (context, _event, meta) => {
-                    const childContext = context.timerMachine.state.context;
+                    const { settings, timerMachine } = context;
+                    const childContext = timerMachine.state.context;
                     const currentPhase = meta.state.value;
-                    const settingDuration = context.settings.phaseSettings[currentPhase].duration;
+                    const settingDuration = settings.phaseSettings[currentPhase].duration;
                     const currentTimerDuration = childContext.duration;
                     if (settingDuration !== currentTimerDuration){
-                        context.timerMachine.send("DURATION.UPDATE", {
-                            from: currentTimerDuration,
-                            to: settingDuration,
+                        timerMachine.send("DURATION.UPDATE", {
+                            durationUpdate: settingDuration,
+                        });
+                    }
+
+                    const settingsPosition = settings.appearanceSettings.timerPosition;
+                    const currentTimerPosition = childContext.position;
+                    if (settingsPosition !== currentTimerPosition) {
+                        timerMachine.send("POSITION.UPDATE", {
+                            positionUpdate: settingsPosition,
                         });
                     }
                 },

@@ -29,6 +29,10 @@ export default async function createTimerStore() {
         }
 
         queueUnsubscribe(timer.on("SETTINGS.UPDATE", handleState));
+        queueUnsubscribe(timer.on("DURATION.UPDATE.SAVE", handleState));
+        queueUnsubscribe(timer.on("DURATION.UPDATE.IGNORE", handleState));
+        queueUnsubscribe(timer.on("POSITION.UPDATE.SAVE", handleState));
+        queueUnsubscribe(timer.on("POSITION.UPDATE.IGNORE", handleState));
         queueUnsubscribe(timer.on("DURATION.CHANGE", handleState));
         queueUnsubscribe(timer.on("PAUSE", handleState));
         queueUnsubscribe(timer.on("PLAY", handleState));

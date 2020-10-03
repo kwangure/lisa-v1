@@ -4,16 +4,16 @@
     export let phase = "";
     export let state = "";
     export let time = "";
-    export let timerPosition = "";
+    export let position = "";
 </script>
 
-<div class="countdown-wrapper {timerPosition}">
+<div class="countdown-wrapper {position}">
     <div class="countdown">
         <div class="timer {phase}">
             {time}
         </div>
         <Controls paused={state==="paused" || state === "completed"}
-            bind:position={timerPosition}/>
+            {position}/>
     </div>
 </div>
 

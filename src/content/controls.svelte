@@ -5,7 +5,7 @@
     import { timerPositions } from "../common/store/settings";
 
     export let paused = false;
-    export let position;
+    export let position
 </script>
 
 <div class="controls">
@@ -16,10 +16,10 @@
     {/if}
     {#if position === timerPositions.BOTTOM_RIGHT.value}
         <Button icon={mdiPictureInPictureBottomRightOutline} iconProps={{flip: {horizontal: true}}}
-            on:click={() => position = timerPositions.BOTTOM_LEFT.value}/>
+            on:click={() => timer.updatePosition(timerPositions.BOTTOM_LEFT.value)}/>
     {:else}
         <Button icon={mdiPictureInPictureBottomRightOutline}
-            on:click={() => position = timerPositions.BOTTOM_RIGHT.value}/>
+            on:click={() => timer.updatePosition(timerPositions.BOTTOM_RIGHT.value)}/>
     {/if}
 </div>
 

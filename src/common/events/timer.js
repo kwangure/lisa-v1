@@ -39,6 +39,18 @@ function ignoreUpdate() {
     emit({ event: "DURATION.UPDATE.IGNORE", namespace: "BACKGROUND.TIMER"});
 }
 
+function updatePosition() {
+    emit({ event: "POSITION.UPDATE", namespace: "BACKGROUND.TIMER"});
+}
+
+function savePositionUpdate() {
+    emit({ event: "POSITION.UPDATE.SAVE", namespace: "BACKGROUND.TIMER"});
+}
+
+function ignorePositionUpdate() {
+    emit({ event: "POSITION.UPDATE.IGNORE", namespace: "BACKGROUND.TIMER"});
+}
+
 function on(event, eventListener) {
     const unsubscribeFn = timerEventsListener.on(event, eventListener);
     return unsubscribeFn;
@@ -54,6 +66,7 @@ export const timer = {
     destroy,
     getState,
     ignoreUpdate,
+    ignorePositionUpdate,
     isInitialized,
     on,
     pause,
@@ -61,5 +74,7 @@ export const timer = {
     removeListeners: timerEventsListener.removeListeners,
     reset,
     saveUpdate,
+    savePositionUpdate,
     start,
+    updatePosition,
 };

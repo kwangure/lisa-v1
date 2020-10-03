@@ -1,6 +1,17 @@
 import { assign, Machine, sendParent, send } from "xstate";
 
 export function createTimerMachine(withContext = {}) {
+    const targetUpdating = [
+        {
+            target: "updating.duration",
+            cond: (context) => !!context.durationUpdate,
+        },
+        {
+            target: "updating.position",
+            cond: (context) => !!context.positionUpdate,
+        },
+    ];
+
     const timerMachine = Machine({
         initial: "running",
         context: {},
@@ -19,10 +30,13 @@ export function createTimerMachine(withContext = {}) {
                         };
                     },
                 },
-                always: {
-                    target: "completed",
-                    cond: context => context.elapsed >= context.duration,
-                },
+                always: [
+                    ...targetUpdating,
+                    {
+                        target: "completed",
+                        cond: context => context.elapsed >= context.duration,
+                    },
+                ],
                 on: {
                     TICK: {
                         actions: ["elapseSecond", "calculateRemaining", "sendParentTick"],
@@ -31,43 +45,66 @@ export function createTimerMachine(withContext = {}) {
                 },
             },
             paused: {
+                always: targetUpdating,
                 on: {
                     COMPLETE: "completed",
                     PLAY: "running",
                 },
             },
             updating: {
-                entry: [
-                    assign({
-                        stateBeforeUpdate: (context, _event, meta) => {
-                            const previousState = meta.state.value;
-                            if (context.stateBeforeUpdate) return context.stateBeforeUpdate;
+                entry: assign({
+                    stateBeforeUpdate: (context, _event, meta) => {
+                        const previousState = meta.state.value;
+                        if (context.stateBeforeUpdate) return context.stateBeforeUpdate;
 
-                            return previousState;
+                        return previousState;
+                    },
+                }),
+                states: {
+                    duration: {
+                        on: {
+                            "DURATION.UPDATE.SAVE": {
+                                actions: [
+                                    assign({
+                                        duration: (context) => context.durationUpdate,
+                                    }),
+                                    assign({ durationUpdate: () => null }),
+                                    send("RESUME"),
+                                ],
+                            },
+                            "DURATION.UPDATE.IGNORE": {
+                                actions: [
+                                    assign({ durationUpdate: () => null }),
+                                    send("RESUME"),
+                                ],
+                            },
                         },
-                    }),
-                    assign({
-                        durationUpdate: (_context, event) => {
-                            const { from, to } = event;
-                            return { from, to };
+                    },
+                    position: {
+                        on: {
+                            "POSITION.UPDATE.SAVE": {
+                                actions: [
+                                    assign({
+                                        position: (context) => {
+                                            return context.positionUpdate;
+                                        },
+                                    }),
+                                    assign({ positionUpdate: () => null }),
+                                    send("RESUME"),
+                                ],
+                            },
+                            "POSITION.UPDATE.IGNORE": {
+                                actions: [
+                                    assign({ positionUpdate: () => null }),
+                                    send("RESUME"),
+                                ],
+                            },
                         },
-                    }),
-                ],
+                    },
+                },
                 on: {
-                    "DURATION.UPDATE.SAVE": {
-                        actions: [
-                            assign({
-                                duration: (context) => {
-                                    return context.durationUpdate.to;
-                                },
-                            }),
-                            send("RESUME"),
-                        ],
-                    },
-                    "DURATION.UPDATE.IGNORE": {
-                        actions: send("RESUME"),
-                    },
                     RESUME: [
+                        ...targetUpdating,
                         {
                             target: "paused",
                             cond: (context) => context.stateBeforeUpdate === "paused",
@@ -79,26 +116,33 @@ export function createTimerMachine(withContext = {}) {
                         { target: "running" },
                     ],
                 },
-                exit: [
-                    assign({
-                        durationUpdate: () => null,
-                    }),
-                    assign({
-                        stateBeforeUpdate: () => null,
-                    }),
-                ],
+                exit: assign({
+                    stateBeforeUpdate: () => null,
+                }),
             },
             completed: {
-                always: {
-                    target: "running",
-                    cond: context => context.elapsed < context.duration,
-                },
+                always: [
+                    ...targetUpdating,
+                    {
+                        target: "running",
+                        cond: context => context.elapsed < context.duration,
+                    },
+                ],
                 type: "final",
                 onEntry: sendParent("DONE"),
             },
         },
         on: {
-            "DURATION.UPDATE": "updating",
+            "POSITION.UPDATE": {
+                actions: assign({
+                    positionUpdate: (context, event) => event.positionUpdate || null,
+                }),
+            },
+            "DURATION.UPDATE": {
+                actions:  assign({
+                    durationUpdate: (_context, event) =>  event.durationUpdate || null,
+                }),
+            },
             "DURATION.EXTEND": {
                 actions: assign({
                     duration: (context, event) => {
