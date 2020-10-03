@@ -56,23 +56,16 @@ export function createPhaseMachine(withContext = {}) {
                 }),
                 (context, _event, meta) => {
                     const { settings, timerMachine } = context;
-                    const childContext = timerMachine.state.context;
                     const currentPhase = meta.state.value;
                     const settingDuration = settings.phaseSettings[currentPhase].duration;
-                    const currentTimerDuration = childContext.duration;
-                    if (settingDuration !== currentTimerDuration){
-                        timerMachine.send("DURATION.UPDATE", {
-                            durationUpdate: settingDuration,
-                        });
-                    }
+                    timerMachine.send("DURATION.UPDATE", {
+                        durationUpdate: settingDuration,
+                    });
 
                     const settingsPosition = settings.appearanceSettings.timerPosition;
-                    const currentTimerPosition = childContext.position;
-                    if (settingsPosition !== currentTimerPosition) {
-                        timerMachine.send("POSITION.UPDATE", {
-                            positionUpdate: settingsPosition,
-                        });
-                    }
+                    timerMachine.send("POSITION.UPDATE", {
+                        positionUpdate: settingsPosition,
+                    });
                 },
             ],
         },

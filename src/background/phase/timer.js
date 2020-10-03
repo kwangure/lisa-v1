@@ -134,14 +134,30 @@ export function createTimerMachine(withContext = {}) {
         },
         on: {
             "POSITION.UPDATE": {
-                actions: assign({
-                    positionUpdate: (context, event) => event.positionUpdate || null,
-                }),
+                actions: [
+                    assign({
+                        positionUpdate: (context, event) =>  {
+                            if(context.position !== event.positionUpdate) {
+                                return event.positionUpdate;
+                            }
+                            return null;
+                        },
+                    }),
+                    send("RESUME"),
+                ],
             },
             "DURATION.UPDATE": {
-                actions:  assign({
-                    durationUpdate: (_context, event) =>  event.durationUpdate || null,
-                }),
+                actions:  [
+                    assign({
+                        durationUpdate: (context, event) =>  {
+                            if(context.duration !== event.durationUpdate) {
+                                return event.durationUpdate;
+                            }
+                            return null;
+                        } ,
+                    }),
+                    send("RESUME"),
+                ],
             },
             "DURATION.EXTEND": {
                 actions: assign({
