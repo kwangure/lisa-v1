@@ -30,6 +30,7 @@ export const defaultSettings = {
         },
         longBreak: {
             duration: minutesToMilliseconds(30),
+            interval: 4,
             notification: {
                 sound: null,
             },

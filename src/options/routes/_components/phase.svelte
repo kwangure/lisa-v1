@@ -15,6 +15,10 @@
         return millisecondsToMinutes(time);
     }
 
+    function formatIntervalCount(count) {
+        return `${count} focus interval${count === 1 ? "" : "s"}`;
+    }
+
     function isInvalid(time) {
         const HUMAN_TIME = /\d*\.?\d+\s*minutes?/;
         const isInvalid = String(time).search(HUMAN_TIME) === -1;
@@ -28,6 +32,11 @@
 
 <div class="phase">
     <h3>{name}</h3>
+    {#if !isNaN(value.interval)}
+        <Number bind:value={value.interval} label="Take a long break every"
+            formatter={formatIntervalCount} min={0} max={10}
+            parser={parseInt} step={1} stepOnly/>
+    {/if}
     <div class="form-item">
         <Number bind:value={value.duration} label="{name} phase duration"
             formatter={formatToReadableTime} min={FIFTEEN_SECONDS}
