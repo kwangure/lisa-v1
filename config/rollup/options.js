@@ -31,4 +31,5 @@ export default {
         clearScreen: false,
     },
     preserveEntrySignatures: false,
+    onwarn: common.onwarn,
 };

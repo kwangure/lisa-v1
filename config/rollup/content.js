@@ -34,4 +34,5 @@ export default {
             extract: `${CSS_OUT}`,
         }),
     ],
+    onwarn: common.onwarn,
 };

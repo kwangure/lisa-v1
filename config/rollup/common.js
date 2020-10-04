@@ -44,6 +44,16 @@ export default {
         PRODUCTION && terser(),
         commonjs(),
     ],
+    onwarn: (warning, warn) => {
+        const unusedCSSWarning =
+            warning.pluginCode === "css-unused-selector" &&
+            /[/\\]strawberry[/\\]/.test(warning.filename);
+
+        if (unusedCSSWarning) {
+            return;
+        }
+        warn(warning);
+    },
 };
 
 export function copyHTMLPlugin({ script = JS_ENTRY_OUT, title = "Lisa", dir } ) {
