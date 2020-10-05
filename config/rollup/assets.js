@@ -2,6 +2,7 @@ import {
     BACKGROUND_DIR,
     CONTENT_DIR,
     OPTIONS_DIR,
+    IMAGES_DIR,
     OUT_DIR,
     JS_ENTRY_OUT,
     WATCH_ENTRY_OUT,
@@ -17,7 +18,7 @@ export default {
         copy({
             targets: [
                 {
-                    src: ["static/**/*", "!static/index.html", "!static/audio/**"],
+                    src: ["static/**/*", "!static/index.html", "!static/images/**", "!static/audio/**"],
                     dest: OUT_DIR,
                     transform: contents => {
                         contents = contents.toString();
@@ -25,12 +26,17 @@ export default {
                         contents = contents.replace("__BACKGROUND_JS__", `${BACKGROUND_DIR}/${JS_ENTRY_OUT}`);
                         contents = contents.replace("__RELOAD_JS__", `${BACKGROUND_DIR}/${WATCH_ENTRY_OUT}`);
                         contents = contents.replace("__CONTENT_JS__", `${CONTENT_DIR}/${JS_ENTRY_OUT}`);
+                        contents = contents.replace(/__BROWSER_ACTION__/g, `${IMAGES_DIR}/browser-action.png`);
                         return contents;
                     },
                 },
                 {
                     src: "static/audio/*",
                     dest: `${OUT_DIR}/audio`,
+                },
+                {
+                    src: "static/images/*",
+                    dest: `${OUT_DIR}/${IMAGES_DIR}`,
                 },
             ],
         }),

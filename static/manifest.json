@@ -21,14 +21,14 @@
     "options_page": "__OPTIONS_PAGE__",
     "browser_action": {
         "default_title": "Lisa",
-        "default_icon": "browser-action.png"
+        "default_icon": "__BROWSER_ACTION__"
     },
     "permissions": [
         "notifications",
         "activeTab"
     ],
     "icons": {
-        "128": "browser-action.png"
+        "128": "__BROWSER_ACTION__"
     },
     "web_accessible_resources": [
         "**/bundle.js",
