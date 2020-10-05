@@ -17,7 +17,7 @@ export function createTimerMachine(withContext = {}) {
         context: {},
         states: {
             running: {
-                entry: ["elapseSecond", "calculateRemaining", "sendParentTick"],
+                entry: ["assignDefaults", "elapseSecond", "calculateRemaining", "sendParentTick"],
                 invoke: {
                     id: "elapseSecond",
                     src: () => {
@@ -34,7 +34,7 @@ export function createTimerMachine(withContext = {}) {
                     ...targetUpdating,
                     {
                         target: "completed",
-                        cond: context => context.elapsed >= context.duration,
+                        cond: context => context.remaining <= 0,
                     },
                 ],
                 on: {
@@ -121,11 +121,12 @@ export function createTimerMachine(withContext = {}) {
                 }),
             },
             completed: {
+
                 always: [
                     ...targetUpdating,
                     {
                         target: "running",
-                        cond: context => context.elapsed < context.duration,
+                        cond: context => context.remaining > 0,
                     },
                 ],
                 type: "final",
@@ -159,14 +160,6 @@ export function createTimerMachine(withContext = {}) {
                     send("RESUME"),
                 ],
             },
-            "DURATION.EXTEND": {
-                actions: assign({
-                    duration: (context, event) => {
-                        console.log("extending duration", { context, event });
-                        return context.duration + event.value;
-                    },
-                }),
-            },
             RESET: {
                 actions: assign({
                     elapsed: 0,
@@ -176,13 +169,25 @@ export function createTimerMachine(withContext = {}) {
     },
     {
         actions: {
+            assignDefaults: assign({
+                elapsed: (context) => {
+                    return isNaN(context.elapsed) || context.elapsed < 0
+                        ? 0
+                        : context.elapsed;
+                },
+                extendedDuration: (context) => {
+                    return isNaN(context.extendedDuration) || context.extendedDuration < 0
+                        ? 0
+                        : context.extendedDuration;
+                },
+            }),
             elapseSecond: assign({
-                elapsed: context => {
-                    return isNaN(context.elapsed) ? 0 : context.elapsed + 1000/* one second */;
+                elapsed: ({ elapsed, duration, extendedDuration }) => {
+                    return elapsed >= (duration + extendedDuration) ? elapsed : elapsed + 1000/* one second */;
                 },
             }),
             calculateRemaining: assign({
-                remaining: context => context.duration - context.elapsed,
+                remaining: context => (context.duration + context.extendedDuration) - context.elapsed,
             }),
             sendParentTick: sendParent("TICK"),
         },

@@ -28,6 +28,14 @@ async function reset() {
     emit({ event: "RESET", namespace: "BACKGROUND.TIMER" });
 }
 
+async function extendPrevious(duration) {
+    emit({ event: "EXTEND", namespace: "BACKGROUND.TIMER", data: duration });
+}
+
+async function nextPhase() {
+    emit({ event: "NEXT", namespace: "BACKGROUND.TIMER" });
+}
+
 async function destroy() {
     emit({ event: "DESTROY", namespace: "BACKGROUND.TIMER" });
 }
@@ -85,11 +93,13 @@ function all(eventListener) {
 export const timer = {
     all,
     destroy,
+    extendPrevious,
     getState,
     ignoreUpdate,
     ignorePositionUpdate,
     isInitialized,
     isRightPosition,
+    nextPhase,
     on,
     pause,
     play,

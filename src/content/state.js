@@ -3,6 +3,7 @@ import { derived, get } from "svelte/store";
 import { millisecondsToHumanReadableTime } from "../utils/time";
 import { timer } from "../common/events";
 import running from "./timer/running.svelte";
+import nextPhase from "./dialogs/nextPhase.svelte";
 import updateDuration from "./dialogs/updateDuration.svelte";
 import updatePosition from "./dialogs/updatePosition.svelte";
 import uninitialized from "./timer/uninitialized.svelte";
@@ -91,12 +92,14 @@ export function createTimerMachine(options) {
                                 return function (sendParentEvent) {
                                     const { componentStore } = context;
                                     const unsubscribe = componentStore.subscribe(data => {
-                                        const { state: { updating } } = data;
+                                        const { state: { updating }, phase } = data;
                                         if (updating === "duration") {
                                             sendParentEvent("DURATION.UPDATE");
                                         } else if (updating === "position") {
                                             sendParentEvent("POSITION.UPDATE");
-                                        } else {
+                                        } else if (phase === "idle") 
+                                            sendParentEvent("IDLE");
+                                        else {
                                             sendParentEvent({ type: "COMPONENT.UPDATE", data });
                                         }
                                     });
@@ -112,6 +115,7 @@ export function createTimerMachine(options) {
                             },
                             "DURATION.UPDATE": "updating.duration",
                             "POSITION.UPDATE": "updating.position",
+                            "IDLE": "idle",
                         },
                     },
                     updating: {
@@ -209,6 +213,49 @@ export function createTimerMachine(options) {
                                     "DURATION.UPDATE": "duration",
                                 },
                             },
+                        },
+                    },
+                    idle: {
+                        entry: [
+                            assign({
+                                componentStore: (context) => {
+                                    const { timerStore } = context;
+                                    return derived(timerStore, (timer) => {
+                                        const { 
+                                            focusPhasesSinceStart, 
+                                            focusPhasesUntilLongBreak,
+                                            previousPhase,
+                                            nextPhase,
+                                        } = timer;
+
+                                        return { 
+                                            focusPhasesSinceStart,
+                                            focusPhasesUntilLongBreak,
+                                            previousPhase,
+                                            nextPhase,
+                                         };
+                                    });
+                                },
+                            }),
+                            createComponent(nextPhase)
+                        ],
+                        invoke: {
+                            src: (context) => {
+                                return function (sendParentEvent) {
+                                    const { timerStore } = context;
+                                    const unsubscribe = timerStore.subscribe(timer => {
+                                        
+                                        if (timer.state === "running") {
+                                            sendParentEvent("TIMER.RESUMED");
+                                        }
+                                        
+                                    });
+                                    return unsubscribe;
+                                };
+                            },
+                        },
+                        on: {
+                            "TIMER.RESUMED": "#running",
                         },
                     },
                 },

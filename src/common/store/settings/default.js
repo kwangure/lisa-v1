@@ -11,6 +11,12 @@ export const timerPositions = {
     },
 };
 
+export const phaseNames = {
+    focus: "Focus",
+    shortBreak: "Short Break",
+    longBreak: "Long Break",
+};
+
 export const defaultSettings = {
     appearanceSettings: {
         timerPosition: timerPositions.BOTTOM_RIGHT.value,
