@@ -85,6 +85,7 @@ export function createPhaseMachine(withContext = {}) {
                             // settings was changed during phase
                             return longBreakInterval - ((focusPhasesSinceStart - 1) % longBreakInterval) - 1;
                         },
+                        hasLongBreak: ({ settings }) => settings.phaseSettings.longBreak.interval > 0,
                     }),
                     assign({
                         nextPhase: (context, _event, meta) => {
@@ -94,8 +95,7 @@ export function createPhaseMachine(withContext = {}) {
                                 return "focus";
                             }
 
-                            const { focusPhasesUntilLongBreak, settings } = context;
-                            const hasLongBreak = settings.phaseSettings.longBreak.interval > 0;
+                            const { focusPhasesUntilLongBreak, hasLongBreak } = context;
                             if (!hasLongBreak) {
                                 return "shortBreak";
                             }
@@ -171,6 +171,41 @@ export function createPhaseMachine(withContext = {}) {
                 },
             },
             idle: {
+                entry: assign({
+                    notification: (context) => {
+                        const { nextPhase, hasLongBreak, focusPhasesUntilLongBreak } = context;
+                        let title = "Start focusing";
+
+                        if (nextPhase === "shortBreak") {
+                            title = hasLongBreak
+                                ? "Take a short break"
+                                : "Take a break";
+                        }
+
+                        if (nextPhase === "longBreak") {
+                            title = "Take a long break";
+                        }
+
+                        const message = focusPhasesUntilLongBreak > 0
+                            ? `${focusPhasesUntilLongBreak} focus sessions until long break`
+                            : "";
+
+                        return new Notification(title, {
+                            body: message,
+                            icon: "images/browser-action.png",
+                            requireInteraction: true,
+                        });
+                    },
+                }),
+                invoke: {
+                    src: (context) => {
+                        return function (sendParentEvent) {
+                            context.notification.onclick = () => {
+                                sendParentEvent("NEXT");
+                            };
+                        };
+                    },
+                },
                 on: {
                     NEXT:[
                         {
@@ -195,6 +230,12 @@ export function createPhaseMachine(withContext = {}) {
                         { target: "focus" },
                     ],
                 },
+                exit: assign({
+                    notification: (context) => {
+                        context.notification.close();
+                        return null;
+                    },
+                }),
             },
         },
     });
