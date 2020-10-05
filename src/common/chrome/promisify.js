@@ -1,3 +1,4 @@
+/* global chrome */
 const chromeAPIs = {
     management: [ "getSelf" ],
     runtime: [ "getPackageDirectoryEntry" ],
@@ -30,15 +31,23 @@ for(const [api, methods] of Object.entries(chromeAPIs)) {
 
     for (const method of methods) {
         chromeAsync[api][method] = (...inputArgs) => {
-            return new Promise(resolve => {
+            return new Promise((resolve, reject) => {
                 function callback(...args) {
-                    if (args.length === 0) {
-                        resolve();
-                    } else if (args.length ===  1) {
-                        resolve(args[0]);
+                    if (chrome.runtime.lastError) {
+                        reject(new Error(`
+Unsuccessful call to "chrome.${api}.${method}"
+
+Error: ${chrome.runtime.lastError.message || chrome.runtime.lastError}
+                        `.trim()));
                     } else {
-                        console.error("We'll be `Object`ifying args soon");
-                        resolve(args);
+                        if (args.length === 0) {
+                            resolve();
+                        } else if (args.length ===  1) {
+                            resolve(args[0]);
+                        } else {
+                            console.error("We'll be `Object`ifying args soon");
+                            resolve(args);
+                        }
                     }
                 }
                 const argumentsToPass = [ ...inputArgs, callback ];
