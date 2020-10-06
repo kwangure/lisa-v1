@@ -37,20 +37,7 @@ export default async function createTimerStore() {
             setReadableValue(data);
         }
 
-        queueUnsubscribe(timer.on("SETTINGS.UPDATE", handleState));
-        queueUnsubscribe(timer.on("DURATION.UPDATE.SAVE", handleState));
-        queueUnsubscribe(timer.on("DURATION.UPDATE.IGNORE", handleState));
-        queueUnsubscribe(timer.on("POSITION.UPDATE.SAVE", handleState));
-        queueUnsubscribe(timer.on("POSITION.UPDATE.FORCE_SAVE", handleState));
-        queueUnsubscribe(timer.on("POSITION.UPDATE.IGNORE", handleState));
-        queueUnsubscribe(timer.on("DURATION.CHANGE", handleState));
-        queueUnsubscribe(timer.on("PAUSE", handleState));
-        queueUnsubscribe(timer.on("PLAY", handleState));
-        queueUnsubscribe(timer.on("RESET", handleState));
-        queueUnsubscribe(timer.on("TICK", handleState));
-        queueUnsubscribe(timer.on("RESET", handleState));
-        queueUnsubscribe(timer.on("IDLE", handleState));
-        queueUnsubscribe(timer.on("NEXT", handleState));
+        queueUnsubscribe(timer.on("xstate.update", handleState));
 
         return function unsubscribe() {
             unsubscribeFns.forEach(fn => fn());
