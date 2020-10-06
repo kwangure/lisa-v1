@@ -5,7 +5,7 @@
     import { timer } from "../../common/events";
 
     export let paused = false;
-    export let position
+    export let position;
 </script>
 
 <div class="controls">

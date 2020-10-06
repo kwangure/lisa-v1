@@ -23,6 +23,7 @@
   },
   "scripts": {
     "dev": "rollup -cw",
+    "build": "rollup -c",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

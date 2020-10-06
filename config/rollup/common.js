@@ -1,6 +1,6 @@
 /* global process */
 import { eslint } from "rollup-plugin-eslint";
-import { terser } from "rollup-plugin-terser";
+// import { terser } from "rollup-plugin-terser";
 import commonjs from "@rollup/plugin-commonjs";
 import copy from "rollup-plugin-copy";
 import path from "path";
@@ -11,7 +11,7 @@ export const MODE = process.env.ROLLUP_WATCH ? "development" : "production";
 export const PRODUCTION = MODE === "production";
 export const DEV = MODE === "development";
 
-export const OUT_DIR = path.resolve("dist");
+export const OUT_DIR = DEV ? path.resolve("dev") : path.resolve("dist");
 export const BACKGROUND_DIR = "background";
 export const BACKGROUND_OUT = `${OUT_DIR}/${BACKGROUND_DIR}`;
 export const CONTENT_DIR = "content";
@@ -42,7 +42,7 @@ export default {
             dedupe: importee => importee === "svelte" || importee.startsWith("svelte/"),
             preferBuiltins: true,
         }),
-        PRODUCTION && terser(),
+        // PRODUCTION && terser(),
         commonjs(),
     ],
     onwarn: (warning, warn) => {
