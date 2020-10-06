@@ -1,15 +1,52 @@
 <script>
     import Controls from "./controls.svelte";
+    import { isIOS, isMacintosh } from "../../utils/platform";
+    import { onDestroy, onMount } from "svelte";
+    import { millisecondsToHumanReadableTime } from "../../utils/time";
     
     export let phase;
     export let state;
-    export let time;
+    export let remaining;
     export let position;
+
+    let hidden = false;
+    let time = "";
+
+    $: {
+        if (hidden) {
+            time = millisecondsToHumanReadableTime(remaining, (({ minutes }) => {
+                return `${minutes}m`;
+            }));
+        } else {
+            time = millisecondsToHumanReadableTime(remaining);
+        }
+    }
+
+    function handleKeyDown(e) {
+        const isApple = isIOS || isMacintosh;
+        if (isApple && !e.metaKey) return;
+        if (!isApple && !e.ctrlKey) return;
+    
+        if (e.code === "Slash") {
+            hidden = !hidden;
+        }
+    }
+
+    function handleClick() {
+        hidden = !hidden;
+    }
+
+    onMount(() => {
+        addEventListener("keydown", handleKeyDown);
+    });
+    onDestroy(() => {
+        removeEventListener("keydown", handleKeyDown);
+    });
 </script>
 
-<div class="countdown-wrapper {position}">
+<div class="countdown-wrapper {position}" class:hidden>
     <div class="countdown">
-        <div class="timer {phase}">
+        <div class="timer {phase}" on:click={handleClick}>
             {time}
         </div>
         <Controls paused={state==="paused" || state === "completed"}
@@ -49,11 +86,22 @@
     .countdown:hover {
         opacity: 1;
     }
+    .hidden .countdown {
+        border-radius: 50%;
+        overflow: hidden;
+    }
+    .hidden :global(.controls) {
+        display: none;
+    }
     .timer {
         font-weight: 600;
         line-height: 50px;
         padding: 0 20px;
         border-radius: var(--br-border-radius);
+        cursor: pointer;
+    }
+    .hidden .timer {
+        padding: 0 12px;
     }
     .timer.stop {
         background-color: var(--br-red-light);

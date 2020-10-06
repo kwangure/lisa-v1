@@ -79,9 +79,8 @@ export function createTimerMachine(options) {
                                     const { timerStore } = context;
                                     return derived(timerStore, (timer) => {
                                         const { phase, remaining, state, position } = timer;
-                                        const time = millisecondsToHumanReadableTime(remaining);
 
-                                        return { phase, state, time, position };
+                                        return { phase, state, remaining, position };
                                     });
                                 },
                             }),
