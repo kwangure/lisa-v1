@@ -2,10 +2,30 @@
     import Button from "@deimimi/strawberry/components/Button";
     import Dropdown, { Item } from "@deimimi/strawberry/components/Dropdown";
     import { mdiDotsHorizontal, mdiPause, mdiPictureInPictureBottomRightOutline, mdiPlayOutline } from "@mdi/js";
+    import { onDestroy, onMount } from "svelte";
     import { timer } from "../../common/events";
 
     export let paused = false;
     export let position;
+
+    function handleKeyDown(e) {
+        if (!e.altKey) return;
+    
+        if (e.code === "ArrowRight") {
+            timer.positionRight();
+        }
+    
+        if (e.code === "ArrowLeft") {
+            timer.positionLeft();
+        }
+    }
+
+    onMount(() => {
+        addEventListener("keydown", handleKeyDown);
+    });
+    onDestroy(() => {
+        removeEventListener("keydown", handleKeyDown);
+    });
 </script>
 
 <div class="controls">
