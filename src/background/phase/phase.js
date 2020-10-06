@@ -1,5 +1,6 @@
 import { assign, Machine, spawn, send } from "xstate";
 import { createTimerMachine } from "./timer.js";
+import audio from "../../common/audio";
 
 export function createPhaseMachine(withContext = {}) {
     function forwardToChild(context, event) {
@@ -171,32 +172,41 @@ export function createPhaseMachine(withContext = {}) {
                 },
             },
             idle: {
-                entry: assign({
-                    notification: (context) => {
-                        const { nextPhase, hasLongBreak, focusPhasesUntilLongBreak } = context;
-                        let title = "Start focusing";
+                entry: [
+                    assign({
+                        notification: (context) => {
+                            const { nextPhase, hasLongBreak, focusPhasesUntilLongBreak } = context;
+                            let title = "Start focusing";
 
-                        if (nextPhase === "shortBreak") {
-                            title = hasLongBreak
-                                ? "Take a short break"
-                                : "Take a break";
+                            if (nextPhase === "shortBreak") {
+                                title = hasLongBreak
+                                    ? "Take a short break"
+                                    : "Take a break";
+                            }
+
+                            if (nextPhase === "longBreak") {
+                                title = "Take a long break";
+                            }
+
+                            const message = focusPhasesUntilLongBreak > 0
+                                ? `${focusPhasesUntilLongBreak} focus sessions until long break`
+                                : "";
+
+                            return new Notification(title, {
+                                body: message,
+                                icon: "images/browser-action.png",
+                                requireInteraction: true,
+                            });
+                        },
+                    }),
+                    (context) => {
+                        const { previousPhase, settings } = context;
+                        const notificationSound = settings.phaseSettings[previousPhase].notification.sound;
+                        if (notificationSound) {
+                            audio.play(notificationSound);
                         }
-
-                        if (nextPhase === "longBreak") {
-                            title = "Take a long break";
-                        }
-
-                        const message = focusPhasesUntilLongBreak > 0
-                            ? `${focusPhasesUntilLongBreak} focus sessions until long break`
-                            : "";
-
-                        return new Notification(title, {
-                            body: message,
-                            icon: "images/browser-action.png",
-                            requireInteraction: true,
-                        });
                     },
-                }),
+                ],
                 invoke: {
                     src: (context) => {
                         return function (sendParentEvent) {
