@@ -116,4 +116,8 @@
         background-color: rgb(255, 230, 220);
         color: rgb(255, 100, 60);
     }
+    .timer.reminding {
+        background-color: var(--br-red-light);
+        color: var(--br-red);
+    }
 </style>
