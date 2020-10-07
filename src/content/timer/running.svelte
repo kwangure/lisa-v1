@@ -12,15 +12,10 @@
     let hidden = false;
     let time = "";
 
-    $: {
-        if (hidden) {
-            time = millisecondsToHumanReadableTime(remaining, (({ minutes }) => {
-                return `${minutes}m`;
-            }));
-        } else {
-            time = millisecondsToHumanReadableTime(remaining);
-        }
-    }
+    $: time = hidden 
+        ? millisecondsToHumanReadableTime(remaining, (({ minutes }) => `${minutes}m`))
+        : millisecondsToHumanReadableTime(remaining);
+    $:  hidden = (state === "reminding") ? false : hidden;  
 
     function handleKeyDown(e) {
         const isApple = isIOS || isMacintosh;
@@ -33,6 +28,7 @@
     }
 
     function handleClick() {
+        if (state === "reminding") return;
         hidden = !hidden;
     }
 
@@ -46,11 +42,11 @@
 
 <div class="countdown-wrapper {position}" class:hidden>
     <div class="countdown">
-        <div class="timer {phase}" on:click={handleClick}>
+        <div class="timer {phase}" on:click={handleClick} 
+            class:reminding={state === "reminding"}>
             {time}
         </div>
-        <Controls paused={state==="paused" || state === "completed"}
-            {position}/>
+        <Controls {state} {position} {phase}/>
     </div>
 </div>
 
@@ -99,6 +95,9 @@
         padding: 0 20px;
         border-radius: var(--br-border-radius);
         cursor: pointer;
+    }
+    .timer.reminding {
+        cursor: not-allowed;
     }
     .hidden .timer {
         padding: 0 12px;

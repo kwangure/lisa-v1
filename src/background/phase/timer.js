@@ -14,7 +14,9 @@ export function createTimerMachine(withContext = {}) {
 
     const timerMachine = Machine({
         initial: "running",
-        context: {},
+        context: {
+            pausedDuration: 180_000,
+        },
         states: {
             running: {
                 entry: ["assignDefaults", "elapseSecond", "calculateRemaining", "sendParentTick"],
@@ -45,10 +47,25 @@ export function createTimerMachine(withContext = {}) {
                 },
             },
             paused: {
+                entry: send("REMIND", {
+                    delay: (context) => context.pausedDuration,
+                }),
                 always: targetUpdating,
                 on: {
                     COMPLETE: "completed",
                     PLAY: "running",
+                    REMIND: "reminding",
+                },
+            },
+            reminding: {
+                entry: (context, event) => {
+                    console.log("reminding", { context, event });
+                },
+                always: targetUpdating,
+                on: {
+                    COMPLETE: "completed",
+                    PLAY: "running",
+                    PAUSE: "paused",
                 },
             },
             updating: {
@@ -188,6 +205,17 @@ export function createTimerMachine(withContext = {}) {
             }),
             calculateRemaining: assign({
                 remaining: context => (context.duration + context.extendedDuration) - context.elapsed,
+            }),
+            assignPausedDefault: assign({
+                elapsedWhilePaused: () => 0,
+            }),
+            elapsePausedSecond: assign({
+                elapsedWhilePaused: ({ elapsedWhilePaused, pausedDuration }) => {
+                    return elapsedWhilePaused >= pausedDuration ? elapsedWhilePaused : elapsedWhilePaused + 1000/* one second */;
+                },
+            }),
+            calculatePausedRemaining: assign({
+                pausedRemaining: context => context.pausedDuration - context.elapsePausedSecond,
             }),
             sendParentTick: sendParent("TICK"),
         },
