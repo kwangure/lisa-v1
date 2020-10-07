@@ -42,7 +42,7 @@
 
 <div class="countdown-wrapper {position}" class:hidden>
     <div class="countdown">
-        <div class="timer {phase}" on:click={handleClick} 
+        <div class="timer {phase}" class:paused={state === "paused"} on:click={handleClick} 
             class:reminding={state === "reminding"}>
             {time}
         </div>
@@ -111,5 +111,9 @@
     .timer.longBreak {
         background-color: var(--br-green-light);
         color: var(--br-green);
+    }
+    .timer.paused {
+        background-color: rgb(255, 230, 220);
+        color: rgb(255, 100, 60);
     }
 </style>
