@@ -12,10 +12,10 @@
     let hidden = false;
     let time = "";
 
-    $: time = hidden 
+    $: time = hidden
         ? millisecondsToHumanReadableTime(remaining, (({ minutes }) => `${minutes}m`))
         : millisecondsToHumanReadableTime(remaining);
-    $:  hidden = (state === "reminding") ? false : hidden;  
+    $:  hidden = (state === "reminding") ? false : hidden;
 
     function handleKeyDown(e) {
         const isApple = isIOS || isMacintosh;
@@ -46,7 +46,7 @@
             class:reminding={state === "reminding"}>
             {time}
         </div>
-        <Controls {state} {position} {phase}/>
+        <Controls {hidden} {state} {position} {phase}/>
     </div>
 </div>
 
@@ -85,9 +85,6 @@
     .hidden .countdown {
         border-radius: 50%;
         overflow: hidden;
-    }
-    .hidden :global(.controls) {
-        display: none;
     }
     .timer {
         font-weight: 600;

@@ -14,6 +14,7 @@
     export let position;
     export let state;
     export let phase;
+    export let hidden;
 
     function handleKeyDown(e) {
         if (!e.altKey) return;
@@ -35,7 +36,7 @@
     });
 </script>
 
-<div class="controls">
+<div class="controls" class:hidden>
     <div class="default-controls">
         {#if state === "paused" || state === "completed" || state === "reminding"}
             <Button icon={mdiPlayOutline} on:click={timer.play}/>
@@ -86,6 +87,9 @@
     }
     .controls {
         margin: 0 10px;
+    }
+    .controls.hidden {
+        display: none;
     }
     .default-controls :global(.berry-button),
     [slot=button] :global(.berry-button) {
