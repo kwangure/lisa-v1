@@ -178,9 +178,12 @@ export function createTimerMachine(withContext = {}) {
                 ],
             },
             RESET: {
-                actions: assign({
-                    elapsed: 0,
-                }),
+                actions: [
+                    assign({
+                        elapsed: 0,
+                    }),
+                    "calculateRemaining",
+                ],
             },
         },
     },
