@@ -7,7 +7,6 @@
         mdiPictureInPictureBottomRightOutline,
         mdiPlayOutline,
     } from "@mdi/js";
-    import { onDestroy, onMount } from "svelte";
     import { timer } from "../../common/events";
 
     export let position;
@@ -25,14 +24,9 @@
             timer.positionLeft();
         }
     }
-
-    onMount(() => {
-        addEventListener("keydown", handleKeyDown);
-    });
-    onDestroy(() => {
-        removeEventListener("keydown", handleKeyDown);
-    });
 </script>
+
+<svelte:window on:keydown={handleKeyDown}/>
 
 <div class="controls" class:hidden>
     {#if state === "paused" || state === "completed"}
