@@ -1,7 +1,6 @@
 <script>
     import Controls from "./controls.svelte";
     import { isIOS, isMacintosh } from "../../utils/platform";
-    import { onDestroy, onMount } from "svelte";
     import { millisecondsToHumanReadableTime } from "../../utils/time";
     
     export let phase;
@@ -31,14 +30,9 @@
         if (state === "reminding") return;
         hidden = !hidden;
     }
-
-    onMount(() => {
-        addEventListener("keydown", handleKeyDown);
-    });
-    onDestroy(() => {
-        removeEventListener("keydown", handleKeyDown);
-    });
 </script>
+
+<svelte:window on:keydown={handleKeyDown}/>
 
 <div class="countdown-wrapper {position}" class:hidden>
     <div class="countdown">
