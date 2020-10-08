@@ -14,7 +14,6 @@
     $: time = hidden
         ? millisecondsToHumanReadableTime(remaining, (({ minutes }) => `${minutes}m`))
         : millisecondsToHumanReadableTime(remaining);
-    $:  hidden = (state === "reminding") ? false : hidden;
 
     function handleKeyDown(e) {
         const isApple = isIOS || isMacintosh;
@@ -27,7 +26,6 @@
     }
 
     function handleClick() {
-        if (state === "reminding") return;
         hidden = !hidden;
     }
 </script>
@@ -40,7 +38,7 @@
             class:reminding={state === "reminding"}>
             {time}
         </div>
-        <Controls {hidden} {state} {position} {phase}/>
+        <Controls {hidden} {state} {position}/>
     </div>
 </div>
 
@@ -87,9 +85,6 @@
         border-radius: var(--br-border-radius);
         cursor: pointer;
     }
-    .timer.reminding {
-        cursor: not-allowed;
-    }
     .hidden .timer {
         padding: 0 12px;
     }
@@ -109,9 +104,5 @@
     .timer.paused {
         background-color: rgb(255, 230, 220);
         color: rgb(255, 100, 60);
-    }
-    .timer.reminding {
-        background-color: var(--br-red-light);
-        color: var(--br-red);
     }
 </style>

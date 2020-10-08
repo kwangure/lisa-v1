@@ -1,7 +1,7 @@
 import { assign, Machine, interpret } from "xstate";
 import { derived, get } from "svelte/store";
-import { millisecondsToHumanReadableTime } from "../utils/time";
 import { timer } from "../common/events";
+import reminding from "./dialogs/reminding.svelte";
 import running from "./timer/running.svelte";
 import nextPhase from "./dialogs/nextPhase.svelte";
 import updateDuration from "./dialogs/updateDuration.svelte";
@@ -91,14 +91,17 @@ export function createTimerMachine(options) {
                                 return function (sendParentEvent) {
                                     const { componentStore } = context;
                                     const unsubscribe = componentStore.subscribe(data => {
-                                        const { state: { updating }, phase } = data;
-                                        if (updating === "duration") {
+                                        const { state, phase } = data;
+
+                                        if (state.updating === "duration") {
                                             sendParentEvent("DURATION.UPDATE");
-                                        } else if (updating === "position") {
+                                        } else if (state.updating === "position") {
                                             sendParentEvent("POSITION.UPDATE");
-                                        } else if (phase === "idle") 
+                                        } else if (state === "reminding") {
+                                            sendParentEvent("REMIND");
+                                        } else if (phase === "idle") {
                                             sendParentEvent("IDLE");
-                                        else {
+                                        } else {
                                             sendParentEvent({ type: "COMPONENT.UPDATE", data });
                                         }
                                     });
@@ -115,6 +118,34 @@ export function createTimerMachine(options) {
                             "DURATION.UPDATE": "updating.duration",
                             "POSITION.UPDATE": "updating.position",
                             "IDLE": "idle",
+                            "REMIND": "reminding",
+                        },
+                    },
+                    reminding: {
+                        id: "reminding",
+                        entry: [
+                            assign({
+                                componentStore: ({ timerStore }) => {
+                                    return derived(timerStore, ({ phase }) => ({ phase }));
+                                },
+                            }),
+                            createComponent(reminding),
+                        ],
+                        invoke: {
+                            src: (context) => {
+                                return function (sendParentEvent) {
+                                    const { timerStore } = context;
+                                    const unsubscribe = timerStore.subscribe((timer) => {
+                                        if (timer.state !== "reminding") {
+                                            sendParentEvent("RESUME");
+                                        }
+                                    });
+                                    return unsubscribe;
+                                };
+                            },
+                        },
+                        on: {
+                            "RESUME": "#running",
                         },
                     },
                     updating: {
