@@ -1,5 +1,7 @@
+*Note*: For now Lisa largely remains for private use. You may not be able to build/modify it due to its dependence on some private packages. It remains visible here nonetheless.
+
 <p align="center">
-    <a href="#what-is-lisa?"><strong> What is Lisa?</strong></a> •
+    <a href="#what-is-lisa?"><strong>What is Lisa?</strong></a> •
     <a href="#features"><strong>Features</strong></a>
 </p>
 
