@@ -1,6 +1,9 @@
 <script>
-    import Sidebar, { Item } from "@deimimi/strawberry/components/Sidebar";
-    export let path = "";
+    import "@kwangure/strawberry/css/standardDOM";
+    import Sidebar, { Item } from "@kwangure/strawberry/components/Sidebar";
+    import { getContext } from "svelte";
+
+    const { path } = getContext("__stores__");
 
     function createItem(name, route) {
         return { name, route };
@@ -16,7 +19,8 @@
     <div class="sidebar">
         <Sidebar>
             {#each items as {name, route}}
-                <Item active={route === path}>
+                {console.log({ route, $path }) || ""}
+                <Item active={route === $path}>
                     <a href="#!{route}">{name}</a>
                 </Item>
             {/each}

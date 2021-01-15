@@ -1,7 +1,7 @@
 <script>
     import { timer } from "../../common/events";
-    import Button from "@deimimi/strawberry/components/Button";
-    import Modal from "@deimimi/strawberry/components/Modal";
+    import Button from "@kwangure/strawberry/components/Button";
+    import Modal from "@kwangure/strawberry/components/Modal";
 
     export let phase;
 </script>

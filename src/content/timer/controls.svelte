@@ -1,6 +1,6 @@
 <script>
-    import Button from "@deimimi/strawberry/components/Button";
-    import Dropdown, { Item } from "@deimimi/strawberry/components/Dropdown";
+    import Button from "@kwangure/strawberry/components/Button";
+    import Dropdown, { Item } from "@kwangure/strawberry/components/Dropdown";
     import {
         mdiDotsHorizontal,
         mdiPause,
@@ -15,11 +15,11 @@
 
     function handleKeyDown(e) {
         if (!e.altKey) return;
-    
+
         if (e.code === "ArrowRight") {
             timer.positionRight();
         }
-    
+
         if (e.code === "ArrowLeft") {
             timer.positionLeft();
         }

@@ -1,5 +1,5 @@
 import "@webcomponents/custom-elements";
-import "@deimimi/strawberry/css/customElement";
+import "@kwangure/strawberry/css/customElement";
 import Countdown from "./timer.wc.svelte";
 
 new Countdown({

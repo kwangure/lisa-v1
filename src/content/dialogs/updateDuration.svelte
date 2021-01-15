@@ -1,8 +1,8 @@
 <script>
     import { timer } from "../../common/events";
     import { millisecondsToMinutes as mtm } from "../../utils/time";
-    import Button from "@deimimi/strawberry/components/Button";
-    import Modal from "@deimimi/strawberry/components/Modal";
+    import Button from "@kwangure/strawberry/components/Button";
+    import Modal from "@kwangure/strawberry/components/Modal";
 
     export let phase;
     export let previousDuration;
@@ -11,8 +11,8 @@
 
 <Modal visible>
     <div slot="content">
-        The duration setting for {phase} sessions has changed from 
-        {mtm(previousDuration)} to {mtm(currentDuration)}. 
+        The duration setting for {phase} sessions has changed from
+        {mtm(previousDuration)} to {mtm(currentDuration)}.
         What do you want to do?
         <div>
             <Button on:click={() => timer.saveUpdate()}>

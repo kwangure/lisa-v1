@@ -1,4 +1,4 @@
-import { preprocessConfig } from "@deimimi/strawberry/config";
+import { preprocessConfig } from "@kwangure/strawberry/config";
 import common, { CONTENT_OUT, CONTENT_DIR, CSS_OUT, DEV, JS_ENTRY_OUT } from "./common.js";
 import postcss from "rollup-plugin-postcss";
 import replace from "@rollup/plugin-replace";

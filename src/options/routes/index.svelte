@@ -1,6 +1,6 @@
 <script>
     import Phase from "./_components/phase.svelte";
-    
+
     export let settingStore;
 </script>
 
@@ -12,7 +12,7 @@
     import { createSettingsWritable } from "../../common/store/settings";
     export async function preload() {
         const settingStore = await createSettingsWritable();
-    
+
         return { settingStore };
     }
 </script>

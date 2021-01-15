@@ -2,10 +2,10 @@
     import { millisecondsToMinutes } from "../../../utils/time.js";
     import { mdiVolumeHigh } from "@mdi/js";
     import { notificationSounds } from "../../../common/audio";
-    import { Number } from "@deimimi/strawberry/components/Input";
+    import { Number } from "@kwangure/strawberry/components/Input";
     import { fade } from "svelte/transition";
-    import Select, { Option } from "@deimimi/strawberry/components/Select";
-    import Icon from "@deimimi/strawberry/components/Icon";
+    import Select, { Option } from "@kwangure/strawberry/components/Select";
+    import Icon from "@kwangure/strawberry/components/Icon";
 
     export let name;
     export let value;
@@ -48,14 +48,18 @@
 <div class="phase">
     <h3>{name}</h3>
     {#if !isNaN(value.interval)}
-        <Number bind:value={value.interval} label="Take a long break every"
+        <Number bind:value={value.interval}
             formatter={formatIntervalCount} min={0} max={10}
-            parser={parseInt} step={1} stepOnly/>
+            parser={parseInt} step={1} stepOnly>
+            <span slot="label">Take a long break every</span>
+        </Number>
     {/if}
     <div class="form-item">
-        <Number bind:value={value.duration} label="{name} phase duration"
+        <Number bind:value={value.duration}
             formatter={formatToReadableTime} min={FIFTEEN_SECONDS}
-            {isInvalid} parser={parseToMilliseconds} step={ONE_MINUTE}/>
+            {isInvalid} parser={parseToMilliseconds} step={ONE_MINUTE}>
+            <span slot="label">{name} phase duration</span>
+        </Number>
     </div>
     <div class="form-item">
         <Select bind:value={value.notification.sound} label="Notification tone after {name} phase"

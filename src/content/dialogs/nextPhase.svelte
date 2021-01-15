@@ -1,12 +1,13 @@
 <script>
-    import { Number, Radio } from "@deimimi/strawberry/components/Input";
     import { phaseNames } from "../../common/store/settings/default";
     import { mdiInformationOutline } from "@mdi/js";
     import { millisecondsToMinutes } from "../../utils/time";
     import { timer } from "../../common/events";
-    import Button from "@deimimi/strawberry/components/Button";
-    import Icon from "@deimimi/strawberry/components/Icon";
-    import Modal from "@deimimi/strawberry/components/Modal";
+    import Button from "@kwangure/strawberry/components/Button";
+    import Icon from "@kwangure/strawberry/components/Icon";
+    import Modal from "@kwangure/strawberry/components/Modal";
+    import { Number } from "@kwangure/strawberry/components/Input";
+    import Radio from "@kwangure/strawberry/components/Input/Radio";
 
     export let focusPhasesSinceStart;
     export let focusPhasesUntilLongBreak;
@@ -44,9 +45,10 @@
             <Radio bind:group value="extend">
                 <span slot="label">
                     <Number bind:value={extendDuration} formatter={millisecondsToMinutes}
-                    on:focus={() => group = "extend"} 
-                    label="Extend {previousPhaseName} by" min={0}
-                    parser={parseToMilliseconds} {isInvalid} step={ONE_MINUTE}/>
+                    on:focus={() => group = "extend"} min={0}
+                    parser={parseToMilliseconds} {isInvalid} step={ONE_MINUTE}>
+                        <span slot="label">Extend {previousPhaseName} by</span>
+                    </Number>
                 </span>
             </Radio>
         </div>

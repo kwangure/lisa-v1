@@ -1,4 +1,4 @@
-import { preprocessConfig } from "@deimimi/strawberry/config";
+import { preprocessConfig } from "@kwangure/strawberry/config";
 import common, { CSS_OUT, DEV, JS_ENTRY_OUT, OPTIONS_OUT, copyHTMLPlugin } from "./common.js";
 import postcss from "rollup-plugin-postcss";
 import svelte from "rollup-plugin-svelte";
