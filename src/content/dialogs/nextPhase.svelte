@@ -7,7 +7,7 @@
     import Icon from "@kwangure/strawberry/components/Icon";
     import Modal from "@kwangure/strawberry/components/Modal";
     import { Number } from "@kwangure/strawberry/components/Input";
-    import Radio from "@kwangure/strawberry/components/Input/Radio";
+    import Radio, { Group } from "@kwangure/strawberry/components/Input/Radio";
 
     export let focusPhasesSinceStart;
     export let focusPhasesUntilLongBreak;
@@ -22,18 +22,7 @@
     const FIVE_MINUTES = ONE_MINUTE * 5;
 
     let extendDuration = FIVE_MINUTES;
-    let group = "proceed";
-
-    function parseToMilliseconds(timeString) {
-        return parseFloat(timeString) * ONE_MINUTE;
-    }
-
-    function isInvalid(time) {
-        const HUMAN_TIME = /\d*\.?\d+\s*minutes?/;
-        const isInvalid = String(time).search(HUMAN_TIME) === -1;
-
-        return isInvalid ? "Invalid time. Expected format: ## minutes": false;
-    }
+    let nextStep = "proceed";
 </script>
 
 <Modal visible closable="{false}">
@@ -42,33 +31,33 @@
             What would you like to do?
         </div>
         <div class="form-item">
-            <Radio bind:group value="extend">
-                <span slot="label">
-                    <Number bind:value={extendDuration} formatter={millisecondsToMinutes}
-                    on:focus={() => group = "extend"} min={0}
-                    parser={parseToMilliseconds} {isInvalid} step={ONE_MINUTE}>
-                        <span slot="label">Extend {previousPhaseName} by</span>
-                    </Number>
-                </span>
-            </Radio>
-        </div>
-        <div class="form-item">
-            <Radio bind:group value="proceed">
-                <span slot="label">
-                    Proceed to {nextPhaseName}
-                </span>
-            </Radio>
+            <Group bind:value={nextStep}>
+                <Radio value="extend">
+                    <span slot="label">
+                        <Number bind:value={extendDuration}
+                            on:focus={() => nextStep = "extend"} min={0}
+                            step={ONE_MINUTE}>
+                            <span slot="label">Extend {previousPhaseName} by</span>
+                        </Number>
+                    </span>
+                </Radio>
+                <Radio  value="proceed">
+                    <span slot="label">
+                        Proceed to {nextPhaseName}
+                    </span>
+                </Radio>
+            </Group>
         </div>
         <div class="form-item tip">
             <Icon path={mdiInformationOutline} size="16"/>
             You have {focusPhasesUntilLongBreak} focus sessions until the long break.
         </div>
         <div class="form-item">
-            {#if group === "extend"}
+            {#if nextStep === "extend"}
                 <Button fullwidth on:click={() => timer.extendPrevious(extendDuration)}>
                     Extend {previousPhaseName}
                 </Button>
-            {:else if group === "proceed"}
+            {:else if nextStep === "proceed"}
                 <Button fullwidth on:click={timer.nextPhase}>
                     Continue to {nextPhaseName}
                 </Button>
