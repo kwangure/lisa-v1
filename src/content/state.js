@@ -156,10 +156,9 @@ export function createTimerMachine(options) {
                                         componentStore: (context) => {
                                             const { timerStore } = context;
                                             return derived(timerStore, (timer) => {
-                                                const { phase, duration, durationUpdate, state } = timer;
+                                                const { phase, duration, durationUpdate } = timer;
 
                                                 return {
-                                                    state,
                                                     phase,
                                                     previousDuration: duration,
                                                     currentDuration: durationUpdate,
