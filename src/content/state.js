@@ -16,7 +16,7 @@ export function createTimerMachine(options) {
         return assign({
             component: (context) => {
                 context?.component?.$destroy?.();
-                const componentData = context.componentStore 
+                const componentData = context.componentStore
                     ? get(context.componentStore)
                     : {};
                 return new component({ target, props: componentData });
@@ -251,15 +251,13 @@ export function createTimerMachine(options) {
                                 componentStore: (context) => {
                                     const { timerStore } = context;
                                     return derived(timerStore, (timer) => {
-                                        const { 
-                                            focusPhasesSinceStart, 
+                                        const {
                                             focusPhasesUntilLongBreak,
                                             previousPhase,
                                             nextPhase,
                                         } = timer;
 
-                                        return { 
-                                            focusPhasesSinceStart,
+                                        return {
                                             focusPhasesUntilLongBreak,
                                             previousPhase,
                                             nextPhase,
@@ -274,11 +272,11 @@ export function createTimerMachine(options) {
                                 return function (sendParentEvent) {
                                     const { timerStore } = context;
                                     const unsubscribe = timerStore.subscribe(timer => {
-                                        
+
                                         if (timer.state === "running") {
                                             sendParentEvent("TIMER.RESUMED");
                                         }
-                                        
+
                                     });
                                     return unsubscribe;
                                 };

@@ -1,82 +1,70 @@
 <script>
-    import { millisecondsToMinutes } from "../../../utils/time.js";
     import { mdiVolumeHigh } from "@mdi/js";
     import { notificationSounds } from "../../../common/audio";
     import { Number } from "@kwangure/strawberry/components/Input";
     import { fade } from "svelte/transition";
     import Select, { Option } from "@kwangure/strawberry/components/Select";
     import Icon from "@kwangure/strawberry/components/Icon";
+    import { derived, writable } from "svelte/store";
 
     export let name;
     export let value;
 
-    let audioPlaying;
+    const ONE_MINUTE = 60000;
 
-    function parseToMilliseconds(timeString) {
-        return parseFloat(timeString) * ONE_MINUTE;
+    $: duration = writable(value.duration / ONE_MINUTE);
+    $: interval = writable(value.interval ?? false);
+    $: sound = writable(value.notification.sound);
+
+    $: setValue($duration * ONE_MINUTE, $interval, $sound);
+
+    function setValue(duration, interval, sound) {
+        value = { duration, interval, notification: { sound } };
     }
 
-    function formatToReadableTime(time) {
-        return millisecondsToMinutes(time);
-    }
+    const audioPlaying = derived(sound, ($sound, setAudioPlaying) => {
+        if (!$sound) return false;
 
-    function formatIntervalCount(count) {
-        return `${count} focus interval${count === 1 ? "" : "s"}`;
-    }
+        const audio = new Audio($sound);
+        audio.onended = () => setAudioPlaying(false);
+        audio.play();
 
-    function isInvalid(time) {
-        const HUMAN_TIME = /\d*\.?\d+\s*minutes?/;
-        const isInvalid = String(time).search(HUMAN_TIME) === -1;
-
-        return isInvalid ? "Invalid time. Expected format: ## minutes": false;
-    }
-
-    function playAudio(event) {
-        if (typeof event.detail === "string") {
-            const audio = new Audio(event.detail);
-            audioPlaying = new Promise((resolve) => {
-                audio.onended = () => resolve();
-                audio.play();
-            });
-        }
-    }
-
-    const ONE_MINUTE = 60_000;
-    const FIFTEEN_SECONDS = ONE_MINUTE/4;
+        return true;
+    });
 </script>
 
 <div class="phase">
     <h3>{name}</h3>
-    {#if !isNaN(value.interval)}
-        <Number bind:value={value.interval}
-            formatter={formatIntervalCount} min={0} max={10}
-            parser={parseInt} step={1} stepOnly>
-            <span slot="label">Take a long break every</span>
-        </Number>
+    {#if $interval}
+        <div class="form-item">
+            Take a long break every
+            <Number bind:value={$interval} min={0} max={10} hideLabel readonly>
+                <span slot="label">Take a long break every</span>
+            </Number>
+            focus sessions
+        </div>
     {/if}
     <div class="form-item">
-        <Number bind:value={value.duration}
-            formatter={formatToReadableTime} min={FIFTEEN_SECONDS}
-            {isInvalid} parser={parseToMilliseconds} step={ONE_MINUTE}>
+        {name} for
+        <Number bind:value={$duration} hideLabel min={0.25}>
             <span slot="label">{name} phase duration</span>
         </Number>
+        minutes
     </div>
     <div class="form-item">
-        <Select bind:value={value.notification.sound} label="Notification tone after {name} phase"
-        on:change={playAudio}>
-            <Option value={null}>None</Option>
+        Play
+        <Select bind:value={$sound} hideLabel>
+            <span slot="label">Notification tone after {name} phase</span>
+            <Option value={null}>No sound</Option>
             {#each notificationSounds as sound}
                 <Option value={sound.file}>{sound.name}</Option>
             {/each}
         </Select>
-        {#if audioPlaying}
-            {#await audioPlaying}
-                <div class="icon" transition:fade>
-                    <Icon path={mdiVolumeHigh} size="21"></Icon>
-                </div>
-            {:then _}
-                &nbsp;
-            {/await}
+        after {name} phase
+        {#if $audioPlaying}
+            <div class="icon" transition:fade>
+                <Icon path={mdiVolumeHigh} size="21"></Icon>
+            </div>
         {/if}
     </div>
 </div>
@@ -86,6 +74,11 @@
         display: flex;
         align-items: center;
         margin-bottom: 10px;
+    }
+    .form-item :global(.berry-input-number) {
+        width: auto;
+        margin-left: 1ch;
+        margin-right: 1ch;
     }
     .icon {
         position: relative;
