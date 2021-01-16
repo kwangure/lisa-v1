@@ -37,30 +37,24 @@
     <h3>{name}</h3>
     {#if $interval}
         <div class="form-item">
-            Take a long break every
-            <Number bind:value={$interval} min={0} max={10} hideLabel readonly>
-                <span slot="label">Take a long break every</span>
+            <Number bind:value={$interval} min={0} max={10} readonly>
+                <span slot="label">Long break interval</span>
             </Number>
-            focus sessions
         </div>
     {/if}
     <div class="form-item">
-        {name} for
-        <Number bind:value={$duration} hideLabel min={0.25}>
+        <Number bind:value={$duration} min={0.25}>
             <span slot="label">{name} phase duration</span>
         </Number>
-        minutes
     </div>
     <div class="form-item">
-        Play
-        <Select bind:value={$sound} hideLabel>
+        <Select bind:value={$sound}>
             <span slot="label">Notification tone after {name} phase</span>
             <Option value={null}>No sound</Option>
             {#each notificationSounds as sound}
                 <Option value={sound.file}>{sound.name}</Option>
             {/each}
         </Select>
-        after {name} phase
         {#if $audioPlaying}
             <div class="icon" transition:fade>
                 <Icon path={mdiVolumeHigh} size="21"></Icon>
@@ -74,11 +68,6 @@
         display: flex;
         align-items: center;
         margin-bottom: 10px;
-    }
-    .form-item :global(.berry-input-number) {
-        width: auto;
-        margin-left: 1ch;
-        margin-right: 1ch;
     }
     .icon {
         position: relative;
