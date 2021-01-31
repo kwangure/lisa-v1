@@ -1,8 +1,8 @@
 <script>
-    import { timer } from "../../common/events";
-    import { millisecondsToMinutes as mtm } from "../../utils/time";
     import Button from "@kwangure/strawberry/components/Button";
     import Modal from "@kwangure/strawberry/components/Modal";
+    import { millisecondsToMinutes as mtm } from "../../utils/time";
+    import { timer } from "../../common/events";
 
     export let phase;
     export let previousDuration;

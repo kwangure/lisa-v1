@@ -1,5 +1,4 @@
 <script>
-    import Button from "@kwangure/strawberry/components/Button";
     import Dropdown, { Item } from "@kwangure/strawberry/components/Dropdown";
     import {
         mdiDotsHorizontal,
@@ -7,20 +6,21 @@
         mdiPictureInPictureBottomRightOutline,
         mdiPlayOutline,
     } from "@mdi/js";
+    import Button from "@kwangure/strawberry/components/Button";
     import { timer } from "../../common/events";
 
     export let position;
     export let state;
     export let hidden;
 
-    function handleKeyDown(e) {
-        if (!e.altKey) return;
+    function handleKeyDown(event) {
+        if (!event.altKey) return;
 
-        if (e.code === "ArrowRight") {
+        if (event.code === "ArrowRight") {
             timer.positionRight();
         }
 
-        if (e.code === "ArrowLeft") {
+        if (event.code === "ArrowLeft") {
             timer.positionLeft();
         }
     }
@@ -35,7 +35,8 @@
         <Button icon={mdiPause} on:click={timer.pause}/>
     {/if}
     {#if timer.isRightPosition(position)}
-        <Button icon={mdiPictureInPictureBottomRightOutline} iconProps={{flip: {horizontal: true}}}
+        <Button icon={mdiPictureInPictureBottomRightOutline}
+            iconProps={{ flip: { horizontal: true }}}
             on:click={() => timer.positionLeft()}/>
     {:else}
         <Button icon={mdiPictureInPictureBottomRightOutline}

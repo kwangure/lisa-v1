@@ -1,12 +1,12 @@
 <script>
-    import { phaseNames } from "../../common/store/settings/default";
-    import { mdiInformationOutline } from "@mdi/js";
-    import { timer } from "../../common/events";
+    import Radio, { Group } from "@kwangure/strawberry/components/Input/Radio";
     import Button from "@kwangure/strawberry/components/Button";
     import Icon from "@kwangure/strawberry/components/Icon";
+    import { mdiInformationOutline } from "@mdi/js";
     import Modal from "@kwangure/strawberry/components/Modal";
     import { Number } from "@kwangure/strawberry/components/Input";
-    import Radio, { Group } from "@kwangure/strawberry/components/Input/Radio";
+    import { phaseNames } from "../../common/store/settings/default";
+    import { timer } from "../../common/events";
 
     export let focusPhasesUntilLongBreak;
     export let nextPhase;

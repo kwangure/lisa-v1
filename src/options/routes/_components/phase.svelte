@@ -1,12 +1,12 @@
 <script>
+    import { derived, writable } from "svelte/store";
+    import Select, { Option } from "@kwangure/strawberry/components/Select";
+    import { fade } from "svelte/transition";
+    import Icon from "@kwangure/strawberry/components/Icon";
     import { mdiVolumeHigh } from "@mdi/js";
     import { notificationSounds } from "../../../common/audio";
-    import { phaseNames } from "../../../common/store/settings";
     import { Number } from "@kwangure/strawberry/components/Input";
-    import { fade } from "svelte/transition";
-    import Select, { Option } from "@kwangure/strawberry/components/Select";
-    import Icon from "@kwangure/strawberry/components/Icon";
-    import { derived, writable } from "svelte/store";
+    import { phaseNames } from "../../../common/store/settings";
 
     export let name;
     export let value;
@@ -17,7 +17,7 @@
     const interval = writable(value.interval ?? false);
     const sound = writable(value.notification.sound);
 
-    const audioPlaying = derived(sound, async ($sound, setAudioPlaying) => {
+    const audioPlaying = derived(sound, ($sound, setAudioPlaying) => {
         if (!$sound || $sound === value.notification.sound) {
             setAudioPlaying(false);
         }

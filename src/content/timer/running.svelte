@@ -1,8 +1,8 @@
 <script>
-    import Controls from "./controls.svelte";
     import { isIOS, isMacintosh } from "../../utils/platform";
+    import Controls from "./controls.svelte";
     import { millisecondsToHumanReadableTime } from "../../utils/time";
-    
+
     export let phase;
     export let state;
     export let remaining;
@@ -12,15 +12,18 @@
     let time = "";
 
     $: time = hidden
-        ? millisecondsToHumanReadableTime(remaining, (({ minutes }) => `${minutes}m`))
+        ? millisecondsToHumanReadableTime(
+            remaining,
+            (({ minutes }) => `${minutes}m`)
+        )
         : millisecondsToHumanReadableTime(remaining);
 
-    function handleKeyDown(e) {
+    function handleKeyDown(event) {
         const isApple = isIOS || isMacintosh;
-        if (isApple && !e.metaKey) return;
-        if (!isApple && !e.ctrlKey) return;
-    
-        if (e.code === "Slash") {
+        if (isApple && !event.metaKey) return;
+        if (!isApple && !event.ctrlKey) return;
+
+        if (event.code === "Slash") {
             hidden = !hidden;
         }
     }

@@ -1,3 +1,3 @@
-export  function play(file) {
+export function play(file) {
     return (new Audio(file)).play();
 }

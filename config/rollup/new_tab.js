@@ -17,15 +17,19 @@ export default {
     plugins: [
         ...common.plugins,
         svelte({
-            dev: DEV,
             preprocess: preprocessConfig,
             exclude: `**/*.${WEB_COMPONET_POSTFIX}`,
             emitCss: true,
+            compilerOptions: {
+                dev: DEV,
+            },
         }),
         svelte({
-            dev: DEV,
-            customElement: true,
             include: `**/*.${WEB_COMPONET_POSTFIX}`,
+            compilerOptions: {
+                customElement: true,
+                dev: DEV,
+            },
         }),
         postcss({
             extract: `${CSS_OUT}/new_tab.css`,

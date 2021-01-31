@@ -6,19 +6,20 @@ export class EventListener {
         this._onEventListeners = new Map();
         this._allEventListeners = new Set();
         const self = this;
-        this._eventHandler = function (message, _sender, sendResponseFn) {
-            const { event: emittedEvent, data } = message;
+        this._eventHandler = (message, _sender, sendResponseFn) => {
+            const { event: emittedEvent, payload } = message;
             if (!emittedEvent.startsWith(namespace)) return;
 
-            const namespaceRegExp = new RegExp(`^${escapeRegExp(namespace)}\\.`);
+            const escapedRegex = `^${escapeRegExp(namespace)}\\.`;
+            const namespaceRegExp = new RegExp(escapedRegex, "u");
             const eventName = emittedEvent.replace(namespaceRegExp, "");
-            const onEventListeners = self._onEventListeners.get(eventName) || [];
-            for (const listener of onEventListeners) {
-                listener(data, sendResponseFn);
+            const eventListeners = self._onEventListeners.get(eventName) || [];
+            for (const listener of eventListeners) {
+                listener(payload, sendResponseFn);
             }
 
             for (const listener of self._allEventListeners) {
-                listener(eventName, data);
+                listener(eventName, payload);
             }
         };
 

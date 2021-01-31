@@ -1,17 +1,19 @@
-import { assign, Machine, interpret } from "xstate";
+/* eslint max-len: off */
+import { assign, interpret, Machine } from "xstate";
 import { derived, get } from "svelte/store";
-import { timer } from "../common/events";
+import createTimerStore from "./timer.js";
+import nextPhase from "./dialogs/nextPhase.svelte";
 import reminding from "./dialogs/reminding.svelte";
 import running from "./timer/running.svelte";
-import nextPhase from "./dialogs/nextPhase.svelte";
+import { timer } from "../common/events";
+import uninitialized from "./timer/uninitialized.svelte";
 import updateDuration from "./dialogs/updateDuration.svelte";
 import updatePosition from "./dialogs/updatePosition.svelte";
-import uninitialized from "./timer/uninitialized.svelte";
-import createTimerStore from "./timer.js";
 
 export function createTimerMachine(options) {
     const { target = document.body } = options;
 
+    // TODO: https://github.com/sveltejs/svelte/issues/537#issuecomment-298230658
     function createComponent(component) {
         return assign({
             component: (context) => {
@@ -19,7 +21,10 @@ export function createTimerMachine(options) {
                 const componentData = context.componentStore
                     ? get(context.componentStore)
                     : {};
-                return new component({ target, props: componentData });
+                return new component({
+                    target: target,
+                    props: componentData,
+                });
             },
         });
     }
@@ -38,7 +43,10 @@ export function createTimerMachine(options) {
                     id: "loading",
                     src: () => timer.isInitialized(),
                     onDone: [
-                        { target: "initialized", cond: (_, { data: isIntialized }) => isIntialized },
+                        {
+                            target: "initialized",
+                            cond: (_, event) => event.data,
+                        },
                         { target: "uninitialized" },
                     ],
                 },
@@ -52,7 +60,9 @@ export function createTimerMachine(options) {
                             onDone: [
                                 {
                                     target: "loading",
-                                    cond: (context) => !!context.timerStore
+                                    cond: (context) => (
+                                        Boolean(context.timerStore)
+                                    ),
                                 },
                                 {
                                     target: "updating",
@@ -78,41 +88,47 @@ export function createTimerMachine(options) {
                                 componentStore: (context) => {
                                     const { timerStore } = context;
                                     return derived(timerStore, (timer) => {
-                                        const { phase, remaining, state, position } = timer;
+                                        const {
+                                            phase, remaining, state, position,
+                                        } = timer;
 
-                                        return { phase, state, remaining, position };
+                                        return {
+                                            phase, state, remaining, position,
+                                        };
                                     });
                                 },
                             }),
                             createComponent(running),
                         ],
                         invoke: {
-                            src: (context) => {
-                                return function (sendParentEvent) {
-                                    const { componentStore } = context;
-                                    const unsubscribe = componentStore.subscribe(data => {
-                                        const { state, phase } = data;
+                            src: (context) => (sendParentEvent) => {
+                                const { componentStore } = context;
+                                const unsubscribe
+                                = componentStore.subscribe((value) => {
+                                    const { state, phase } = value;
 
-                                        if (state.updating === "duration") {
-                                            sendParentEvent("DURATION.UPDATE");
-                                        } else if (state.updating === "position") {
-                                            sendParentEvent("POSITION.UPDATE");
-                                        } else if (state === "reminding") {
-                                            sendParentEvent("REMIND");
-                                        } else if (phase === "idle") {
-                                            sendParentEvent("IDLE");
-                                        } else {
-                                            sendParentEvent({ type: "COMPONENT.UPDATE", data });
-                                        }
-                                    });
-                                    return unsubscribe;
-                                };
+                                    if (state.updating === "duration") {
+                                        sendParentEvent("DURATION.UPDATE");
+                                    } else if (state.updating === "position") {
+                                        sendParentEvent("POSITION.UPDATE");
+                                    } else if (state === "reminding") {
+                                        sendParentEvent("REMIND");
+                                    } else if (phase === "idle") {
+                                        sendParentEvent("IDLE");
+                                    } else {
+                                        sendParentEvent({
+                                            type: "COMPONENT.UPDATE",
+                                            value: value,
+                                        });
+                                    }
+                                });
+                                return unsubscribe;
                             },
                         },
                         on: {
                             "COMPONENT.UPDATE": {
                                 actions: (context, event) => {
-                                    context.component.$set(event.data);
+                                    context.component.$set(event.value);
                                 },
                             },
                             "DURATION.UPDATE": "updating.duration",
@@ -125,27 +141,29 @@ export function createTimerMachine(options) {
                         id: "reminding",
                         entry: [
                             assign({
-                                componentStore: ({ timerStore }) => {
-                                    return derived(timerStore, ({ phase }) => ({ phase }));
-                                },
+                                componentStore: ({ timerStore }) => (
+                                    derived(timerStore, ($timerStore) => {
+                                        const { phase } = $timerStore;
+                                        return { phase };
+                                    })
+                                ),
                             }),
                             createComponent(reminding),
                         ],
                         invoke: {
-                            src: (context) => {
-                                return function (sendParentEvent) {
-                                    const { timerStore } = context;
-                                    const unsubscribe = timerStore.subscribe((timer) => {
-                                        if (timer.state !== "reminding") {
-                                            sendParentEvent("RESUME");
-                                        }
-                                    });
-                                    return unsubscribe;
-                                };
+                            src: (context) => (sendParentEvent) => {
+                                const { timerStore } = context;
+                                const unsubscribe
+                                = timerStore.subscribe((timer) => {
+                                    if (timer.state !== "reminding") {
+                                        sendParentEvent("RESUME");
+                                    }
+                                });
+                                return unsubscribe;
                             },
                         },
                         on: {
-                            "RESUME": "#running",
+                            RESUME: "#running",
                         },
                     },
                     updating: {
@@ -155,41 +173,39 @@ export function createTimerMachine(options) {
                                     assign({
                                         componentStore: (context) => {
                                             const { timerStore } = context;
-                                            return derived(timerStore, (timer) => {
-                                                const { phase, duration, durationUpdate } = timer;
-
-                                                return {
-                                                    phase,
-                                                    previousDuration: duration,
-                                                    currentDuration: durationUpdate,
-                                                };
-                                            });
+                                            // eslint-disable-next-line max-len
+                                            return derived(timerStore, (timer) => ({
+                                                phase: timer.phase,
+                                                previousDuration: timer.duration,
+                                                currentDuration: timer.durationUpdate,
+                                            }));
                                         },
                                     }),
                                     createComponent(updateDuration),
                                 ],
                                 invoke: {
-                                    src: (context) => {
-                                        return function (sendParentEvent) {
-                                            const { componentStore } = context;
-                                            const unsubscribe = componentStore.subscribe(data => {
-                                                const { state, ...componentData } = data;
-                                                if (!state.updating) {
-                                                    sendParentEvent("DURATION.UPDATED");
-                                                } else if (state.updating === "position") {
-                                                    sendParentEvent("POSITION.UPDATE");
-                                                } else {
-                                                    sendParentEvent({ type: "COMPONENT.UPDATE", data: componentData });
-                                                }
-                                            });
-                                            return unsubscribe;
-                                        };
+                                    src: (context) => (sendParentEvent) => {
+                                        const { componentStore, timerStore } = context;
+                                        const unsubscribe = timerStore.subscribe((value) => {
+                                            const { state } = value;
+                                            if (!state.updating) {
+                                                sendParentEvent("DURATION.UPDATED");
+                                            } else if (state.updating === "position") {
+                                                sendParentEvent("POSITION.UPDATE");
+                                            } else {
+                                                sendParentEvent({
+                                                    type: "COMPONENT.UPDATE",
+                                                    value: get(componentStore),
+                                                });
+                                            }
+                                        });
+                                        return unsubscribe;
                                     },
                                 },
                                 on: {
                                     "COMPONENT.UPDATE": {
                                         actions: (context, event) => {
-                                            context.component.$set(event.data);
+                                            context.component.$set(event.value);
                                         },
                                     },
                                     "DURATION.UPDATED": "#running",
@@ -205,7 +221,7 @@ export function createTimerMachine(options) {
                                                 const { state, position, positionUpdate } = timer;
 
                                                 return {
-                                                    state,
+                                                    state: state,
                                                     previousPosition: position,
                                                     currentPosition: positionUpdate,
                                                 };
@@ -215,21 +231,22 @@ export function createTimerMachine(options) {
                                     createComponent(updatePosition),
                                 ],
                                 invoke: {
-                                    src: (context) => {
-                                        return function (sendParentEvent) {
-                                            const { componentStore } = context;
-                                            const unsubscribe = componentStore.subscribe(data => {
-                                                const { state, ...componentData } = data;
-                                                if (!state.updating) {
-                                                    sendParentEvent("POSITION.UPDATED");
-                                                } else if (state.updating === "duration") {
-                                                    sendParentEvent("DURATION.UPDATE");
-                                                }else {
-                                                    sendParentEvent({ type: "COMPONENT.UPDATE", data: componentData });
-                                                }
-                                            });
-                                            return unsubscribe;
-                                        };
+                                    src: (context) => (sendParentEvent) => {
+                                        const { componentStore } = context;
+                                        const unsubscribe = componentStore.subscribe((value) => {
+                                            const { state, ...componentData } = value;
+                                            if (!state.updating) {
+                                                sendParentEvent("POSITION.UPDATED");
+                                            } else if (state.updating === "duration") {
+                                                sendParentEvent("DURATION.UPDATE");
+                                            } else {
+                                                sendParentEvent({
+                                                    type: "COMPONENT.UPDATE",
+                                                    value: componentData,
+                                                });
+                                            }
+                                        });
+                                        return unsubscribe;
                                     },
                                 },
                                 on: {
@@ -260,25 +277,23 @@ export function createTimerMachine(options) {
                                             focusPhasesUntilLongBreak,
                                             previousPhase,
                                             nextPhase,
-                                         };
+                                        };
                                     });
                                 },
                             }),
-                            createComponent(nextPhase)
+                            createComponent(nextPhase),
                         ],
                         invoke: {
-                            src: (context) => {
-                                return function (sendParentEvent) {
-                                    const { timerStore } = context;
-                                    const unsubscribe = timerStore.subscribe(timer => {
+                            src: (context) => (sendParentEvent) => {
+                                const { timerStore } = context;
+                                const unsubscribe = timerStore.subscribe((timer) => {
 
-                                        if (timer.state === "running") {
-                                            sendParentEvent("TIMER.RESUMED");
-                                        }
+                                    if (timer.state === "running") {
+                                        sendParentEvent("TIMER.RESUMED");
+                                    }
 
-                                    });
-                                    return unsubscribe;
-                                };
+                                });
+                                return unsubscribe;
                             },
                         },
                         on: {
@@ -290,14 +305,12 @@ export function createTimerMachine(options) {
             uninitialized: {
                 entry: createComponent(uninitialized),
                 invoke: {
-                    src: () => {
-                        return new Promise(resolve => {
-                            const unsubscribe = timer.on("xstate.init", () => {
-                                unsubscribe();
-                                resolve();
-                            });
+                    src: () => new Promise((resolve) => {
+                        const unsubscribe = timer.on("xstate.init", () => {
+                            unsubscribe();
+                            resolve();
                         });
-                    },
+                    }),
                     onDone: "initialized",
                 },
             },

@@ -1,7 +1,7 @@
 <script>
+    import Layout from "./_layout.svelte";
     import { setContext } from "svelte";
     import { writable } from "svelte/store";
-    import Layout from "./_layout.svelte";
 
     export let component;
 
@@ -17,9 +17,11 @@
     const paramsStore = writable(params);
     const queryStore = writable(query);
 
+    /* eslint-disable no-unused-vars */
     $: $pathStore = path;
     $: $paramsStore = params;
     $: $queryStore = query;
+    /* eslint-enable no-unused-vars */
 
     setContext("__stores__", {
         path: pathStore,

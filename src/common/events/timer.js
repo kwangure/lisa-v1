@@ -3,49 +3,50 @@ import { EventListener } from "./listen.js";
 import { timerPositions } from "../store/settings/default";
 
 const timerEventsListener = new EventListener("BACKGROUND.TIMER");
+const { removeListeners } = timerEventsListener;
 
-async function getState() {
+function getState() {
     return request({ namespace: "BACKGROUND.TIMER", query: "FETCH" });
 }
 
-async function isInitialized() {
+function isInitialized() {
     return request({ namespace: "BACKGROUND.TIMER", query: "IS_INITIALIZED" });
 }
 
-async function start() {
+function start() {
     return request({ namespace: "BACKGROUND.TIMER", query: "START" });
 }
 
-async function pause() {
+function pause() {
     emit({ event: "PAUSE", namespace: "BACKGROUND.TIMER" });
 }
 
-async function play() {
+function play() {
     emit({ event: "PLAY", namespace: "BACKGROUND.TIMER" });
 }
 
-async function reset() {
+function reset() {
     emit({ event: "RESET", namespace: "BACKGROUND.TIMER" });
 }
 
-async function extendPrevious(duration) {
-    emit({ event: "EXTEND", namespace: "BACKGROUND.TIMER", data: duration });
+function extendPrevious(duration) {
+    emit({ event: "EXTEND", namespace: "BACKGROUND.TIMER", payload: duration });
 }
 
-async function nextPhase() {
+function nextPhase() {
     emit({ event: "NEXT", namespace: "BACKGROUND.TIMER" });
 }
 
-async function destroy() {
+function destroy() {
     emit({ event: "DESTROY", namespace: "BACKGROUND.TIMER" });
 }
 
 function saveUpdate() {
-    emit({ event: "DURATION.UPDATE.SAVE", namespace: "BACKGROUND.TIMER"});
+    emit({ event: "DURATION.UPDATE.SAVE", namespace: "BACKGROUND.TIMER" });
 }
 
 function ignoreUpdate() {
-    emit({ event: "DURATION.UPDATE.IGNORE", namespace: "BACKGROUND.TIMER"});
+    emit({ event: "DURATION.UPDATE.IGNORE", namespace: "BACKGROUND.TIMER" });
 }
 
 function isRightPosition(position) {
@@ -56,7 +57,7 @@ function positionLeft() {
     emit({
         event: "POSITION.UPDATE.FORCE_SAVE",
         namespace: "BACKGROUND.TIMER",
-        data: {
+        payload: {
             position: timerPositions.BOTTOM_LEFT.value,
         },
     });
@@ -66,18 +67,18 @@ function positionRight() {
     emit({
         event: "POSITION.UPDATE.FORCE_SAVE",
         namespace: "BACKGROUND.TIMER",
-        data: {
+        payload: {
             position: timerPositions.BOTTOM_RIGHT.value,
         },
     });
 }
 
 function savePositionUpdate() {
-    emit({ event: "POSITION.UPDATE.SAVE", namespace: "BACKGROUND.TIMER"});
+    emit({ event: "POSITION.UPDATE.SAVE", namespace: "BACKGROUND.TIMER" });
 }
 
 function ignorePositionUpdate() {
-    emit({ event: "POSITION.UPDATE.IGNORE", namespace: "BACKGROUND.TIMER"});
+    emit({ event: "POSITION.UPDATE.IGNORE", namespace: "BACKGROUND.TIMER" });
 }
 
 function on(event, eventListener) {
@@ -105,7 +106,7 @@ export const timer = {
     play,
     positionLeft,
     positionRight,
-    removeListeners: timerEventsListener.removeListeners,
+    removeListeners,
     reset,
     saveUpdate,
     savePositionUpdate,

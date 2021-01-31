@@ -1,5 +1,5 @@
 function createNotificationSound(name, file) {
-    return { name, file: `/audio/${file}` };
+    return { name: name, file: `/audio/${file}` };
 }
 
 export default [

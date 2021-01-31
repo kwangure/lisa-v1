@@ -1,7 +1,7 @@
 <script>
-    import { timer } from "../../common/events";
     import Button from "@kwangure/strawberry/components/Button";
     import Modal from "@kwangure/strawberry/components/Modal";
+    import { timer } from "../../common/events";
 
     function name(position) {
         return position.replace("-", " ");

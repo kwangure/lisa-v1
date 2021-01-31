@@ -1,7 +1,8 @@
 <script>
     import { createTimerMachine } from "./state";
-    import { onMount } from "svelte";
+    // eslint-disable-next-line camelcase
     import { get_current_component } from "svelte/internal";
+    import { onMount } from "svelte";
 
     const thisComponent = get_current_component();
     const timerMachine = createTimerMachine({ target: thisComponent.shadowRoot });

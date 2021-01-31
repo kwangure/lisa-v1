@@ -10,7 +10,9 @@ export function createLocalStorageWritable(name) {
             existingStore = defaultValue;
         }
 
-        const { set, update, subscribe: sveltSubscribe } = svelteWritable(existingStore, start);
+        const {
+            set, update, subscribe: sveltSubscribe,
+        } = svelteWritable(existingStore, start);
 
         const subscribers = new Set();
 
@@ -20,7 +22,7 @@ export function createLocalStorageWritable(name) {
         }
 
         const unsubscribe = sveltSubscribe((newValue) => {
-            if (JSON.stringify(newValue) === JSON.stringify(cachedValue)){
+            if (JSON.stringify(newValue) === JSON.stringify(cachedValue)) {
                 return;
             }
             localStorage.setItem(name, JSON.stringify(newValue));
@@ -37,11 +39,11 @@ export function createLocalStorageWritable(name) {
             set,
             update,
             subscribe,
-            cleanUp(){
-                subscribers = new Set();
+            cleanUp() {
+                subscribers.clear();
                 unsubscribe();
             },
-            reset(){
+            reset() {
                 set(defaultValue);
             },
         };

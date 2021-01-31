@@ -5,7 +5,7 @@ export const timerPositions = {
         value: "bottom-left",
         name: "Bottom left",
     },
-    BOTTOM_RIGHT:{
+    BOTTOM_RIGHT: {
         value: "bottom-right",
         name: "Bottom right",
     },

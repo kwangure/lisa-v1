@@ -14,9 +14,11 @@ export default {
     plugins: [
         ...common.plugins,
         svelte({
-            dev: DEV,
             preprocess: preprocessConfig,
             emitCss: true,
+            compilerOptions: {
+                dev: DEV,
+            },
         }),
         postcss({
             extract: CSS_OUT,

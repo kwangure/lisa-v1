@@ -1,7 +1,7 @@
 export function getFilesIn(directoryEntry) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         const dirReader = directoryEntry.createReader();
-        dirReader.readEntries(entries => resolve(entries));
+        dirReader.readEntries((entries) => resolve(entries));
     });
 }
 
@@ -14,23 +14,41 @@ export function fileEntryToFile(fileEntry) {
     });
 }
 
-function getFileSystemEntry(rootDirEntry, entryName, options, getFile = false) {
+function getFileSystemEntry(rootDirEntry, entryName, options) {
     return new Promise((resolve, reject) => {
         const handleSuccess = (fileOrDirEntry) => resolve(fileOrDirEntry);
         const handleError = (fileError) => reject(fileError);
 
-        if (getFile) {
-            rootDirEntry.getFile(entryName, options, handleSuccess, handleError);
+        if (options.getFile) {
+            rootDirEntry.getFile(
+                entryName,
+                options,
+                handleSuccess,
+                handleError,
+            );
         } else {
-            rootDirEntry.getDirectory(entryName, options, handleSuccess, handleError);
+            rootDirEntry.getDirectory(
+                entryName,
+                options,
+                handleSuccess,
+                handleError
+            );
         }
     });
 }
 
 export function getDirectoryEntry(rootDirEntry, directory, options = {}) {
-    return getFileSystemEntry(rootDirEntry, directory, options, false);
+    return getFileSystemEntry(
+        rootDirEntry,
+        directory,
+        Object.assign(options, { getFile: false })
+    );
 }
 
 export function getFileEntry(rootDirEntry, filename, options = {}) {
-    return getFileSystemEntry(rootDirEntry, filename, options, true);
+    return getFileSystemEntry(
+        rootDirEntry,
+        filename,
+        Object.assign(options, { getFile: false })
+    );
 }

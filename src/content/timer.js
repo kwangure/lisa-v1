@@ -11,11 +11,11 @@ function buildStoreData(phase) {
     } = context;
 
     return {
-        initialized,
+        initialized: initialized,
         phase: value,
-        focusPhasesUntilLongBreak,
-        nextPhase,
-        previousPhase,
+        focusPhasesUntilLongBreak: focusPhasesUntilLongBreak,
+        nextPhase: nextPhase,
+        previousPhase: previousPhase,
         ...timerMachine.context,
         state: timerMachine.value,
     };
@@ -31,14 +31,14 @@ export default async function createTimerStore() {
         }
 
         function handleState(phase) {
-            const data = buildStoreData(phase);
-            setReadableValue(data);
+            const value = buildStoreData(phase);
+            setReadableValue(value);
         }
 
         queueUnsubscribe(timer.on("xstate.update", handleState));
 
         return function unsubscribe() {
-            unsubscribeFns.forEach(fn => fn());
+            unsubscribeFns.forEach((fn) => fn());
         };
     });
 }
