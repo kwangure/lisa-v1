@@ -15,3 +15,11 @@
 <svelte:options tag="lisa-timer"/>
 
 <link rel="stylesheet" href={chrome.extension.getURL("__CONTENT_CSS__")}/>
+
+<style>
+    @media print {
+        :host {
+            display: none;
+        }
+    }
+</style>
