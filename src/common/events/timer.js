@@ -29,6 +29,10 @@ function reset() {
     emit({ event: "RESET", namespace: "BACKGROUND.TIMER" });
 }
 
+function restart() {
+    emit({ event: "RESTART", namespace: "BACKGROUND.TIMER" });
+}
+
 function extendPrevious(duration) {
     emit({ event: "EXTEND", namespace: "BACKGROUND.TIMER", payload: duration });
 }
@@ -108,6 +112,7 @@ export const timer = {
     positionRight,
     removeListeners,
     reset,
+    restart,
     saveUpdate,
     savePositionUpdate,
     start,

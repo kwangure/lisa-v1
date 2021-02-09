@@ -10,6 +10,7 @@ export function createPhaseMachine(withContext = {}) {
     function assignTimerMachine(phase) {
         return assign({
             timerMachine: (context, event) => {
+                context.timerMachine?.stop();
                 const { settings, previousTimerContext } = context;
                 const timerContext = {
                     duration: settings.phaseSettings[phase].duration,
@@ -132,6 +133,18 @@ export function createPhaseMachine(withContext = {}) {
                 ],
             },
         ],
+        "RESTART": {
+            actions: [
+                assign({
+                    nextPhase: () => "focus",
+                    focusPhasesSinceStart: () => 0,
+                    focusPhasesUntilLongBreak: (context) => (
+                        context.settings.phaseSettings.longBreak
+                    ),
+                }),
+                send("IDLE"),
+            ],
+        },
         "IDLE": "idle",
         "SETTINGS.UPDATE": {
             actions: [
@@ -176,6 +189,8 @@ export function createPhaseMachine(withContext = {}) {
         },
         states: {
             focus: {
+                // TODO: Change timer machine data instead of replacing machine
+                // entirely
                 entry: assignTimerMachine("focus"),
                 on: {
                     ...eventsToForwardToChild(),
@@ -199,13 +214,23 @@ export function createPhaseMachine(withContext = {}) {
             idle: {
                 entry: [
                     assign({
+                        isRestart: (_, __, meta) => (
+                            meta.state.event.type === "RESTART"
+                        ),
+                    }),
+                    assign({
                         notification: (context) => {
                             const {
+                                isRestart,
                                 nextPhase,
                                 hasLongBreak,
                                 focusPhasesUntilLongBreak,
                             } = context;
                             let title = "Start focusing";
+
+                            if (isRestart) {
+                                return;
+                            }
 
                             if (nextPhase === "shortBreak") {
                                 title = hasLongBreak
@@ -231,9 +256,13 @@ export function createPhaseMachine(withContext = {}) {
                     }),
                     (context) => {
                         const {
+                            isRestart,
                             previousPhase,
                             settings: { phaseSettings },
                         } = context;
+                        if (isRestart) {
+                            return;
+                        }
                         const notificationSound
                         = phaseSettings[previousPhase].notification.sound;
                         if (notificationSound) {
@@ -243,9 +272,13 @@ export function createPhaseMachine(withContext = {}) {
                 ],
                 invoke: {
                     src: (context) => (sendParentEvent) => {
-                        context.notification.onclick = () => {
+                        if (context.isRestart) {
                             sendParentEvent("NEXT");
-                        };
+                        } else {
+                            context.notification.onclick = () => {
+                                sendParentEvent("NEXT");
+                            };
+                        }
                     },
                 },
                 on: {
@@ -280,12 +313,17 @@ export function createPhaseMachine(withContext = {}) {
                         { target: "focus" },
                     ],
                 },
-                exit: assign({
-                    notification: (context) => {
-                        context.notification.close();
-                        return null;
-                    },
-                }),
+                exit: [
+                    assign({
+                        notification: (context) => {
+                            context.notification?.close();
+                            return null;
+                        },
+                    }),
+                    assign({
+                        isRestart: () => false,
+                    }),
+                ],
             },
         },
     });

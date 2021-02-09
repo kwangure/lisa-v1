@@ -47,6 +47,7 @@
             <Button icon={mdiDotsHorizontal}/>
         </div>
         <Item on:click={timer.reset}>Reset the running timer</Item>
+        <Item on:click={timer.restart}>Reset focus cyle</Item>
     </Dropdown>
 </div>
 
