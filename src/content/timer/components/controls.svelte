@@ -7,7 +7,7 @@
         mdiPlayOutline,
     } from "@mdi/js";
     import Button from "@kwangure/strawberry/components/Button";
-    import { timer } from "../../common/events";
+    import { timer } from "../../../common/events";
 
     export let position;
     export let state;

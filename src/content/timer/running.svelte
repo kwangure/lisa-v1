@@ -1,6 +1,6 @@
 <script>
     import { isIOS, isMacintosh } from "../../utils/platform";
-    import Controls from "./controls.svelte";
+    import Controls from "./components/controls.svelte";
     import { millisecondsToHumanReadableTime } from "../../utils/time";
 
     export let phase;

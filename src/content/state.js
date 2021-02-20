@@ -6,7 +6,7 @@ import nextPhase from "./dialogs/nextPhase.svelte";
 import reminding from "./dialogs/reminding.svelte";
 import running from "./timer/running.svelte";
 import { timer } from "../common/events";
-import uninitialized from "./timer/uninitialized.svelte";
+import uninitialized from "./dialogs/uninitialized.svelte";
 import updateDuration from "./dialogs/updateDuration.svelte";
 import updatePosition from "./dialogs/updatePosition.svelte";
 
