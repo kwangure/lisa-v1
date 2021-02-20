@@ -1,38 +1,18 @@
-import { emit, request } from "./emit.js";
-import { EventListener } from "./listen.js";
+import { EventHandler } from "./listen.js";
 
-const settingsEventsListener = new EventListener("BACKGROUND.SETTINGS");
-
-function getState() {
-    return request({ namespace: "BACKGROUND.SETTINGS", query: "FETCH" });
+class Settings extends EventHandler {
+    constructor() {
+        super("BACKGROUND.SETTINGS");
+    }
+    getState() {
+        return this.request("FETCH");
+    }
+    reset() {
+        this.emit({ event: "RESET" });
+    }
+    update(settings) {
+        this.emit({ event: "UPDATE", payload: settings });
+    }
 }
 
-function reset() {
-    emit({ event: "RESET", namespace: "BACKGROUND.SETTINGS" });
-}
-
-function update(settings) {
-    return emit({
-        namespace: "BACKGROUND.SETTINGS",
-        event: "UPDATE",
-        payload: settings,
-    });
-}
-
-function on(event, eventListener) {
-    const unsubscribeFn = settingsEventsListener.on(event, eventListener);
-    return unsubscribeFn;
-}
-
-function all(event, eventListener) {
-    const unsubscribeFn = settingsEventsListener.all(event, eventListener);
-    return unsubscribeFn;
-}
-
-export const settings = {
-    all,
-    getState,
-    on,
-    reset,
-    update,
-};
+export default new Settings();

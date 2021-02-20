@@ -12,12 +12,12 @@
             You have been paused for more than 3 minutes.
         </div>
         <div class="modal-item">
-            <Button primary fullwidth on:click={timer.play}>
+            <Button primary fullwidth on:click={() => timer.play()}>
                 Resume {phase}
             </Button>
         </div>
         <div class="modal-item">
-            <Button fullwidth on:click={timer.pause}>Stay paused</Button>
+            <Button fullwidth on:click={() => timer.pause()}>Stay paused</Button>
         </div>
     </div>
 </Modal>

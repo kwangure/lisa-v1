@@ -1,10 +1,12 @@
 /* global chrome */
+import { sendMessageToRuntime, sendMessageToTabs } from "./emit.js";
 import { escapeRegExp } from "../../utils/regex.js";
 
-export class EventListener {
+export class EventHandler {
     constructor(namespace = "") {
         this._onEventListeners = new Map();
         this._allEventListeners = new Set();
+        this._namespace = namespace;
         const self = this;
         this._eventHandler = (message, _sender, sendResponseFn) => {
             const { event: emittedEvent, payload } = message;
@@ -48,5 +50,22 @@ export class EventListener {
         if (chrome.runtime.onMessage.hasListener(this._eventHandler)) {
             chrome.runtime.onMessage.removeListener(this._eventHandler);
         }
+    }
+    emit({ event, payload = {}}) {
+        event = this._namespace
+            ? `${this._namespace}.${event}`
+            : event;
+        sendMessageToTabs({ event, payload });
+        sendMessageToRuntime({ event, payload });
+    }
+    request(query) {
+        const event = this._namespace ? `${this._namespace}.${query}` : query;
+        return new Promise((resolve) => {
+            chrome.runtime.sendMessage({ event }, (response) => {
+                // eslint-disable-next-line no-unused-expressions
+                chrome.runtime.lastError;
+                resolve(response);
+            });
+        });
     }
 }

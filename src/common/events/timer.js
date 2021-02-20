@@ -1,119 +1,73 @@
-import { emit, request } from "./emit.js";
-import { EventListener } from "./listen.js";
+import { EventHandler } from "./listen.js";
 import { timerPositions } from "../store/settings/default";
 
-const timerEventsListener = new EventListener("BACKGROUND.TIMER");
-const { removeListeners } = timerEventsListener;
+class Timer extends EventHandler {
+    constructor() {
+        super("BACKGROUND.TIMER");
+    }
+    destroy() {
+        this.emit({ event: "DESTROY" });
+    }
+    extendPrevious(duration) {
+        this.emit({ event: "EXTEND", payload: duration });
+    }
+    getState() {
+        return this.request("FETCH");
+    }
+    ignorePositionUpdate() {
+        this.emit({ event: "POSITION.UPDATE.IGNORE" });
+    }
+    ignoreUpdate() {
+        this.emit({ event: "DURATION.UPDATE.IGNORE" });
+    }
 
-function getState() {
-    return request({ namespace: "BACKGROUND.TIMER", query: "FETCH" });
+    isInitialized() {
+        return this.request("IS_INITIALIZED");
+    }
+    isRightPosition(position) {
+        return timerPositions.BOTTOM_RIGHT.value === position;
+    }
+    nextPhase() {
+        this.emit({ event: "NEXT" });
+    }
+    pause() {
+        this.emit({ event: "PAUSE" });
+    }
+    play() {
+        this.emit({ event: "PLAY" });
+    }
+    positionLeft() {
+        this.emit({
+            event: "POSITION.UPDATE.FORCE_SAVE",
+            payload: {
+                position: timerPositions.BOTTOM_LEFT.value,
+            },
+        });
+    }
+    positionRight() {
+        this.emit({
+            event: "POSITION.UPDATE.FORCE_SAVE",
+            namespace: "BACKGROUND.TIMER",
+            payload: {
+                position: timerPositions.BOTTOM_RIGHT.value,
+            },
+        });
+    }
+    reset() {
+        this.emit({ event: "RESET" });
+    }
+    restart() {
+        this.emit({ event: "RESTART" });
+    }
+    savePositionUpdate() {
+        this.emit({ event: "POSITION.UPDATE.SAVE" });
+    }
+    saveUpdate() {
+        this.emit({ event: "DURATION.UPDATE.SAVE" });
+    }
+    start() {
+        return this.request("START");
+    }
 }
 
-function isInitialized() {
-    return request({ namespace: "BACKGROUND.TIMER", query: "IS_INITIALIZED" });
-}
-
-function start() {
-    return request({ namespace: "BACKGROUND.TIMER", query: "START" });
-}
-
-function pause() {
-    emit({ event: "PAUSE", namespace: "BACKGROUND.TIMER" });
-}
-
-function play() {
-    emit({ event: "PLAY", namespace: "BACKGROUND.TIMER" });
-}
-
-function reset() {
-    emit({ event: "RESET", namespace: "BACKGROUND.TIMER" });
-}
-
-function restart() {
-    emit({ event: "RESTART", namespace: "BACKGROUND.TIMER" });
-}
-
-function extendPrevious(duration) {
-    emit({ event: "EXTEND", namespace: "BACKGROUND.TIMER", payload: duration });
-}
-
-function nextPhase() {
-    emit({ event: "NEXT", namespace: "BACKGROUND.TIMER" });
-}
-
-function destroy() {
-    emit({ event: "DESTROY", namespace: "BACKGROUND.TIMER" });
-}
-
-function saveUpdate() {
-    emit({ event: "DURATION.UPDATE.SAVE", namespace: "BACKGROUND.TIMER" });
-}
-
-function ignoreUpdate() {
-    emit({ event: "DURATION.UPDATE.IGNORE", namespace: "BACKGROUND.TIMER" });
-}
-
-function isRightPosition(position) {
-    return timerPositions.BOTTOM_RIGHT.value === position;
-}
-
-function positionLeft() {
-    emit({
-        event: "POSITION.UPDATE.FORCE_SAVE",
-        namespace: "BACKGROUND.TIMER",
-        payload: {
-            position: timerPositions.BOTTOM_LEFT.value,
-        },
-    });
-}
-
-function positionRight() {
-    emit({
-        event: "POSITION.UPDATE.FORCE_SAVE",
-        namespace: "BACKGROUND.TIMER",
-        payload: {
-            position: timerPositions.BOTTOM_RIGHT.value,
-        },
-    });
-}
-
-function savePositionUpdate() {
-    emit({ event: "POSITION.UPDATE.SAVE", namespace: "BACKGROUND.TIMER" });
-}
-
-function ignorePositionUpdate() {
-    emit({ event: "POSITION.UPDATE.IGNORE", namespace: "BACKGROUND.TIMER" });
-}
-
-function on(event, eventListener) {
-    const unsubscribeFn = timerEventsListener.on(event, eventListener);
-    return unsubscribeFn;
-}
-
-function all(eventListener) {
-    const unsubscribeFn = timerEventsListener.all(eventListener);
-    return unsubscribeFn;
-}
-
-export const timer = {
-    all,
-    destroy,
-    extendPrevious,
-    getState,
-    ignoreUpdate,
-    ignorePositionUpdate,
-    isInitialized,
-    isRightPosition,
-    nextPhase,
-    on,
-    pause,
-    play,
-    positionLeft,
-    positionRight,
-    removeListeners,
-    reset,
-    restart,
-    saveUpdate,
-    savePositionUpdate,
-    start,
-};
+export default new Timer();

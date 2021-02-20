@@ -53,7 +53,7 @@
                     Extend {previousPhaseName}
                 </Button>
             {:else if nextStep === "proceed"}
-                <Button fullwidth on:click={timer.nextPhase}>
+                <Button fullwidth on:click={() => timer.nextPhase()}>
                     Continue to {nextPhaseName}
                 </Button>
             {/if}

@@ -1,13 +1,11 @@
-import { emit, settings, timer } from "../common/events";
 import { interpret, Interpreter } from "xstate";
+import { settings, timer } from "../common/events";
 import { createPhaseMachine } from "./phase/phase.js";
 import settingsWritable from "./settings.js";
 
-const phaseContext = {
+const phaseMachine = createPhaseMachine({
     settings: settingsWritable.value(),
-};
-const phaseMachine = createPhaseMachine(phaseContext);
-
+});
 function serializeState(state, initialized) {
     const context = {};
     for (const [key, value] of Object.entries(state.context)) {
@@ -31,11 +29,8 @@ pomodoroService.onTransition((state) => {
     const {
         event, ...payload
     } = serializeState(state, pomodoroService.initialized);
-    emit({
-        event: event,
-        payload: payload,
-        namespace: "BACKGROUND.TIMER",
-    });
+
+    timer.emit({ event, payload });
 });
 timer.all((event, payload) => {
     if (pomodoroService.initialized) {
@@ -55,17 +50,10 @@ timer.on("START", () => {
 settings.on("FETCH", (_, respond) => {
     respond(settingsWritable.value());
 });
-settings.on("UPDATE", (payload) => {
-    settingsWritable.set(payload);
-});
-settingsWritable.subscribe((settings) => {
-    emit({
-        namespace: "BACKGROUND.SETTINGS",
-        event: "CHANGED",
-        payload: settings,
-    });
-
+settings.on("UPDATE", (settingsValue) => {
+    settingsWritable.set(settingsValue);
+    settings.emit({ event: "CHANGED", payload: settingsValue });
     if (pomodoroService.initialized) {
-        pomodoroService.send("SETTINGS.UPDATE", { value: settings });
+        pomodoroService.send("SETTINGS.UPDATE", { value: settingsValue });
     }
 });

@@ -30,9 +30,9 @@
 
 <div class="controls" class:hidden>
     {#if state === "paused" || state === "completed"}
-        <Button icon={mdiPlayOutline} on:click={timer.play}/>
+        <Button icon={mdiPlayOutline} on:click={() => timer.play()}/>
     {:else}
-        <Button icon={mdiPause} on:click={timer.pause}/>
+        <Button icon={mdiPause} on:click={() => timer.pause()}/>
     {/if}
     {#if timer.isRightPosition(position)}
         <Button icon={mdiPictureInPictureBottomRightOutline}
@@ -46,8 +46,8 @@
         <div slot="button">
             <Button icon={mdiDotsHorizontal}/>
         </div>
-        <Item on:click={timer.reset}>Reset the running timer</Item>
-        <Item on:click={timer.restart}>Reset focus cyle</Item>
+        <Item on:click={() => timer.reset()}>Reset the running timer</Item>
+        <Item on:click={() => timer.restart()}>Reset focus cyle</Item>
     </Dropdown>
 </div>
 
