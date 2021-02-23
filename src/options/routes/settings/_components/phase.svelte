@@ -13,12 +13,12 @@
     const ONE_MINUTE = 60000;
 
     const duration = writable(value.duration / ONE_MINUTE);
-    const interval = writable(value.interval ?? false);
     const sound = writable(value.notification.sound);
 
     const audioPlaying = derived(sound, ($sound, setAudioPlaying) => {
-        if (!$sound || $sound === value.notification.sound) {
-            setAudioPlaying(false);
+        const emptyOrUnchanged = !$sound || $sound === value.notification.sound;
+        if (emptyOrUnchanged) {
+            return setAudioPlaying(false);
         }
 
         const audio = new Audio($sound);
@@ -28,11 +28,10 @@
         });
     });
 
-    $: setValue($duration * ONE_MINUTE, $interval, $sound);
+    $: setValue($duration * ONE_MINUTE, $sound);
 
-    function setValue(duration, interval, sound) {
+    function setValue(duration, sound) {
         value.duration = duration;
-        value.interval = interval;
         value.notification.sound = sound;
     }
 </script>
@@ -41,12 +40,12 @@
     <h3>{name}</h3>
     <div class="form-item">
         <Number bind:value={$duration} min={0.25}>
-            <span slot="label">Duration</span>
+            <span slot="label">Phase duration</span>
         </Number>
     </div>
     <div class="form-item">
         <Select bind:value={$sound}>
-            <span slot="label">Notification tone</span>
+            <span slot="label">Phase completed notification tone</span>
             <Option value={null}>No sound</Option>
             {#each notificationSounds as sound}
                 <Option value={sound.file}>{sound.name}</Option>
