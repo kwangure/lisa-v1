@@ -1,9 +1,12 @@
 <script>
     import Button from "@kwangure/strawberry/components/Button";
     import Modal from "@kwangure/strawberry/components/Modal";
+    import { phaseNames } from "../../common/store/settings/default";
     import { timer } from "../../common/events";
 
     export let phase;
+
+    const phaseName = phaseNames[phase].toLowerCase();
 </script>
 
 <Modal visible closable={false}>
@@ -13,7 +16,7 @@
         </div>
         <div class="modal-item">
             <Button primary fullwidth on:click={() => timer.play()}>
-                Resume {phase}
+                Resume {phaseName}
             </Button>
         </div>
         <div class="modal-item">
