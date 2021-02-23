@@ -20,3 +20,6 @@ export default [
         component: () => import("./appearance.svelte"),
     },
 ];
+
+export const error = () => import("./_error.svelte");
+export const layout = () => import("./_layout.svelte");

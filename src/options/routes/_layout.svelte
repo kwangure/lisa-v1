@@ -1,9 +1,9 @@
 <script>
     import "@kwangure/strawberry/css/standardDOM";
     import Sidebar, { Item } from "@kwangure/strawberry/components/Sidebar";
-    import { getContext } from "svelte";
+    import { stores } from "@kwangure/svelte-pagejs-router";
 
-    const { path } = getContext("__stores__");
+    const { path } = stores();
 </script>
 
 <div class="app-layout">

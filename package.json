@@ -4,7 +4,7 @@
   "description": "",
   "dependencies": {
     "@kwangure/strawberry": "^0.24.0",
-    "@kwangure/svelte-pagejs-router": "^0.2.0",
+    "@kwangure/svelte-pagejs-router": "^0.3.1",
     "@webcomponents/custom-elements": "^1.4.2",
     "svelte": "^3.31.2",
     "xstate": "^4.11.0"
