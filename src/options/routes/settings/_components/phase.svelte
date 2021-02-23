@@ -4,9 +4,8 @@
     import { fade } from "svelte/transition";
     import Icon from "@kwangure/strawberry/components/Icon";
     import { mdiVolumeHigh } from "@mdi/js";
-    import { notificationSounds } from "../../../common/audio";
+    import { notificationSounds } from "../../../../common/audio";
     import { Number } from "@kwangure/strawberry/components/Input";
-    import { phaseNames } from "../../../common/store/settings";
 
     export let name;
     export let value;
@@ -39,24 +38,15 @@
 </script>
 
 <div class="phase">
-    <h3>{phaseNames[name]}</h3>
-    {#if $interval}
-        <div class="form-item">
-            <Number bind:value={$interval} min={0} max={10} readonly>
-                <span slot="label">
-                    Long break interval
-                </span>
-            </Number>
-        </div>
-    {/if}
+    <h3>{name}</h3>
     <div class="form-item">
         <Number bind:value={$duration} min={0.25}>
-            <span slot="label">{phaseNames[name]} phase duration</span>
+            <span slot="label">Duration</span>
         </Number>
     </div>
     <div class="form-item">
         <Select bind:value={$sound}>
-            <span slot="label">Notification tone after {name} phase</span>
+            <span slot="label">Notification tone</span>
             <Option value={null}>No sound</Option>
             {#each notificationSounds as sound}
                 <Option value={sound.file}>{sound.name}</Option>
@@ -68,6 +58,7 @@
             </div>
         {/if}
     </div>
+    <slot></slot>
 </div>
 
 <style>

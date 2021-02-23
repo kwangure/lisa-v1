@@ -4,26 +4,23 @@
     import { getContext } from "svelte";
 
     const { path } = getContext("__stores__");
-
-    function createItem(name, route) {
-        return { name, route };
-    }
-
-    const items = [
-        createItem("Timer", "/"),
-        createItem("Appearance", "/appearance"),
-    ];
 </script>
 
 <div class="app-layout">
     <div class="sidebar">
         <Sidebar>
-            {#each items as {name, route}}
-                {console.log({ route, $path }) || ""}
-                <Item active={route === $path}>
-                    <a href="#!{route}">{name}</a>
-                </Item>
-            {/each}
+            <Item active={$path === "/" || $path === "/settings/focus"}>
+                <a href="#!/settings/focus">Focus</a>
+            </Item>
+            <Item active={$path === "/settings/short-break"}>
+                <a href="#!/settings/short-break">Short break</a>
+            </Item>
+            <Item active={$path === "/settings/long-break"}>
+                <a href="#!/settings/long-break">Long break</a>
+            </Item>
+            <Item active={$path === "appearance"}>
+                <a href="#!/appearance">Appearance</a>
+            </Item>
         </Sidebar>
     </div>
     <div>
