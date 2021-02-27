@@ -39,7 +39,8 @@
 <div class="phase">
     <h3>{name}</h3>
     <div class="form-item">
-        <Number bind:value={$duration} min={0.25}>
+        <Number bind:value={$duration}
+            min={import.meta.env.DEV ? 0.05 : 0.25}>
             <span slot="label">Phase duration</span>
         </Number>
     </div>
