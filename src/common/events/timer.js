@@ -36,6 +36,9 @@ class Timer extends EventHandler {
     pause() {
         this.emit({ event: "PAUSE" });
     }
+    pauseDefault() {
+        this.emit({ event: "PAUSE.DEFAULT" });
+    }
     play() {
         this.emit({ event: "PLAY" });
     }

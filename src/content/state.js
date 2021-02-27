@@ -111,8 +111,8 @@ export function createTimerMachine(options) {
                                         sendParentEvent("DURATION.UPDATE");
                                     } else if (state.updating === "position") {
                                         sendParentEvent("POSITION.UPDATE");
-                                    } else if (state === "reminding") {
-                                        sendParentEvent("REMIND");
+                                    } else if (state.paused === "reminding") {
+                                        sendParentEvent("PAUSE.REMIND");
                                     } else if (phase === "idle") {
                                         sendParentEvent("IDLE");
                                     } else {
@@ -134,7 +134,7 @@ export function createTimerMachine(options) {
                             "DURATION.UPDATE": "updating.duration",
                             "POSITION.UPDATE": "updating.position",
                             "IDLE": "idle",
-                            "REMIND": "reminding",
+                            "PAUSE.REMIND": "reminding",
                         },
                     },
                     reminding: {
@@ -155,7 +155,7 @@ export function createTimerMachine(options) {
                                 const { timerStore } = context;
                                 const unsubscribe
                                 = timerStore.subscribe((timer) => {
-                                    if (timer.state !== "reminding") {
+                                    if (timer.state.paused !== "reminding") {
                                         sendParentEvent("RESUME");
                                     }
                                 });

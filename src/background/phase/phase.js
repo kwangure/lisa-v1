@@ -34,6 +34,9 @@ export function createPhaseMachine(withContext = {}) {
         "PAUSE": {
             actions: forwardToChild,
         },
+        "PAUSE.DEFAULT": {
+            actions: forwardToChild,
+        },
         "PLAY": {
             actions: forwardToChild,
         },

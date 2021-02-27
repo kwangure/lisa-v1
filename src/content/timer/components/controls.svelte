@@ -29,7 +29,7 @@
 <svelte:window on:keydown={handleKeyDown}/>
 
 <div class="controls" class:hidden>
-    {#if state === "paused" || state === "completed"}
+    {#if state.paused === "default" || state === "completed"}
         <Button icon={mdiPlayOutline} on:click={() => timer.play()}/>
     {:else}
         <Button icon={mdiPause} on:click={() => timer.pause()}/>

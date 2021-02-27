@@ -20,7 +20,9 @@
             </Button>
         </div>
         <div class="modal-item">
-            <Button fullwidth on:click={() => timer.pause()}>Stay paused</Button>
+            <Button fullwidth on:click={() => timer.pauseDefault()}>
+                Stay paused
+            </Button>
         </div>
     </div>
 </Modal>

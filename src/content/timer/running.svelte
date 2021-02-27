@@ -41,7 +41,7 @@
 
 <svelte:window on:keydown={handleKeyDown}/>
 <svelte:head>
-    {#if state === "paused"}
+    {#if state.paused === "default"}
         <style>html { filter: grayscale(100%) }</style>
     {/if}
 </svelte:head>

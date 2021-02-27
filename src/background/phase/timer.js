@@ -89,22 +89,27 @@ export function createTimerMachine(withContext = {}) {
                     },
                 },
                 paused: {
-                    entry: send("REMIND", {
-                        delay: (context) => context.pausedDuration,
-                    }),
-                    always: targetUpdating,
-                    on: {
-                        COMPLETE: "completed",
-                        PLAY: "running",
-                        REMIND: "reminding",
+                    initial: "default",
+                    states: {
+                        default: {
+                            entry: send("PAUSE.REMIND", {
+                                delay: (context) => context.pausedDuration,
+                            }),
+                            on: {
+                                "PAUSE.REMIND": "reminding",
+                            },
+                        },
+                        reminding: {
+                            entry: () => console.log("reminding entry"),
+                            on: {
+                                "PAUSE.DEFAULT": "default",
+                            },
+                        },
                     },
-                },
-                reminding: {
                     always: targetUpdating,
                     on: {
                         COMPLETE: "completed",
                         PLAY: "running",
-                        PAUSE: "paused",
                     },
                 },
                 updating: {
