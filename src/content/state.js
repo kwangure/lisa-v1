@@ -269,12 +269,14 @@ export function createTimerMachine(options) {
                                     return derived(timerStore, (timer) => {
                                         const {
                                             focusPhasesUntilLongBreak,
+                                            focusPhasesSinceStart,
                                             previousPhase,
                                             nextPhase,
                                         } = timer;
 
                                         return {
                                             focusPhasesUntilLongBreak,
+                                            focusPhasesSinceStart,
                                             previousPhase,
                                             nextPhase,
                                         };

@@ -75,6 +75,9 @@ export function createPhaseMachine(withContext = {}) {
                                 previousPhase,
                                 previousTimerContext,
                             } = context;
+                            if (previousPhase === "longBreak") {
+                                return 0;
+                            }
                             const { isExtension } = previousTimerContext;
 
                             if (previousPhase === "focus" && !isExtension) {
@@ -94,10 +97,8 @@ export function createPhaseMachine(withContext = {}) {
 
                             // Use % in case `focusPhasesSinceStart` > `longBreakInterval` because
                             // settings was changed during phase
-                            const elapsedIntervals
-                                // eslint-disable-next-line max-len
-                                = ((focusPhasesSinceStart - 1) % longBreakInterval) - 1;
-                            return longBreakInterval - elapsedIntervals;
+                            // eslint-disable-next-line max-len
+                            return longBreakInterval - ((focusPhasesSinceStart - 1) % longBreakInterval) - 1;
                         },
                         hasLongBreak: ({ settings }) => (
                             settings.phaseSettings.longBreak.interval > 0

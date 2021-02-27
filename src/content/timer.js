@@ -4,6 +4,7 @@ import { timer } from "../common/events";
 function buildStoreData(phase) {
     const { initialized, value, context } = phase;
     const {
+        focusPhasesSinceStart,
         focusPhasesUntilLongBreak,
         nextPhase,
         previousPhase,
@@ -14,6 +15,7 @@ function buildStoreData(phase) {
         initialized: initialized,
         phase: value,
         focusPhasesUntilLongBreak: focusPhasesUntilLongBreak,
+        focusPhasesSinceStart: focusPhasesSinceStart,
         nextPhase: nextPhase,
         previousPhase: previousPhase,
         ...timerMachine.context,

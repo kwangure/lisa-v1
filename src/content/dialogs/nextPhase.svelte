@@ -9,6 +9,7 @@
     import { timer } from "../../common/events";
 
     export let focusPhasesUntilLongBreak;
+    export let focusPhasesSinceStart;
     export let nextPhase;
     export let previousPhase;
 
@@ -45,7 +46,11 @@
         </div>
         <div class="form-item tip">
             <Icon path={mdiInformationOutline} size="16"/>
-            You have {focusPhasesUntilLongBreak} focus sessions until the long break.
+            {#if focusPhasesUntilLongBreak === 0}
+                You have completed {focusPhasesSinceStart} focus sessions!
+            {:else}
+                You have {focusPhasesUntilLongBreak} focus sessions until the long break.
+            {/if}
         </div>
         <div class="form-item">
             {#if nextStep === "extend"}
