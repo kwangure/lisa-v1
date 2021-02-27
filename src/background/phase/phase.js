@@ -43,6 +43,9 @@ export function createPhaseMachine(withContext = {}) {
         "RESET": {
             actions: forwardToChild,
         },
+        "WARN_REMAINING.DISMISS": {
+            actions: forwardToChild,
+        },
         "DURATION.UPDATE.SAVE": {
             actions: forwardToChild,
         },

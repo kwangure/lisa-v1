@@ -290,7 +290,7 @@ export function createTimerMachine(options) {
                                 const { timerStore } = context;
                                 const unsubscribe = timerStore.subscribe((timer) => {
 
-                                    if (timer.state === "running") {
+                                    if (timer.state.running) {
                                         sendParentEvent("TIMER.RESUMED");
                                     }
 

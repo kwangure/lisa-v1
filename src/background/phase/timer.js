@@ -17,9 +17,11 @@ export function createTimerMachine(withContext = {}) {
             initial: "running",
             context: {
                 pausedDuration: 180_000,
+                warnRemaining: 60_000,
             },
             states: {
                 running: {
+                    initial: "normal",
                     entry: [
                         "assignDefaults",
                         "elapseSecond",
@@ -37,6 +39,35 @@ export function createTimerMachine(withContext = {}) {
                             return function cleanUp() {
                                 clearInterval(id);
                             };
+                        },
+                    },
+                    states: {
+                        normal: {
+                            always: [
+                                {
+                                    target: "warnRemaining",
+                                    cond: (context) => {
+                                        const {
+                                            warnRemaining,
+                                            remaining,
+                                            warningDismissed,
+                                        } = context;
+
+                                        if (warningDismissed) return;
+
+                                        return remaining < warnRemaining;
+                                    },
+                                },
+                            ],
+                        },
+                        warnRemaining: {
+                            entry: sendParent("WARN_REMAINING"),
+                            on: {
+                                "WARN_REMAINING.DISMISS": "normal",
+                            },
+                            exit: assign({
+                                warningDismissed: true,
+                            }),
                         },
                     },
                     always: [
@@ -69,9 +100,6 @@ export function createTimerMachine(withContext = {}) {
                     },
                 },
                 reminding: {
-                    entry: (context, event) => {
-                        console.log("reminding", { context, event });
-                    },
                     always: targetUpdating,
                     on: {
                         COMPLETE: "completed",

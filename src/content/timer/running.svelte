@@ -2,6 +2,8 @@
     import { isIOS, isMacintosh } from "../../utils/platform";
     import Controls from "./components/controls.svelte";
     import { millisecondsToHumanReadableTime } from "../../utils/time";
+    import Notification from "@kwangure/strawberry/components/Notification";
+    import { timer } from "../../common/events";
 
     export let phase;
     export let state;
@@ -31,6 +33,10 @@
     function handleClick() {
         hidden = !hidden;
     }
+
+    function handleDismiss() {
+        timer.dismissRemainingWarning();
+    }
 </script>
 
 <svelte:window on:keydown={handleKeyDown}/>
@@ -39,6 +45,21 @@
         <style>html { filter: grayscale(100%) }</style>
     {/if}
 </svelte:head>
+
+{#if state.running === "warnRemaining"}
+    <Notification
+        on:dismiss={handleDismiss}
+        message={millisecondsToHumanReadableTime(
+            remaining,
+            (({ minutes, seconds }) => {
+                if (minutes > 0) {
+                    return `${minutes} minutes ${seconds} seconds remaining`;
+                }
+
+                return ` ${seconds} seconds remaining`;
+            })
+        )}/>
+{/if}
 
 <div class="countdown-wrapper {position}" class:hidden>
     <div class="countdown">
