@@ -14,6 +14,8 @@
 
     const duration = writable(value.duration / ONE_MINUTE);
     const sound = writable(value.notification.sound);
+    const warnRemaining = writable(value.warnRemaining / ONE_MINUTE);
+    const pauseDuration = writable(value.pauseDuration / ONE_MINUTE);
 
     const audioPlaying = derived(sound, ($sound, setAudioPlaying) => {
         const emptyOrUnchanged = !$sound || $sound === value.notification.sound;
@@ -28,11 +30,17 @@
         });
     });
 
-    $: setValue($duration * ONE_MINUTE, $sound);
+    $: setValue(
+        $duration * ONE_MINUTE,
+        $warnRemaining * ONE_MINUTE,
+        $pauseDuration * ONE_MINUTE,
+        $sound,
+    );
 
-    function setValue(duration, sound) {
-        value.duration = duration;
-        value.notification.sound = sound;
+    // eslint-disable-next-line max-params
+    function setValue(duration, warnRemaining, pauseDuration, sound) {
+        Object.assign(value, { duration, warnRemaining, pauseDuration, sound });
+        value = value;
     }
 </script>
 
@@ -41,7 +49,7 @@
     <div class="form-item">
         <Number bind:value={$duration}
             min={import.meta.env.DEV ? 0.05 : 0.25}>
-            <span slot="label">Phase duration</span>
+            <span slot="label">Phase duration (minutes)</span>
         </Number>
     </div>
     <div class="form-item">
@@ -57,6 +65,16 @@
                 <Icon path={mdiVolumeHigh} size="21"></Icon>
             </div>
         {/if}
+    </div>
+    <div class="form-item">
+        <Number bind:value={$warnRemaining} min={0}>
+            <span slot="label">Warn before end (minutes)</span>
+        </Number>
+    </div>
+    <div class="form-item">
+        <Number bind:value={$pauseDuration} min={1}>
+            <span slot="label">Allowed pause duration (minutes)</span>
+        </Number>
     </div>
     <slot></slot>
 </div>

@@ -24,18 +24,24 @@ export const defaultSettings = {
     phaseSettings: {
         focus: {
             duration: minutesToMilliseconds(50),
+            pauseDuration: minutesToMilliseconds(3),
+            warnRemaining: minutesToMilliseconds(5),
             notification: {
                 sound: null,
             },
         },
         shortBreak: {
             duration: minutesToMilliseconds(10),
+            pauseDuration: minutesToMilliseconds(1),
+            warnRemaining: minutesToMilliseconds(1),
             notification: {
                 sound: null,
             },
         },
         longBreak: {
             duration: minutesToMilliseconds(30),
+            pauseDuration: minutesToMilliseconds(1),
+            warnRemaining: minutesToMilliseconds(1),
             interval: 4,
             notification: {
                 sound: null,

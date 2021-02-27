@@ -15,10 +15,6 @@ export function createTimerMachine(withContext = {}) {
     const timerMachine = Machine(
         {
             initial: "running",
-            context: {
-                pausedDuration: 180_000,
-                warnRemaining: 60_000,
-            },
             states: {
                 running: {
                     initial: "normal",
@@ -93,7 +89,7 @@ export function createTimerMachine(withContext = {}) {
                     states: {
                         default: {
                             entry: send("PAUSE.REMIND", {
-                                delay: (context) => context.pausedDuration,
+                                delay: (context) => context.pauseDuration,
                             }),
                             on: {
                                 "PAUSE.REMIND": "reminding",
@@ -272,15 +268,15 @@ export function createTimerMachine(withContext = {}) {
                 }),
                 elapsePausedSecond: assign({
                     elapsedWhilePaused: (context) => {
-                        const { elapsedWhilePaused, pausedDuration } = context;
-                        return elapsedWhilePaused >= pausedDuration
+                        const { elapsedWhilePaused, pauseDuration } = context;
+                        return elapsedWhilePaused >= pauseDuration
                             ? elapsedWhilePaused
                             : elapsedWhilePaused + 1000 /* one second */;
                     },
                 }),
                 calculatePausedRemaining: assign({
                     pausedRemaining: (context) => (
-                        context.pausedDuration - context.elapsePausedSecond
+                        context.pauseDuration - context.elapsePausedSecond
                     ),
                 }),
                 sendParentTick: sendParent("TICK"),

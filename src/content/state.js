@@ -143,8 +143,8 @@ export function createTimerMachine(options) {
                             assign({
                                 componentStore: ({ timerStore }) => (
                                     derived(timerStore, ($timerStore) => {
-                                        const { phase } = $timerStore;
-                                        return { phase };
+                                        const { phase, pauseDuration } = $timerStore;
+                                        return { phase, pauseDuration };
                                     })
                                 ),
                             }),

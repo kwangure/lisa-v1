@@ -1,10 +1,12 @@
 <script>
     import Button from "@kwangure/strawberry/components/Button";
+    import { millisecondsToHumanReadableTime } from "../../utils/time";
     import Modal from "@kwangure/strawberry/components/Modal";
     import { phaseNames } from "../../common/store/settings/default";
     import { timer } from "../../common/events";
 
     export let phase;
+    export let pauseDuration;
 
     const phaseName = phaseNames[phase].toLowerCase();
 </script>
@@ -12,7 +14,20 @@
 <Modal visible closable={false}>
     <div slot="content">
         <div class="modal-item">
-            You have been paused for more than 3 minutes.
+            You have been paused for more than
+            {millisecondsToHumanReadableTime(pauseDuration, (time) => {
+                const { minutes, seconds } = time;
+
+                let timeString = "";
+                if (minutes > 0) {
+                    timeString += `${minutes} minute${minutes === 1? "": "s"} `;
+                }
+                if (seconds > 0) {
+                    timeString += `${seconds} second${seconds === 1? "": "s"} `;
+                }
+
+                return timeString.trim();
+            })}.
         </div>
         <div class="modal-item">
             <Button primary fullwidth on:click={() => timer.play()}>

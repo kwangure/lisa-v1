@@ -12,8 +12,11 @@ export function createPhaseMachine(withContext = {}) {
             timerMachine: (context, event) => {
                 context.timerMachine?.stop();
                 const { settings, previousTimerContext } = context;
+                const phaseSettings = settings.phaseSettings[phase];
                 const timerContext = {
-                    duration: settings.phaseSettings[phase].duration,
+                    duration: phaseSettings.duration,
+                    pauseDuration: phaseSettings.pauseDuration,
+                    warnRemaining: phaseSettings.warnRemaining,
                     position: settings.appearanceSettings.timerPosition,
                 };
                 if (event.type === "EXTEND") {
