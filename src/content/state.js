@@ -134,36 +134,41 @@ export function createTimerMachine(options) {
                             "DURATION.UPDATE": "updating.duration",
                             "POSITION.UPDATE": "updating.position",
                             "IDLE": "idle",
-                            "PAUSE.REMIND": "reminding",
+                            "PAUSE.REMIND": "paused.reminding",
                         },
                     },
-                    reminding: {
-                        id: "reminding",
-                        entry: [
-                            assign({
-                                componentStore: ({ timerStore }) => (
-                                    derived(timerStore, ($timerStore) => {
-                                        const { phase, pauseDuration } = $timerStore;
-                                        return { phase, pauseDuration };
-                                    })
-                                ),
-                            }),
-                            createComponent(reminding),
-                        ],
-                        invoke: {
-                            src: (context) => (sendParentEvent) => {
-                                const { timerStore } = context;
-                                const unsubscribe
-                                = timerStore.subscribe((timer) => {
-                                    if (timer.state.paused !== "reminding") {
-                                        sendParentEvent("RESUME");
-                                    }
-                                });
-                                return unsubscribe;
+                    paused: {
+                        intial: "default",
+                        states: {
+                            reminding: {
+                                id: "reminding",
+                                entry: [
+                                    assign({
+                                        componentStore: ({ timerStore }) => (
+                                            derived(timerStore, ($timerStore) => {
+                                                const { phase, pauseDuration } = $timerStore;
+                                                return { phase, pauseDuration };
+                                            })
+                                        ),
+                                    }),
+                                    createComponent(reminding),
+                                ],
+                                invoke: {
+                                    src: (context) => (sendParentEvent) => {
+                                        const { timerStore } = context;
+                                        const unsubscribe
+                                        = timerStore.subscribe((timer) => {
+                                            if (timer.state.paused !== "reminding") {
+                                                sendParentEvent("RESUME");
+                                            }
+                                        });
+                                        return unsubscribe;
+                                    },
+                                },
+                                on: {
+                                    RESUME: "#running",
+                                },
                             },
-                        },
-                        on: {
-                            RESUME: "#running",
                         },
                     },
                     updating: {
