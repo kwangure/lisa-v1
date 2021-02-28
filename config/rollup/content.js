@@ -1,6 +1,11 @@
-import { preprocessConfig } from "@kwangure/strawberry/config";
-import common, { CONTENT_OUT, CONTENT_DIR, CSS_OUT, DEV, JS_ENTRY_OUT } from "./common.js";
+import common, {
+    CONTENT_DIR,
+    CONTENT_OUT,
+    CSS_OUT, DEV,
+    JS_ENTRY_OUT,
+} from "./common.js";
 import postcss from "rollup-plugin-postcss";
+import { preprocessConfig } from "@kwangure/strawberry/config";
 import replace from "@rollup/plugin-replace";
 import svelte from "rollup-plugin-svelte";
 
@@ -17,7 +22,7 @@ export default {
     plugins: [
         ...common.plugins,
         replace({
-            "__CONTENT_CSS__": `${CONTENT_DIR}/${CSS_OUT}`,
+            __CONTENT_CSS__: `${CONTENT_DIR}/${CSS_OUT}`,
         }),
         svelte({
             preprocess: preprocessConfig,
@@ -39,4 +44,5 @@ export default {
         }),
     ],
     onwarn: common.onwarn,
+    preserveEntrySignatures: false,
 };
