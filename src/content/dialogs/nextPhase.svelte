@@ -1,3 +1,21 @@
+<script context="module">
+    export function preload(context) {
+        const {
+            focusPhasesSinceStart,
+            focusPhasesUntilLongBreak,
+            next,
+            previous,
+        } = context;
+
+        return {
+            focusPhasesSinceStart: focusPhasesSinceStart,
+            focusPhasesUntilLongBreak: focusPhasesUntilLongBreak,
+            nextPhase: next,
+            previousPhase: previous,
+        };
+    }
+</script>
+
 <script>
     import Radio, { Group } from "@kwangure/strawberry/components/Input/Radio";
     import Button from "@kwangure/strawberry/components/Button";
@@ -12,6 +30,8 @@
     export let focusPhasesSinceStart;
     export let nextPhase;
     export let previousPhase;
+
+    console.log({ nextPhase, previousPhase, focusPhasesSinceStart });
 
     let extendDurationMins = 5;
     let nextStep = "proceed";

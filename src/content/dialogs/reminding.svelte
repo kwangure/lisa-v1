@@ -1,3 +1,11 @@
+<script context="module">
+    export function preload(context) {
+        const { name: phase, timer: { pauseDuration }} = context;
+
+        return { phase, pauseDuration };
+    }
+</script>
+
 <script>
     import Button from "@kwangure/strawberry/components/Button";
     import { millisecondsToHumanReadableTime } from "../../utils/time";

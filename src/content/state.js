@@ -1,328 +1,215 @@
-/* eslint max-len: off */
+/* eslint-disable max-len */
+import * as nextPhase from "./dialogs/nextPhase.svelte";
+import * as reminding from "./dialogs/reminding.svelte";
+import * as running from "./timer/running.svelte";
+import * as updateDuration from "./dialogs/updateDuration.svelte";
+import * as updatePosition from "./dialogs/updatePosition.svelte";
 import { assign, interpret, Machine } from "xstate";
-import { derived, get } from "svelte/store";
-import createTimerStore from "./timer.js";
-import nextPhase from "./dialogs/nextPhase.svelte";
-import reminding from "./dialogs/reminding.svelte";
-import running from "./timer/running.svelte";
 import { timer } from "../common/events";
-import uninitialized from "./dialogs/uninitialized.svelte";
-import updateDuration from "./dialogs/updateDuration.svelte";
-import updatePosition from "./dialogs/updatePosition.svelte";
 
-export function createTimerMachine(options) {
-    const { target = document.body } = options;
+function isDurationUpdate(_, event) {
+    return event.data.timer.state.updating === "duration";
+}
+function isPositionUpdate(_, event) {
+    return event.data.timer.state.updating === "position";
+}
+function isRunning(_, event) {
+    return event.data.timer.state.running;
+}
+function isPaused(_, event) {
+    return event.data.timer.state.paused;
+}
+function isIdle(_, event) {
+    return event.data.name === "idle";
+}
 
-    // TODO: https://github.com/sveltejs/svelte/issues/537#issuecomment-298230658
-    function createComponent(component) {
-        return assign({
-            component: (context) => {
-                context?.component?.$destroy?.();
-                const componentData = context.componentStore
-                    ? get(context.componentStore)
-                    : {};
-                return new component({
-                    target: target,
-                    props: componentData,
-                });
-            },
-        });
-    }
+const handleSettingsUpdate = [
+    {
+        target: "updating.duration",
+        cond: "isDurationUpdate",
+    },
+    {
+        target: "updating.position",
+        cond: "isPositionUpdate",
+    },
+];
 
+const handleDurationChange = [
+    {
+        target: "#running",
+        cond: "isRunning",
+    },
+    {
+        target: "position",
+        cond: "isPositionUpdate",
+    },
+];
+
+const handlePositionChange = [
+    {
+        target: "#running",
+        cond: "isRunning",
+    },
+    {
+        target: "duration",
+        cond: "isDurationUpdate",
+    },
+];
+
+function createComponent(component, target) {
+    return assign((_, event) => {
+        const { default: Component, preload } = component;
+
+        return {
+            component: new Component({
+                target: target,
+                props: preload(event.data),
+            }),
+            preload: preload,
+        };
+    });
+}
+
+function updateComponent(context, event) {
+    const { component, preload } = context;
+    component?.$set(preload?.(event.data));
+}
+
+function destroyComponent() {
+    return assign((context) => {
+        context.component?.$destroy?.();
+        return { component: null, preload: null };
+    });
+}
+
+export async function createTimerMachine({ target = document.body }) {
+    const isInitialized = await timer.isInitialized();
     const timerMachine = Machine({
-        id: "timer",
-        initial: "loading",
-        context: {
-            component: null,
-            componentStore: null,
-            timerStore: null,
-        },
+        initial: isInitialized ? "initialized" : "uninitialized",
+        context: {},
         states: {
-            loading: {
-                invoke: {
-                    id: "loading",
-                    src: () => timer.isInitialized(),
-                    onDone: [
-                        {
-                            target: "initialized",
-                            cond: (_, event) => event.data,
-                        },
-                        { target: "uninitialized" },
-                    ],
-                },
-            },
             initialized: {
                 initial: "loading",
                 states: {
                     loading: {
+                        entry: () => console.log("loading"),
                         invoke: {
-                            src: () => createTimerStore(),
+                            src: (_, event) => {
+                                if (event.type === "xstate.init") {
+                                    return timer.getState();
+                                }
+
+                                return Promise.resolve(event.data);
+                            },
                             onDone: [
-                                {
-                                    target: "loading",
-                                    cond: (context) => (
-                                        Boolean(context.timerStore)
-                                    ),
-                                },
-                                {
-                                    target: "updating",
-                                    cond: (context) => {
-                                        const { timerStore } = context;
-                                        if (timerStore) {
-                                            const { state } = get(timerStore);
-                                            return state === "updating";
-                                        }
-                                    },
-                                },
-                                { target: "running" },
+                                { target: "running", cond: "isRunning" },
+                                { target: "paused", cond: "isPaused" },
+                                { target: "idle", cond: "isIdle" },
+                                { actions: (context, event) => {
+                                    console.error("Unhandled state", { context, event });
+                                } },
                             ],
                         },
-                        exit: assign({
-                            timerStore: (_context, event) => event.data,
-                        }),
                     },
                     running: {
                         id: "running",
-                        entry: [
-                            assign({
-                                componentStore: (context) => {
-                                    const { timerStore } = context;
-                                    return derived(timerStore, (timer) => {
-                                        const {
-                                            phase, remaining, state, position,
-                                        } = timer;
-
-                                        return {
-                                            phase, state, remaining, position,
-                                        };
-                                    });
+                        entry: createComponent(running, target),
+                        on: {
+                            "TICK": {
+                                actions: updateComponent,
+                            },
+                            "PAUSE": "paused",
+                            "IDLE": "idle",
+                            "SETTINGS.UPDATE": handleSettingsUpdate,
+                        },
+                        exit: destroyComponent(),
+                    },
+                    paused: {
+                        initial: "default",
+                        states: {
+                            default: {
+                                entry: createComponent(running, target),
+                                on: {
+                                    "PAUSE.REMIND": "reminding",
                                 },
-                            }),
-                            createComponent(running),
-                        ],
-                        invoke: {
-                            src: (context) => (sendParentEvent) => {
-                                const { componentStore } = context;
-                                const unsubscribe
-                                = componentStore.subscribe((value) => {
-                                    const { state, phase } = value;
-
-                                    if (state.updating === "duration") {
-                                        sendParentEvent("DURATION.UPDATE");
-                                    } else if (state.updating === "position") {
-                                        sendParentEvent("POSITION.UPDATE");
-                                    } else if (state.paused === "reminding") {
-                                        sendParentEvent("PAUSE.REMIND");
-                                    } else if (phase === "idle") {
-                                        sendParentEvent("IDLE");
-                                    } else {
-                                        sendParentEvent({
-                                            type: "COMPONENT.UPDATE",
-                                            value: value,
-                                        });
-                                    }
-                                });
-                                return unsubscribe;
+                                exit: destroyComponent(),
+                            },
+                            reminding: {
+                                entry: createComponent(reminding, target),
+                                on: {
+                                    "PAUSE.DEFAULT": "default",
+                                },
+                                exit: destroyComponent(),
                             },
                         },
                         on: {
-                            "COMPONENT.UPDATE": {
-                                actions: (context, event) => {
-                                    context.component.$set(event.value);
-                                },
-                            },
-                            "DURATION.UPDATE": "updating.duration",
-                            "POSITION.UPDATE": "updating.position",
-                            "IDLE": "idle",
-                            "PAUSE.REMIND": "paused.reminding",
+                            "PLAY": "running",
+                            "SETTINGS.UPDATE": handleSettingsUpdate,
                         },
-                    },
-                    paused: {
-                        intial: "default",
-                        states: {
-                            reminding: {
-                                id: "reminding",
-                                entry: [
-                                    assign({
-                                        componentStore: ({ timerStore }) => (
-                                            derived(timerStore, ($timerStore) => {
-                                                const { phase, pauseDuration } = $timerStore;
-                                                return { phase, pauseDuration };
-                                            })
-                                        ),
-                                    }),
-                                    createComponent(reminding),
-                                ],
-                                invoke: {
-                                    src: (context) => (sendParentEvent) => {
-                                        const { timerStore } = context;
-                                        const unsubscribe
-                                        = timerStore.subscribe((timer) => {
-                                            if (timer.state.paused !== "reminding") {
-                                                sendParentEvent("RESUME");
-                                            }
-                                        });
-                                        return unsubscribe;
-                                    },
-                                },
-                                on: {
-                                    RESUME: "#running",
-                                },
-                            },
-                        },
+                        exit: destroyComponent(),
                     },
                     updating: {
                         states: {
                             duration: {
-                                entry: [
-                                    assign({
-                                        componentStore: (context) => {
-                                            const { timerStore } = context;
-                                            // eslint-disable-next-line max-len
-                                            return derived(timerStore, (timer) => ({
-                                                phase: timer.phase,
-                                                previousDuration: timer.duration,
-                                                currentDuration: timer.durationUpdate,
-                                            }));
-                                        },
-                                    }),
-                                    createComponent(updateDuration),
-                                ],
-                                invoke: {
-                                    src: (context) => (sendParentEvent) => {
-                                        const { componentStore, timerStore } = context;
-                                        const unsubscribe = timerStore.subscribe((value) => {
-                                            const { state } = value;
-                                            if (!state.updating) {
-                                                sendParentEvent("DURATION.UPDATED");
-                                            } else if (state.updating === "position") {
-                                                sendParentEvent("POSITION.UPDATE");
-                                            } else {
-                                                sendParentEvent({
-                                                    type: "COMPONENT.UPDATE",
-                                                    value: get(componentStore),
-                                                });
-                                            }
-                                        });
-                                        return unsubscribe;
-                                    },
-                                },
+                                entry: createComponent(updateDuration, target),
                                 on: {
-                                    "COMPONENT.UPDATE": {
-                                        actions: (context, event) => {
-                                            context.component.$set(event.value);
-                                        },
+                                    "DURATION.UPDATE.SAVE": handleDurationChange,
+                                    "SETTINGS.UPDATE": {
+                                        actions: updateComponent,
                                     },
-                                    "DURATION.UPDATED": "#running",
-                                    "POSITION.UPDATE": "position",
+                                    "DURATION.UPDATE.IGNORE": handleDurationChange,
                                 },
+                                exit: destroyComponent(),
                             },
                             position: {
-                                entry: [
-                                    assign({
-                                        componentStore: (context) => {
-                                            const { timerStore } = context;
-                                            return derived(timerStore, (timer) => {
-                                                const { state, position, positionUpdate } = timer;
-
-                                                return {
-                                                    state: state,
-                                                    previousPosition: position,
-                                                    currentPosition: positionUpdate,
-                                                };
-                                            });
-                                        },
-                                    }),
-                                    createComponent(updatePosition),
-                                ],
-                                invoke: {
-                                    src: (context) => (sendParentEvent) => {
-                                        const { componentStore } = context;
-                                        const unsubscribe = componentStore.subscribe((value) => {
-                                            const { state, ...componentData } = value;
-                                            if (!state.updating) {
-                                                sendParentEvent("POSITION.UPDATED");
-                                            } else if (state.updating === "duration") {
-                                                sendParentEvent("DURATION.UPDATE");
-                                            } else {
-                                                sendParentEvent({
-                                                    type: "COMPONENT.UPDATE",
-                                                    value: componentData,
-                                                });
-                                            }
-                                        });
-                                        return unsubscribe;
-                                    },
-                                },
+                                entry: createComponent(updatePosition, target),
                                 on: {
-                                    "COMPONENT.UPDATE": {
-                                        actions: (context, event) => {
-                                            context.component.$set(event.data);
-                                        },
+                                    "POSITION.UPDATE.SAVE": handlePositionChange,
+                                    "SETTINGS.UPDATE": {
+                                        actions: updateComponent,
                                     },
-                                    "POSITION.UPDATED": "#running",
-                                    "DURATION.UPDATE": "duration",
+                                    "POSITION.UPDATE.IGNORE": handlePositionChange,
                                 },
+                                exit: destroyComponent(),
                             },
                         },
                     },
                     idle: {
-                        entry: [
-                            assign({
-                                componentStore: (context) => {
-                                    const { timerStore } = context;
-                                    return derived(timerStore, (timer) => {
-                                        const {
-                                            focusPhasesUntilLongBreak,
-                                            focusPhasesSinceStart,
-                                            previousPhase,
-                                            nextPhase,
-                                        } = timer;
-
-                                        return {
-                                            focusPhasesUntilLongBreak,
-                                            focusPhasesSinceStart,
-                                            previousPhase,
-                                            nextPhase,
-                                        };
-                                    });
-                                },
-                            }),
-                            createComponent(nextPhase),
-                        ],
-                        invoke: {
-                            src: (context) => (sendParentEvent) => {
-                                const { timerStore } = context;
-                                const unsubscribe = timerStore.subscribe((timer) => {
-
-                                    if (timer.state.running) {
-                                        sendParentEvent("TIMER.RESUMED");
-                                    }
-
-                                });
-                                return unsubscribe;
-                            },
-                        },
+                        entry: createComponent(nextPhase, target),
                         on: {
-                            "TIMER.RESUMED": "#running",
+                            NEXT: "running",
+                            EXTEND: "running",
                         },
+                        exit: destroyComponent(),
                     },
                 },
             },
             uninitialized: {
-                entry: createComponent(uninitialized),
-                invoke: {
-                    src: () => new Promise((resolve) => {
-                        const unsubscribe = timer.on("xstate.init", () => {
-                            unsubscribe();
-                            resolve();
-                        });
-                    }),
-                    onDone: "initialized",
+                entry: () => timer.start(),
+                on: {
+                    START: "initialized",
                 },
             },
         },
+    }, {
+        guards: {
+            isDurationUpdate,
+            isPositionUpdate,
+            isPaused,
+            isRunning,
+            isIdle,
+        },
     });
 
-    return interpret(timerMachine);
+    const timerService = interpret(timerMachine);
+
+    timer.all((event, payload) => {
+        if (event.startsWith("xstate.")) return;
+
+        // Use `data` prop to match result from xstate's `invoke.src`
+        // eslint-disable-next-line id-denylist
+        timerService.send(event, { data: payload });
+    });
+
+    return timerService;
 }

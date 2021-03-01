@@ -1,3 +1,14 @@
+<script context="module">
+    export function preload(context) {
+        const { timer: { position, positionUpdate }} = context;
+
+        return {
+            previousPosition: position,
+            currentPosition: positionUpdate,
+        };
+    }
+</script>
+
 <script>
     import Button from "@kwangure/strawberry/components/Button";
     import Modal from "@kwangure/strawberry/components/Modal";

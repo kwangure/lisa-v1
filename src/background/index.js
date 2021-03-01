@@ -6,11 +6,11 @@ import settingsWritable from "./settings.js";
 const phaseMachine = createPhaseMachine({
     settings: settingsWritable.value(),
 });
-function serializeState(state, initialized) {
+function serializeState(state) {
     const context = {};
     for (const [key, value] of Object.entries(state.context)) {
         if (value instanceof Interpreter) {
-            context[key] = serializeState(value.state, value.initialized);
+            context[key] = serializeState(value.state);
         } else {
             context[key] = value;
         }
@@ -19,18 +19,38 @@ function serializeState(state, initialized) {
         value: state.value,
         event: state.event.type,
         context: context,
-        initialized: initialized,
         done: state.done,
+    };
+}
+function formatPhaseMachineState(state) {
+    const { context, value } = state;
+    const {
+        focusPhasesSinceStart,
+        focusPhasesUntilLongBreak,
+        nextPhase,
+        previousPhase,
+        timerMachine,
+    } = context;
+
+    return {
+        name: value,
+        next: nextPhase,
+        previous: previousPhase,
+
+        focusPhasesUntilLongBreak: focusPhasesUntilLongBreak,
+        focusPhasesSinceStart: focusPhasesSinceStart,
+
+        timer: {
+            state: timerMachine.value,
+            ...timerMachine.context,
+        },
     };
 }
 
 const pomodoroService = interpret(phaseMachine);
 pomodoroService.onTransition((state) => {
-    const {
-        event, ...payload
-    } = serializeState(state, pomodoroService.initialized);
-
-    timer.emit({ event, payload });
+    const { event, ...payload } = serializeState(state);
+    timer.emit({ event: event, payload: formatPhaseMachineState(payload) });
 });
 timer.all((event, payload) => {
     if (pomodoroService.initialized) {
@@ -41,10 +61,12 @@ timer.on("IS_INITIALIZED", (_, respond) => {
     respond(pomodoroService.initialized);
 });
 timer.on("FETCH", (_, respond) => {
-    respond(serializeState(pomodoroService.state));
+    const state = serializeState(pomodoroService.state);
+    respond(formatPhaseMachineState(state));
 });
-timer.on("START", () => {
-    pomodoroService.start();
+timer.on("START", (_, respond) => {
+    const state = serializeState(pomodoroService.start().state);
+    respond(formatPhaseMachineState(state));
 });
 
 settings.on("FETCH", (_, respond) => {

@@ -1,3 +1,11 @@
+<script context="module">
+    export function preload(context) {
+        const { name: phase, timer: { position, remaining, state }} = context;
+
+        return { phase, position, remaining, state };
+    }
+</script>
+
 <script>
     import { isIOS, isMacintosh } from "../../utils/platform";
     import Controls from "./components/controls.svelte";

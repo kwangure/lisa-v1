@@ -1,3 +1,15 @@
+<script context="module">
+    export function preload(context) {
+        const { name, timer: { duration, durationUpdate }} = context;
+
+        return {
+            phase: name,
+            previousDuration: duration,
+            currentDuration: durationUpdate,
+        };
+    }
+</script>
+
 <script>
     import Button from "@kwangure/strawberry/components/Button";
     import Modal from "@kwangure/strawberry/components/Modal";
