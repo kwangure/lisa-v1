@@ -7,13 +7,16 @@
 <script>
     import { Number } from "@kwangure/strawberry/components/Input";
     import Phase from "./_components/phase.svelte";
+    import { updateSettings } from "../../../background/settings-2";
 
-    export let settingStore;
+    export let settings;
+
+    $: updateSettings(settings);
 </script>
 
-<Phase name="Long break" bind:value={$settingStore.phaseSettings.longBreak}>
+<Phase name="Long break" bind:value={settings.phaseSettings.longBreak}>
     <div class="form-item">
-        <Number bind:value={$settingStore.phaseSettings.longBreak.interval}
+        <Number bind:value={settings.phaseSettings.longBreak.interval}
             min={0} max={10} readonly>
             <span slot="label">
                 Long break interval

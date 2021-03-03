@@ -8,6 +8,9 @@ class Timer extends EventHandler {
     destroy() {
         this.emit({ event: "DESTROY" });
     }
+    disable(duration) {
+        this.emit({ event: "DISABLE", payload: duration });
+    }
     dismissRemainingWarning() {
         this.emit({ event: "WARN_REMAINING.DISMISS" });
     }
@@ -17,13 +20,6 @@ class Timer extends EventHandler {
     getState() {
         return this.request("FETCH");
     }
-    ignorePositionUpdate() {
-        this.emit({ event: "POSITION.UPDATE.IGNORE" });
-    }
-    ignoreUpdate() {
-        this.emit({ event: "DURATION.UPDATE.IGNORE" });
-    }
-
     isInitialized() {
         return this.request("IS_INITIALIZED");
     }
@@ -42,37 +38,14 @@ class Timer extends EventHandler {
     play() {
         this.emit({ event: "PLAY" });
     }
-    positionLeft() {
-        this.emit({
-            event: "POSITION.UPDATE.FORCE_SAVE",
-            payload: {
-                position: timerPositions.BOTTOM_LEFT.value,
-            },
-        });
-    }
-    positionRight() {
-        this.emit({
-            event: "POSITION.UPDATE.FORCE_SAVE",
-            namespace: "BACKGROUND.TIMER",
-            payload: {
-                position: timerPositions.BOTTOM_RIGHT.value,
-            },
-        });
-    }
     reset() {
         this.emit({ event: "RESET" });
     }
     restart() {
         this.emit({ event: "RESTART" });
     }
-    savePositionUpdate() {
-        this.emit({ event: "POSITION.UPDATE.SAVE" });
-    }
-    saveUpdate() {
-        this.emit({ event: "DURATION.UPDATE.SAVE" });
-    }
     start() {
-        return this.request("START");
+        this.emit({ event: "START" });
     }
 }
 

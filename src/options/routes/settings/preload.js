@@ -1,5 +1,5 @@
-import { createSettingsWritable } from "../../../common/store/settings";
+import { getSettings } from "../../../background/settings-2.js";
 
-export default async function preload() {
-    return { settingStore: await createSettingsWritable() };
+export default function preload() {
+    return { settings: getSettings() };
 }

@@ -1,8 +1,9 @@
+import { getSettings } from "../../../background/settings-2.js";
 import { readable } from "svelte/store";
 import { settings } from "../../events";
 
-export async function createSettingsWritable() {
-    const initialSettings = await settings.getState();
+export function createSettingsWritable() {
+    const initialSettings = getSettings();
 
     const settingsReadable = readable(initialSettings, (setReadableValue) => {
         const unsubscribe = settings.on("CHANGED", (settings) => {

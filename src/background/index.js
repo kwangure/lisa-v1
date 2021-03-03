@@ -1,81 +1,72 @@
-import { interpret, Interpreter } from "xstate";
+import {
+    getAppearanceSettings,
+    updateAppearanceSettings,
+    updateSettings,
+} from "./settings-2.js";
+import { serializeState, stateOrChildStateChanged } from "./xstate.js";
 import { settings, timer } from "../common/events";
-import { createPhaseMachine } from "./phase/phase.js";
-import settingsWritable from "./settings.js";
+import { createLisaService } from "./phase/phase";
 
-const phaseMachine = createPhaseMachine({
-    settings: settingsWritable.value(),
-});
-function serializeState(state) {
-    const context = {};
-    for (const [key, value] of Object.entries(state.context)) {
-        if (value instanceof Interpreter) {
-            context[key] = serializeState(value.state);
-        } else {
-            context[key] = value;
-        }
+const lisaService = createLisaService();
+
+function formatLisaData(lisaMachineState) {
+    const { value: status, event, children: lisaChildren } = lisaMachineState;
+
+    const formatted = { status, event };
+
+    if (status === "active") {
+        const { phaseMachine } = lisaChildren;
+
+        Object.assign(formatted, {
+            phase: phaseMachine.value,
+            ...phaseMachine.context,
+        });
+
+        const timerMachine = phaseMachine.children.timer;
+        Object.assign(formatted, {
+            timer: {
+                remaining: timerMachine.context.remaining,
+                state: timerMachine.value,
+                position: getAppearanceSettings().timerPosition,
+            },
+        });
     }
-    return {
-        value: state.value,
-        event: state.event.type,
-        context: context,
-        done: state.done,
-    };
-}
-function formatPhaseMachineState(state) {
-    const { context, value } = state;
-    const {
-        focusPhasesSinceStart,
-        focusPhasesUntilLongBreak,
-        nextPhase,
-        previousPhase,
-        timerMachine,
-    } = context;
 
-    return {
-        name: value,
-        next: nextPhase,
-        previous: previousPhase,
-
-        focusPhasesUntilLongBreak: focusPhasesUntilLongBreak,
-        focusPhasesSinceStart: focusPhasesSinceStart,
-
-        timer: {
-            state: timerMachine.value,
-            ...timerMachine.context,
-        },
-    };
+    return formatted;
 }
 
-const pomodoroService = interpret(phaseMachine);
-pomodoroService.onTransition((state) => {
-    const { event, ...payload } = serializeState(state);
-    timer.emit({ event: event, payload: formatPhaseMachineState(payload) });
+// Forward background events to other extension scripts
+lisaService.onTransition((state, event) => {
+    if (stateOrChildStateChanged(state)) {
+        state = serializeState(state);
+        timer.emit({ event: event.type, payload: formatLisaData(state) });
+    }
 });
+
 timer.all((event, payload) => {
-    if (pomodoroService.initialized) {
-        pomodoroService.send(event, { value: payload });
+    if (lisaService.initialized) {
+        lisaService.send(event, { value: payload });
     }
-});
-timer.on("IS_INITIALIZED", (_, respond) => {
-    respond(pomodoroService.initialized);
-});
-timer.on("FETCH", (_, respond) => {
-    const state = serializeState(pomodoroService.state);
-    respond(formatPhaseMachineState(state));
-});
-timer.on("START", (_, respond) => {
-    const state = serializeState(pomodoroService.start().state);
-    respond(formatPhaseMachineState(state));
 });
 
-settings.on("FETCH", (_, respond) => {
-    respond(settingsWritable.value());
+timer.on("FETCH", (_, respond) => {
+    const state = serializeState(lisaService.state);
+
+    respond(formatLisaData(state));
 });
-settings.on("UPDATE", (settingsValue) => {
-    settingsWritable.set(settingsValue);
-    settings.emit({ event: "CHANGED", payload: settingsValue });
-    if (pomodoroService.initialized) {
-        pomodoroService.send("SETTINGS.UPDATE", { value: settingsValue });
-    }
+
+lisaService.start();
+
+settings.on("UPDATE", updateSettings);
+settings.on("UPDATE.APPEARANCE.POSITION", (value) => {
+    const appearanceSettings = getAppearanceSettings();
+    appearanceSettings.timerPosition = value;
+    updateAppearanceSettings(appearanceSettings);
+
+    // TODO: Do this better
+    // Force client update
+    timer.emit({
+        event: "TICK",
+        payload: formatLisaData(serializeState(lisaService.state)),
+    });
 });

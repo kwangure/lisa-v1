@@ -31,8 +31,6 @@
     export let nextPhase;
     export let previousPhase;
 
-    console.log({ nextPhase, previousPhase, focusPhasesSinceStart });
-
     let extendDurationMins = 5;
     let nextStep = "proceed";
 

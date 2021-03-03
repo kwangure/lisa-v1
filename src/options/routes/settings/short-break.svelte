@@ -6,8 +6,11 @@
 
 <script>
     import Phase from "./_components/phase.svelte";
+    import { updateSettings } from "../../../background/settings-2";
 
-    export let settingStore;
+    export let settings;
+
+    $: updateSettings(settings);
 </script>
 
-<Phase name="Short break" bind:value={$settingStore.phaseSettings.shortBreak}/>
+<Phase name="Short break" bind:value={settings.phaseSettings.shortBreak}/>

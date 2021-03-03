@@ -1,10 +1,10 @@
 <script>
-    import { createTimerMachine } from "./state";
+    import { createLisaMachine } from "./state";
     // eslint-disable-next-line camelcase
     import { get_current_component } from "svelte/internal";
 
     const thisComponent = get_current_component();
-    createTimerMachine({ target: thisComponent.shadowRoot })
+    createLisaMachine({ target: thisComponent.shadowRoot })
         .then((timerMachine) => {
             timerMachine.start();
         });

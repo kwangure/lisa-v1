@@ -1,345 +1,245 @@
-import { assign, Machine, send, spawn } from "xstate";
-import audio from "../../common/audio";
-import { createTimerMachine } from "./timer.js";
+/* eslint-disable max-len */
+import { assign, forwardTo, interpret, Machine, sendParent } from "xstate";
+import { forward } from "../../common/xstate.js";
+import { getPhaseSettings, getSettings } from "../settings-2.js";
 
-export function createPhaseMachine(withContext = {}) {
-    function forwardToChild(context, event) {
-        return context.timerMachine.send(event);
-    }
-
-    function assignTimerMachine(phase) {
-        return assign({
-            timerMachine: (context, event) => {
-                context.timerMachine?.stop();
-                const { settings, previousTimerContext } = context;
-                const phaseSettings = settings.phaseSettings[phase];
-                const timerContext = {
-                    duration: phaseSettings.duration,
-                    pauseDuration: phaseSettings.pauseDuration,
-                    warnRemaining: phaseSettings.warnRemaining,
-                    position: settings.appearanceSettings.timerPosition,
-                };
-                if (event.type === "EXTEND") {
-                    timerContext.duration = previousTimerContext.duration;
-                    timerContext.extendedDuration
-                        = previousTimerContext.extendedDuration + event.value;
-                    timerContext.elapsed = previousTimerContext.elapsed;
-                    timerContext.isExtension = true;
-                }
-
-                const timerMachine = createTimerMachine(timerContext);
-                return spawn(timerMachine, { sync: true });
-            },
-        });
-    }
-
-    const eventsToForwardToChild = () => ({
-        "PAUSE": {
-            actions: forwardToChild,
-        },
-        "PAUSE.DEFAULT": {
-            actions: forwardToChild,
-        },
-        "PLAY": {
-            actions: forwardToChild,
-        },
-        "COMPLETE": {
-            actions: forwardToChild,
-        },
-        "RESET": {
-            actions: forwardToChild,
-        },
-        "WARN_REMAINING.DISMISS": {
-            actions: forwardToChild,
-        },
-        "DURATION.UPDATE.SAVE": {
-            actions: forwardToChild,
-        },
-        "DURATION.UPDATE.IGNORE": {
-            actions: forwardToChild,
-        },
-        "POSITION.UPDATE.SAVE": {
-            actions: forwardToChild,
-        },
-        "POSITION.UPDATE.IGNORE": {
-            actions: forwardToChild,
-        },
-    });
-
-    const sharedEvents = {
-        "DONE": [
-            {
-                actions: [
-                    assign({
-                        previousPhase: (_, __, meta) => meta.state.value,
-                        previousTimerContext: (context) => Object.assign(
-                            {},
-                            context.timerMachine.state.context,
-                        ),
-                    }),
-                    assign({
-                        focusPhasesSinceStart: (context, _event) => {
-                            let {
-                                focusPhasesSinceStart = 0,
-                                previousPhase,
-                                previousTimerContext,
-                            } = context;
-                            if (previousPhase === "longBreak") {
-                                return 0;
-                            }
-                            const { isExtension } = previousTimerContext;
-
-                            if (previousPhase === "focus" && !isExtension) {
-                                focusPhasesSinceStart += 1;
-                            }
-
-                            return focusPhasesSinceStart;
-                        },
-                    }),
-                    assign({
-                        focusPhasesUntilLongBreak: (context) => {
-                            const {
-                                settings: { phaseSettings: { longBreak }},
-                                focusPhasesSinceStart,
-                            } = context;
-                            const longBreakInterval = longBreak.interval;
-
-                            // Use % in case `focusPhasesSinceStart` > `longBreakInterval` because
-                            // settings was changed during phase
-                            // eslint-disable-next-line max-len
-                            return longBreakInterval - ((focusPhasesSinceStart - 1) % longBreakInterval) - 1;
-                        },
-                        hasLongBreak: ({ settings }) => (
-                            settings.phaseSettings.longBreak.interval > 0
-                        ),
-                    }),
-                    assign({
-                        nextPhase: (context, _event, meta) => {
-                            const currentPhase = meta.state.value;
-
-                            if (
-                                currentPhase === "shortBreak"
-                                || currentPhase === "longBreak"
-                            ) {
-                                return "focus";
-                            }
-
-                            const {
-                                focusPhasesUntilLongBreak,
-                                hasLongBreak,
-                            } = context;
-                            if (!hasLongBreak) {
-                                return "shortBreak";
-                            }
-
-                            if (focusPhasesUntilLongBreak === 0) {
-                                return "longBreak";
-                            } else {
-                                return "shortBreak";
-                            }
-                        },
-                    }),
-                    send("IDLE"),
-                ],
-            },
-        ],
-        "RESTART": {
-            actions: [
-                assign({
-                    nextPhase: () => "focus",
-                    focusPhasesSinceStart: () => 0,
-                    focusPhasesUntilLongBreak: (context) => (
-                        context.settings.phaseSettings.longBreak
-                    ),
-                }),
-                send("IDLE"),
-            ],
-        },
-        "IDLE": "idle",
-        "SETTINGS.UPDATE": {
-            actions: [
-                assign({
-                    settings: (_context, event) => event.value,
-                }),
-                (context, _event, meta) => {
-                    const { settings, timerMachine } = context;
-                    const currentPhase = meta.state.value;
-                    const settingDuration
-                        = settings.phaseSettings[currentPhase].duration;
-                    timerMachine.send("DURATION.UPDATE", {
-                        durationUpdate: settingDuration,
-                    });
-
-                    const settingsPosition
-                        = settings.appearanceSettings.timerPosition;
-                    timerMachine.send("POSITION.UPDATE", {
-                        positionUpdate: settingsPosition,
-                    });
-                },
-            ],
-        },
-        "POSITION.UPDATE.FORCE_SAVE": {
-            actions: (context, event) => {
-                context.timerMachine.send([
-                    {
-                        type: "POSITION.UPDATE",
-                        positionUpdate: event.value.position,
-                    },
-                    { type: "POSITION.UPDATE.SAVE" },
-                ]);
-            },
-        },
-    };
-
-    const phaseMachine = Machine({
-        id: "phase",
-        initial: "focus",
+function createTimerMachine(phase) {
+    const timerMachine = Machine({
+        initial: "running",
         context: {
-            timerMachine: null,
+            duration: getPhaseSettings(phase).duration,
+            remaining: getPhaseSettings(phase).duration,
+            elapsed: 0,
+            extendedDuration: 0,
         },
         states: {
-            focus: {
-                // TODO: Change timer machine data instead of replacing machine
-                // entirely
-                entry: assignTimerMachine("focus"),
-                on: {
-                    ...eventsToForwardToChild(),
-                    ...sharedEvents,
-                },
-            },
-            shortBreak: {
-                entry: assignTimerMachine("shortBreak"),
-                on: {
-                    ...eventsToForwardToChild(),
-                    ...sharedEvents,
-                },
-            },
-            longBreak: {
-                entry: assignTimerMachine("longBreak"),
-                on: {
-                    ...eventsToForwardToChild(),
-                    ...sharedEvents,
-                },
-            },
-            idle: {
-                entry: [
-                    assign({
-                        isRestart: (_, __, meta) => (
-                            meta.state.event.type === "RESTART"
-                        ),
-                    }),
-                    assign({
-                        notification: (context) => {
-                            const {
-                                isRestart,
-                                nextPhase,
-                                hasLongBreak,
-                                focusPhasesUntilLongBreak,
-                            } = context;
-                            let title = "Start focusing";
-
-                            if (isRestart) {
-                                return;
-                            }
-
-                            if (nextPhase === "shortBreak") {
-                                title = hasLongBreak
-                                    ? "Take a short break"
-                                    : "Take a break";
-                            }
-
-                            if (nextPhase === "longBreak") {
-                                title = "Take a long break";
-                            }
-
-                            const message = focusPhasesUntilLongBreak > 0
-                                // eslint-disable-next-line max-len
-                                ? `${focusPhasesUntilLongBreak} focus sessions until long break`
-                                : "";
-
-                            return new Notification(title, {
-                                body: message,
-                                icon: "images/browser-action.png",
-                                requireInteraction: true,
-                            });
-                        },
-                    }),
-                    (context) => {
-                        const {
-                            isRestart,
-                            previousPhase,
-                            settings: { phaseSettings },
-                        } = context;
-                        if (isRestart) {
-                            return;
-                        }
-                        const notificationSound
-                        = phaseSettings[previousPhase].notification.sound;
-                        if (notificationSound) {
-                            audio.play(notificationSound);
-                        }
-                    },
-                ],
+            running: {
                 invoke: {
-                    src: (context) => (sendParentEvent) => {
-                        if (context.isRestart) {
-                            sendParentEvent("NEXT");
-                        } else {
-                            context.notification.onclick = () => {
-                                sendParentEvent("NEXT");
-                            };
-                        }
+                    src: () => (sendParentEvent) => {
+                        const id = setInterval(() => sendParentEvent("TICK"), 1000);
+
+                        return () => clearInterval(id);
                     },
                 },
+                on: {
+                    TICK: {
+                        actions: [
+                            "elapseSecond",
+                            "calculateRemaining",
+                            "sendParentTick",
+                        ],
+                    },
+                    PAUSE: "paused",
+                    COMPLETE: "completed",
+                },
+                always: [
+                    { target: "completed", cond: "isCompleted" },
+                ],
+            },
+            paused: {
+                initial: "default",
+                states: {
+                    default: {
+                        after: {
+                            PAUSE_DELAY: "reminding",
+                            actions: sendParent("PAUSE.REMIND"),
+                        },
+                    },
+                    reminding: {
+                        on: {
+                            "PAUSE.DEFAULT": "default",
+                        },
+                    },
+                },
+                on: {
+                    COMPLETE: "completed",
+                    PLAY: "running",
+                },
+            },
+            completed: {
+                always: [
+                    { target: "running", cond: "isRunning" },
+                ],
+                type: "final",
+            },
+        },
+    }, {
+        actions: {
+            elapseSecond: assign({
+                elapsed: (context) => {
+                    const { duration } = getPhaseSettings(phase);
+                    const { elapsed, extendedDuration } = context;
+                    return elapsed >= (duration + extendedDuration)
+                        ? elapsed
+                        : elapsed + 1000 /* one second */;
+                },
+            }),
+            calculateRemaining: assign({
+                remaining: (context) => {
+                    const { duration } = getPhaseSettings(phase);
+                    const { extendedDuration, elapsed } = context;
+                    return (duration + extendedDuration) - elapsed;
+                },
+            }),
+            sendParentTick: sendParent("TICK"),
+        },
+        guards: {
+            isCompleted: (context) => context.remaining <= 0,
+            isRunning: (context) => context.remaining > 0,
+        },
+        delays: {
+            PAUSE_DELAY: () => getPhaseSettings(phase).pauseDuration,
+        },
+    });
+
+    return timerMachine;
+}
+
+function createPhaseMachine() {
+    const { phaseSettings } = getSettings();
+    const longBreakInterval = phaseSettings.longBreak.interval;
+
+    function createPhase(phase) {
+        return {
+            [phase]: {
+                invoke: {
+                    id: "timer",
+                    src: createTimerMachine(phase),
+                    onDone: {
+                        target: "transition",
+                        actions: assign({
+                            completedPhase: (context) => ({
+                                name: phase,
+                                context: context,
+                            }),
+                            focusPhasesSinceStart: (context) => {
+                                const { focusPhasesSinceStart = 0, completedPhase } = context;
+                                const { name, context: { wasExtended }} = completedPhase;
+
+                                return (name === "focus" && !wasExtended)
+                                    ? focusPhasesSinceStart + 1
+                                    : focusPhasesSinceStart;
+                            },
+                            focusPhasesInCycle: (context) => {
+                                const { focusPhasesSinceStart } = context;
+
+                                return ((focusPhasesSinceStart - 1) % longBreakInterval) - 1;
+                            },
+                            focusPhasesUntilLongBreak: (context) => {
+                                const { focusPhasesInCycle } = context;
+
+                                return longBreakInterval - focusPhasesInCycle;
+                            },
+                            nextPhase: (context) => {
+                                const { focusPhasesUntilLongBreak } = context;
+
+                                switch (phase) {
+                                    case "shortBreak":
+                                    case "longBreak":
+                                        return "focus";
+                                    default:
+                                }
+
+                                if (longBreakInterval <= 0) {
+                                    return "shortBreak";
+                                }
+
+                                if (focusPhasesUntilLongBreak === 0) {
+                                    return "longBreak";
+                                } else {
+                                    return "shortBreak";
+                                }
+                            },
+                        }),
+                    },
+                },
+                on: {
+                    TICK: {
+                        actions: sendParent("TICK"),
+                    },
+                    ...forward([
+                        "PAUSE",
+                        "PLAY",
+                    ], "timer"),
+                },
+            },
+        };
+    }
+
+    const phaseMachine = Machine({
+        initial: "focus",
+        context: {
+            focusPhasesSinceStart: 0,
+            focusPhasesInCycle: 0,
+            focusPhasesUntilLongBreak: longBreakInterval,
+            nextPhase: "shortBreak",
+        },
+        states: {
+            ...createPhase("focus"),
+            ...createPhase("shortBreak"),
+            ...createPhase("longBreak"),
+            transition: {
                 on: {
                     NEXT: [
-                        {
-                            target: "shortBreak",
-                            cond: (context) => (
-                                context.nextPhase === "shortBreak"
-                            ),
-                        },
-                        {
-                            target: "longBreak",
-                            cond: (context) => (
-                                context.nextPhase === "longBreak"
-                            ),
-                        },
-                        { target: "focus" },
+                        { target: "focus", cond: "focusIsNext" },
+                        { target: "shortBreak", cond: "shortBreakIsNext" },
+                        { target: "longBreak", cond: "longBreakIsNext" },
                     ],
                     EXTEND: [
-                        {
-                            target: "shortBreak",
-                            cond: (context) => (
-                                context.previousPhase === "shortBreak"
-                            ),
-                        },
-                        {
-                            target: "longBreak",
-                            cond: (context) => (
-                                context.previousPhase === "longBreak"
-                            ),
-                        },
-                        { target: "focus" },
+                        { target: "focus", cond: "isFromFocus" },
+                        { target: "shortBreak", cond: "isFromShortBreak" },
+                        { target: "longBreak", cond: "isFromLongBreak" },
                     ],
                 },
-                exit: [
-                    assign({
-                        notification: (context) => {
-                            context.notification?.close();
-                            return null;
-                        },
-                    }),
-                    assign({
-                        isRestart: () => false,
-                    }),
-                ],
+            },
+        },
+    }, {
+        guards: {
+            focusIsNext: (context) => context.nextPhase === "focus",
+            shortBreakIsNext: (context) => context.nextPhase === "shortBreak",
+            longBreakIsNext: (context) => context.nextPhase === "longBreak",
+
+            isFromFocus: (context) => context.completedPhase.name === "focus",
+            isFromShortBreak: (context) => context.completedPhase.name === "shortBreak",
+            isFromLongBreak: (context) => context.completedPhase.name === "longBreak",
+        },
+    });
+
+    return phaseMachine;
+}
+
+export function createLisaService() {
+    const lisaMachine = Machine({
+        initial: "setup",
+        states: {
+            setup: {
+                on: {
+                    DISABLE: "disabled",
+                    START: "active",
+                },
+            },
+            active: {
+                invoke: {
+                    id: "phaseMachine",
+                    src: createPhaseMachine(),
+                },
+                on: {
+                    DISABLE: "disabled",
+                    ...forward([
+                        "PAUSE",
+                        "PLAY",
+                    ], "phaseMachine"),
+                },
+            },
+            disabled: {
+                on: {
+                    ACTIVATE: "active",
+                },
             },
         },
     });
 
-    return phaseMachine.withContext({
-        ...phaseMachine.context,
-        ...withContext,
-    });
+    const lisaService = interpret(lisaMachine);
+
+    return lisaService;
 }

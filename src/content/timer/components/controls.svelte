@@ -6,8 +6,8 @@
         mdiPictureInPictureBottomRightOutline,
         mdiPlayOutline,
     } from "@mdi/js";
+    import { settings, timer } from "../../../common/events";
     import Button from "@kwangure/strawberry/components/Button";
-    import { timer } from "../../../common/events";
 
     export let position;
     export let state;
@@ -37,10 +37,10 @@
     {#if timer.isRightPosition(position)}
         <Button icon={mdiPictureInPictureBottomRightOutline}
             iconProps={{ flip: { horizontal: true }}}
-            on:click={() => timer.positionLeft()}/>
+            on:click={() => settings.appearance.updatePositionBottomLeft()}/>
     {:else}
         <Button icon={mdiPictureInPictureBottomRightOutline}
-            on:click={() => timer.positionRight()}/>
+            on:click={() => settings.appearance.updatePositionBottomRight()}/>
     {/if}
     <Dropdown placement="topRight">
         <div slot="button">
