@@ -1,4 +1,4 @@
-import { getSettings } from "../../../background/settings-2.js";
+import { getSettings } from "../../../background/settings.js";
 import { readable } from "svelte/store";
 import { settings } from "../../events";
 

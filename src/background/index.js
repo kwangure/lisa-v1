@@ -2,7 +2,7 @@ import {
     getAppearanceSettings,
     updateAppearanceSettings,
     updateSettings,
-} from "./settings-2.js";
+} from "./settings.js";
 import { serializeState, stateOrChildStateChanged } from "./xstate.js";
 import { settings, timer } from "../common/events";
 import { createLisaService } from "./phase/phase";

@@ -7,7 +7,7 @@
 <script>
     import { Number } from "@kwangure/strawberry/components/Input";
     import Phase from "./_components/phase.svelte";
-    import { updateSettings } from "../../../background/settings-2";
+    import { updateSettings } from "../../../background/settings";
 
     export let settings;
 

@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
-import { assign, forwardTo, interpret, Machine, sendParent } from "xstate";
+import { assign, interpret, Machine, sendParent } from "xstate";
+import { getPhaseSettings, getSettings } from "../settings.js";
 import { forward } from "../../common/xstate.js";
-import { getPhaseSettings, getSettings } from "../settings-2.js";
 
 function createTimerMachine(phase) {
     const timerMachine = Machine({
