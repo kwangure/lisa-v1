@@ -126,16 +126,20 @@ function createPhaseMachine() {
                             }),
                             assign({
                                 focusPhasesInCycle: (context) => {
-                                    const { focusPhasesSinceStart } = context;
+                                    const { focusPhasesInCycle = 0, completedPhase } = context;
+                                    const { name, context: { wasExtended }} = completedPhase;
 
-                                    return ((focusPhasesSinceStart - 1) % longBreakInterval) - 1;
+                                    if (name === "longBreak") return 0;
+                                    if (name !== "focus" || wasExtended) return focusPhasesInCycle;
+
+                                    return focusPhasesInCycle + 1;
                                 },
                             }),
                             assign({
                                 focusPhasesUntilLongBreak: (context) => {
                                     const { focusPhasesInCycle } = context;
 
-                                    return longBreakInterval - focusPhasesInCycle;
+                                    return longBreakInterval - ((focusPhasesInCycle - 1) % longBreakInterval) - 1;
                                 },
                             }),
                             assign({
@@ -160,6 +164,7 @@ function createPhaseMachine() {
                                     }
                                 },
                             }),
+                            sendParent("DONE"),
                         ],
                     },
                 },
@@ -236,6 +241,7 @@ export function createLisaService() {
                 on: {
                     DISABLE: "disabled",
                     ...forward([
+                        "NEXT",
                         "PAUSE",
                         "PLAY",
                     ], "phaseMachine"),

@@ -23,13 +23,15 @@ function formatLisaData(lisaMachineState) {
         });
 
         const { timerMachine } = phaseMachine.children;
-        Object.assign(formatted, {
-            timer: {
-                remaining: timerMachine.context.remaining,
-                state: timerMachine.value,
-                position: getAppearanceSettings().timerPosition,
-            },
-        });
+        if (timerMachine) {
+            Object.assign(formatted, {
+                timer: {
+                    remaining: timerMachine.context.remaining,
+                    state: timerMachine.value,
+                    position: getAppearanceSettings().timerPosition,
+                },
+            });
+        }
     }
 
     return formatted;

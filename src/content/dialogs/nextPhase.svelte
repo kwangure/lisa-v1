@@ -3,15 +3,15 @@
         const {
             focusPhasesSinceStart,
             focusPhasesUntilLongBreak,
-            next,
-            previous,
+            nextPhase,
+            completedPhase: { name: completedPhase },
         } = context;
 
         return {
-            focusPhasesSinceStart: focusPhasesSinceStart,
-            focusPhasesUntilLongBreak: focusPhasesUntilLongBreak,
-            nextPhase: next,
-            previousPhase: previous,
+            focusPhasesSinceStart,
+            focusPhasesUntilLongBreak,
+            nextPhase,
+            completedPhase,
         };
     }
 </script>
@@ -29,14 +29,14 @@
     export let focusPhasesUntilLongBreak;
     export let focusPhasesSinceStart;
     export let nextPhase;
-    export let previousPhase;
+    export let completedPhase;
 
     let extendDurationMins = 5;
     let nextStep = "proceed";
 
     $: extendedDurationMs = extendDurationMins * 60 * 1000;
     $: nextPhaseName = phaseNames[nextPhase].toLowerCase();
-    $: previousPhaseName = phaseNames[previousPhase].toLowerCase();
+    $: completedPhaseName = phaseNames[completedPhase].toLowerCase();
 </script>
 
 <Modal visible closable="{false}">
@@ -48,7 +48,7 @@
             <Group bind:value={nextStep}>
                 <Radio value="extend">
                     <span slot="label">
-                        Extend {previousPhaseName} by
+                        Extend {completedPhaseName} by
                         <Number bind:value={extendDurationMins} min=0 hideLabel>
                             <span slot="label">Input extend duration</span>
                         </Number>
@@ -73,7 +73,7 @@
         <div class="form-item">
             {#if nextStep === "extend"}
                 <Button fullwidth on:click={() => timer.extendPrevious(extendedDurationMs)}>
-                    Extend {previousPhaseName}
+                    Extend {completedPhaseName}
                 </Button>
             {:else if nextStep === "proceed"}
                 <Button fullwidth on:click={() => timer.nextPhase()}>

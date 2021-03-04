@@ -33,17 +33,25 @@ function destroyComponent() {
 
 function createTimerMachine(target) {
     const timerMachine = Machine({
-        initial: "running",
+        initial: "loading",
         context: {},
         states: {
+            loading: {
+                always: [
+                    { target: "running", cond: "isRunning" },
+                    { target: "paused", cond: "isPaused" },
+                    { target: "transition", cond: "isTransition" },
+                ],
+            },
             running: {
                 id: "running",
                 entry: createComponent(running, target),
                 on: {
+                    DONE: "transition",
+                    PAUSE: "paused",
                     TICK: {
                         actions: updateComponent,
                     },
-                    PAUSE: "paused",
                 },
                 exit: destroyComponent(),
             },
@@ -66,17 +74,24 @@ function createTimerMachine(target) {
                     },
                 },
                 on: {
+                    DONE: "transition",
                     PLAY: "running",
                 },
             },
-            completed: {
+            transition: {
                 entry: createComponent(nextPhase, target),
                 on: {
-                    NEXT: "running",
                     EXTEND: "running",
+                    NEXT: "running",
                 },
                 exit: destroyComponent(),
             },
+        },
+    }, {
+        guards: {
+            isRunning: (context) => context.timer?.state === "running",
+            isPaused: (context) => context.timer?.state.paused,
+            isTransition: (context) => context.phase === "transition",
         },
     });
 
@@ -115,11 +130,13 @@ export async function createLisaMachine(options) {
                 on: {
                     DISABLE: "disabled",
                     ...forward([
-                        "TICK",
+                        "DONE",
+                        "NEXT",
                         "PAUSE",
                         "PAUSE.REMIND",
                         "PAUSE.DEFAULT",
                         "PLAY",
+                        "TICK",
                     ], "timer"),
                 },
             },
