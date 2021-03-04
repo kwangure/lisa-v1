@@ -39,7 +39,14 @@
 
     // eslint-disable-next-line max-params
     function setValue(duration, warnRemaining, pauseDuration, sound) {
-        Object.assign(value, { duration, warnRemaining, pauseDuration, sound });
+        const notification = { sound };
+        Object.assign(value, {
+            duration,
+            warnRemaining,
+            pauseDuration,
+            notification,
+        });
+    
         value = value;
     }
 </script>
