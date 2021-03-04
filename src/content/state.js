@@ -102,9 +102,15 @@ export async function createLisaMachine(options) {
                 invoke: {
                     id: "timer",
                     src: createTimerMachine(target),
-                    // This is xState's API
+                    // `data` here is xState's API
                     // eslint-disable-next-line id-denylist
-                    data: (_, event) => event,
+                    data: (_, event) => {
+                        // `initial` was "active"
+                        if (event.type === "xstate.init") return initialState;
+
+                        // got to "active" through "setup" state
+                        return event;
+                    },
                 },
                 on: {
                     DISABLE: "disabled",
