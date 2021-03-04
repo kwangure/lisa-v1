@@ -6,12 +6,6 @@ import { forward } from "../../common/xstate.js";
 function createTimerMachine(phase) {
     const timerMachine = Machine({
         initial: "running",
-        context: {
-            duration: getPhaseSettings(phase).duration,
-            remaining: getPhaseSettings(phase).duration,
-            elapsed: 0,
-            extendedDuration: 0,
-        },
         states: {
             running: {
                 invoke: {
@@ -105,6 +99,23 @@ function createPhaseMachine() {
                 invoke: {
                     id: "timerMachine",
                     src: createTimerMachine(phase),
+                    // `data` here is xState's API
+                    // eslint-disable-next-line id-denylist
+                    data: (_, event) => {
+                        const { duration } = getPhaseSettings(phase);
+                        const { value: extendedDuration = 0 } = event;
+
+                        let remaining, elapsed;
+                        if (event.type === "EXTEND") {
+                            remaining = extendedDuration;
+                            elapsed = duration;
+                        } else {
+                            remaining = duration;
+                            elapsed = 0;
+                        }
+
+                        return { duration, remaining, elapsed, extendedDuration };
+                    },
                     onDone: {
                         target: "transition",
                         actions: [
@@ -241,6 +252,7 @@ export function createLisaService() {
                 on: {
                     DISABLE: "disabled",
                     ...forward([
+                        "EXTEND",
                         "NEXT",
                         "PAUSE",
                         "PLAY",

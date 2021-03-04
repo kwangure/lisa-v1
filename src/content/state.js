@@ -131,6 +131,7 @@ export async function createLisaMachine(options) {
                     DISABLE: "disabled",
                     ...forward([
                         "DONE",
+                        "EXTEND",
                         "NEXT",
                         "PAUSE",
                         "PAUSE.REMIND",
@@ -148,6 +149,7 @@ export async function createLisaMachine(options) {
 
     // Forward background events to client
     timer.all((event, payload) => {
+        console.log({ event, payload });
         timerService.send(event, payload);
     });
 
