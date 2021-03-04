@@ -103,7 +103,7 @@ function createPhaseMachine() {
         return {
             [phase]: {
                 invoke: {
-                    id: "timer",
+                    id: "timerMachine",
                     src: createTimerMachine(phase),
                     onDone: {
                         target: "transition",
@@ -170,7 +170,7 @@ function createPhaseMachine() {
                     ...forward([
                         "PAUSE",
                         "PLAY",
-                    ], "timer"),
+                    ], "timerMachine"),
                 },
             },
         };

@@ -22,7 +22,7 @@ function formatLisaData(lisaMachineState) {
             ...phaseMachine.context,
         });
 
-        const timerMachine = phaseMachine.children.timer;
+        const { timerMachine } = phaseMachine.children;
         Object.assign(formatted, {
             timer: {
                 remaining: timerMachine.context.remaining,
