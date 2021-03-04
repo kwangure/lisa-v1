@@ -107,50 +107,60 @@ function createPhaseMachine() {
                     src: createTimerMachine(phase),
                     onDone: {
                         target: "transition",
-                        actions: assign({
-                            completedPhase: (context) => ({
-                                name: phase,
-                                context: context,
+                        actions: [
+                            assign({
+                                completedPhase: (context) => ({
+                                    name: phase,
+                                    context: context,
+                                }),
                             }),
-                            focusPhasesSinceStart: (context) => {
-                                const { focusPhasesSinceStart = 0, completedPhase } = context;
-                                const { name, context: { wasExtended }} = completedPhase;
+                            assign({
+                                focusPhasesSinceStart: (context) => {
+                                    const { focusPhasesSinceStart = 0, completedPhase } = context;
+                                    const { name, context: { wasExtended }} = completedPhase;
 
-                                return (name === "focus" && !wasExtended)
-                                    ? focusPhasesSinceStart + 1
-                                    : focusPhasesSinceStart;
-                            },
-                            focusPhasesInCycle: (context) => {
-                                const { focusPhasesSinceStart } = context;
+                                    return (name === "focus" && !wasExtended)
+                                        ? focusPhasesSinceStart + 1
+                                        : focusPhasesSinceStart;
+                                },
+                            }),
+                            assign({
+                                focusPhasesInCycle: (context) => {
+                                    const { focusPhasesSinceStart } = context;
 
-                                return ((focusPhasesSinceStart - 1) % longBreakInterval) - 1;
-                            },
-                            focusPhasesUntilLongBreak: (context) => {
-                                const { focusPhasesInCycle } = context;
+                                    return ((focusPhasesSinceStart - 1) % longBreakInterval) - 1;
+                                },
+                            }),
+                            assign({
+                                focusPhasesUntilLongBreak: (context) => {
+                                    const { focusPhasesInCycle } = context;
 
-                                return longBreakInterval - focusPhasesInCycle;
-                            },
-                            nextPhase: (context) => {
-                                const { focusPhasesUntilLongBreak } = context;
+                                    return longBreakInterval - focusPhasesInCycle;
+                                },
+                            }),
+                            assign({
+                                nextPhase: (context) => {
+                                    const { focusPhasesUntilLongBreak } = context;
 
-                                switch (phase) {
-                                    case "shortBreak":
-                                    case "longBreak":
-                                        return "focus";
-                                    default:
-                                }
+                                    switch (phase) {
+                                        case "shortBreak":
+                                        case "longBreak":
+                                            return "focus";
+                                        default:
+                                    }
 
-                                if (longBreakInterval <= 0) {
-                                    return "shortBreak";
-                                }
+                                    if (longBreakInterval <= 0) {
+                                        return "shortBreak";
+                                    }
 
-                                if (focusPhasesUntilLongBreak === 0) {
-                                    return "longBreak";
-                                } else {
-                                    return "shortBreak";
-                                }
-                            },
-                        }),
+                                    if (focusPhasesUntilLongBreak === 0) {
+                                        return "longBreak";
+                                    } else {
+                                        return "shortBreak";
+                                    }
+                                },
+                            }),
+                        ],
                     },
                 },
                 on: {
