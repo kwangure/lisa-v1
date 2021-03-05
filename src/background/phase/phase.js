@@ -103,13 +103,14 @@ function createPhaseMachine() {
                     // eslint-disable-next-line id-denylist
                     data: (_, event) => {
                         const { duration } = getPhaseSettings(phase);
-                        const { value: extendedDuration = 0 } = event;
 
-                        let remaining, elapsed;
+                        let remaining, elapsed, extendedDuration;
                         if (event.type === "EXTEND") {
-                            remaining = extendedDuration;
+                            extendedDuration = event.value;
+                            remaining = event.value;
                             elapsed = duration;
                         } else {
+                            extendedDuration = 0;
                             remaining = duration;
                             elapsed = 0;
                         }
