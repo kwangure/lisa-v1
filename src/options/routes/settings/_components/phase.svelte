@@ -46,7 +46,7 @@
             pauseDuration,
             notification,
         });
-    
+
         value = value;
     }
 </script>
