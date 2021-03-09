@@ -25,9 +25,6 @@ class Settings extends EventHandler {
     reset() {
         this.emit({ event: "RESET" });
     }
-    update(settings) {
-        this.emit({ event: "UPDATE", payload: settings });
-    }
 }
 
 export default new Settings();

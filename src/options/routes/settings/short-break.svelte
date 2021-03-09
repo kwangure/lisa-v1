@@ -1,16 +1,9 @@
-<script context="module">
-    import preload from "./preload.js";
-
-    export { preload };
-</script>
-
 <script>
+    import settings, { close } from "../../../background/settings";
+    import { onDestroy } from "svelte";
     import Phase from "./_components/phase.svelte";
-    import { updateSettings } from "../../../background/settings";
 
-    export let settings;
-
-    $: updateSettings(settings);
+    onDestroy(close);
 </script>
 
 <Phase name="Short break" bind:value={settings.phaseSettings.shortBreak}/>

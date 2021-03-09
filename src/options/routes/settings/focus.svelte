@@ -1,16 +1,9 @@
-<script context="module">
-    import preload from "./preload.js";
-
-    export { preload };
-</script>
-
 <script>
+    import settings, { close } from "../../../background/settings";
+    import { onDestroy } from "svelte";
     import Phase from "./_components/phase.svelte";
-    import { updateSettings } from "../../../background/settings";
 
-    export let settings;
-
-    $: updateSettings(settings);
+    onDestroy(close);
 </script>
 
-<Phase name="Focus" bind:value={settings.phaseSettings.focus}/>
+<Phase name="Focus" value={settings.phaseSettings.focus}/>

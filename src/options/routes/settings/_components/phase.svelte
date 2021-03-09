@@ -13,9 +13,16 @@
     const ONE_MINUTE = 60000;
 
     const duration = writable(value.duration / ONE_MINUTE);
+    $: value.duration = $duration * ONE_MINUTE;
+
     const sound = writable(value.notification.sound);
+    $: value.notification.sound = $sound;
+
     const warnRemaining = writable(value.warnRemaining / ONE_MINUTE);
+    $: value.warnRemaining = $warnRemaining * ONE_MINUTE;
+
     const pauseDuration = writable(value.pauseDuration / ONE_MINUTE);
+    $: value.pauseDuration = $pauseDuration * ONE_MINUTE;
 
     const audioPlaying = derived(sound, ($sound, setAudioPlaying) => {
         const emptyOrUnchanged = !$sound || $sound === value.notification.sound;
@@ -29,26 +36,6 @@
             setAudioPlaying(true);
         });
     });
-
-    $: setValue(
-        $duration * ONE_MINUTE,
-        $warnRemaining * ONE_MINUTE,
-        $pauseDuration * ONE_MINUTE,
-        $sound,
-    );
-
-    // eslint-disable-next-line max-params
-    function setValue(duration, warnRemaining, pauseDuration, sound) {
-        const notification = { sound };
-        Object.assign(value, {
-            duration,
-            warnRemaining,
-            pauseDuration,
-            notification,
-        });
-
-        value = value;
-    }
 </script>
 
 <div class="phase">

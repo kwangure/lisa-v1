@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { assign, interpret, Machine, sendParent } from "xstate";
-import { getPhaseSettings, getSettings } from "../settings.js";
 import { forward } from "../../common/xstate.js";
+import settings from "../settings.js";
 
 function createTimerMachine(phase) {
     const timerMachine = Machine({
@@ -61,7 +61,7 @@ function createTimerMachine(phase) {
         actions: {
             elapseSecond: assign({
                 elapsed: (context) => {
-                    const { duration } = getPhaseSettings(phase);
+                    const { duration } = settings.phaseSettings[phase];
                     const { elapsed, extendedDuration } = context;
                     return elapsed >= (duration + extendedDuration)
                         ? elapsed
@@ -70,7 +70,7 @@ function createTimerMachine(phase) {
             }),
             calculateRemaining: assign({
                 remaining: (context) => {
-                    const { duration } = getPhaseSettings(phase);
+                    const { duration } = settings.phaseSettings[phase];
                     const { extendedDuration, elapsed } = context;
                     return (duration + extendedDuration) - elapsed;
                 },
@@ -82,7 +82,7 @@ function createTimerMachine(phase) {
             isRunning: (context) => context.remaining > 0,
         },
         delays: {
-            PAUSE_DELAY: () => getPhaseSettings(phase).pauseDuration,
+            PAUSE_DELAY: () => settings.phaseSettings[phase].pauseDuration,
         },
     });
 
@@ -90,7 +90,7 @@ function createTimerMachine(phase) {
 }
 
 function createPhaseMachine() {
-    const { phaseSettings } = getSettings();
+    const { phaseSettings } = settings;
     const longBreakInterval = phaseSettings.longBreak.interval;
 
     function createPhase(phase) {
@@ -102,7 +102,7 @@ function createPhaseMachine() {
                     // `data` here is xState's API
                     // eslint-disable-next-line id-denylist
                     data: (_, event) => {
-                        const { duration } = getPhaseSettings(phase);
+                        const { duration } = settings.phaseSettings[phase];
 
                         let remaining, elapsed, extendedDuration;
                         if (event.type === "EXTEND") {

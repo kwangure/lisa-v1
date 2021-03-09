@@ -1,11 +1,7 @@
-import {
-    getAppearanceSettings,
-    updateAppearanceSettings,
-    updateSettings,
-} from "./settings.js";
 import { serializeState, stateOrChildStateChanged } from "./xstate.js";
-import { settings, timer } from "../common/events";
+import { settings as settingsEvents, timer } from "../common/events";
 import { createLisaService } from "./phase/phase";
+import settings from "./settings";
 
 const lisaService = createLisaService();
 
@@ -28,7 +24,7 @@ function formatLisaData(lisaMachineState) {
                 timer: {
                     remaining: timerMachine.context.remaining,
                     state: timerMachine.value,
-                    position: getAppearanceSettings().timerPosition,
+                    position: settings.appearanceSettings.timerPosition,
                 },
             });
         }
@@ -59,14 +55,11 @@ timer.on("FETCH", (_, respond) => {
 
 lisaService.start();
 
-settings.on("UPDATE", updateSettings);
-settings.on("UPDATE.APPEARANCE.POSITION", (value) => {
-    const appearanceSettings = getAppearanceSettings();
-    appearanceSettings.timerPosition = value;
-    updateAppearanceSettings(appearanceSettings);
+settingsEvents.on("UPDATE.APPEARANCE.POSITION", (value) => {
+    settings.appearanceSettings.timerPosition = value;
 
-    // TODO: Do this better
     // Force client update
+    // TODO: Do this better
     timer.emit({
         event: "TICK",
         payload: formatLisaData(serializeState(lisaService.state)),

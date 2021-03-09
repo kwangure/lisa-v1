@@ -1,29 +1,13 @@
-import { defaultSettings } from "../common/store/settings";
+import { target, watch } from "proxy-watcher";
+import { defaultSettings } from "../common/store/settings/default";
 
-export function getSettings() {
-    return JSON.parse(localStorage.getItem("settings")) || defaultSettings;
-}
+const initialSettings = JSON.parse(localStorage.getItem("settings"));
+const settings = initialSettings || defaultSettings;
 
-export function getPhaseSettings(phase) {
-    const { phaseSettings } = getSettings();
+const [proxy, disable] = watch(settings, () => {
+    const settings = JSON.stringify(target(proxy));
+    localStorage.setItem("settings", settings);
+});
 
-    return phase
-        ? phaseSettings[phase]
-        : phaseSettings;
-}
-
-export function getAppearanceSettings() {
-    const { appearanceSettings } = getSettings();
-
-    return appearanceSettings;
-}
-
-export function updateSettings(newSettings) {
-    localStorage.setItem("settings", JSON.stringify(newSettings));
-}
-
-export function updateAppearanceSettings(appearanceSettings) {
-    const settings = getSettings();
-    settings.appearanceSettings = appearanceSettings;
-    updateSettings(settings);
-}
+export default proxy;
+export { disable as close };
