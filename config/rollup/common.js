@@ -1,8 +1,8 @@
 /* global process */
-import eslint from "@rollup/plugin-eslint";
-// import { terser } from "rollup-plugin-terser";
 import commonjs from "@rollup/plugin-commonjs";
 import copy from "rollup-plugin-copy";
+import eslint from "@rollup/plugin-eslint";
+// import { terser } from "rollup-plugin-terser";
 import path from "path";
 import replace from "@rollup/plugin-replace";
 import resolve from "@rollup/plugin-node-resolve";
@@ -39,16 +39,16 @@ export default {
         }),
         resolve({
             browser: true,
-            dedupe: importee => importee === "svelte" || importee.startsWith("svelte/"),
+            dedupe: (importee) => importee === "svelte" || importee.startsWith("svelte/"),
             preferBuiltins: true,
         }),
         // PRODUCTION && terser(),
         commonjs(),
     ],
     onwarn: (warning, warn) => {
-        const unusedCSSWarning =
-            warning.pluginCode === "css-unused-selector" &&
-            /[/\\]strawberry[/\\]/.test(warning.filename);
+        const unusedCSSWarning
+            = warning.pluginCode === "css-unused-selector"
+            && (/[/\\]strawberry[/\\]/).test(warning.filename);
 
         if (unusedCSSWarning) {
             return;
@@ -57,7 +57,7 @@ export default {
     },
 };
 
-export function copyHTMLPlugin({ script = JS_ENTRY_OUT, title = "Lisa", dir } ) {
+export function copyHTMLPlugin({ script = JS_ENTRY_OUT, title = "Lisa", dir }) {
     return copy({
         targets: [{
             src: "static/index.html",
