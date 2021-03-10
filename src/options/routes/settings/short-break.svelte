@@ -1,9 +1,16 @@
-<script>
-    import settings, { close } from "../../../background/settings";
-    import { onDestroy } from "svelte";
-    import Phase from "./_components/phase.svelte";
-
-    onDestroy(close);
+<script context="module">
+    import createSettingStore from "./settings";
+    export async function preload() {
+        return {
+            settingStore: await createSettingStore(),
+        };
+    }
 </script>
 
-<Phase name="Short break" bind:value={settings.phaseSettings.shortBreak}/>
+<script>
+    import Phase from "./_components/phase.svelte";
+
+    export let settingStore;
+</script>
+
+<Phase name="Short break" bind:value={$settingStore.phaseSettings.shortBreak}/>

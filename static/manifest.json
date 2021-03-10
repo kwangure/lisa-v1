@@ -6,7 +6,7 @@
     "homepage_url": "https://github.com/kwangure/lisa",
     "manifest_version": 2,
     "offline_enabled": true,
-    "background": { 
+    "background": {
         "scripts": [
             "__BACKGROUND_JS__",
             "__RELOAD_JS__"
@@ -25,7 +25,8 @@
     },
     "permissions": [
         "notifications",
-        "activeTab"
+        "activeTab",
+        "storage"
     ],
     "icons": {
         "128": "__BROWSER_ACTION__"

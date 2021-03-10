@@ -1,9 +1,16 @@
-<script>
-    import settings, { close } from "../../../background/settings";
-    import { onDestroy } from "svelte";
-    import Phase from "./_components/phase.svelte";
-
-    onDestroy(close);
+<script context="module">
+    import createSettingStore from "./settings";
+    export async function preload() {
+        return {
+            settingStore: await createSettingStore(),
+        };
+    }
 </script>
 
-<Phase name="Focus" value={settings.phaseSettings.focus}/>
+<script>
+    import Phase from "./_components/phase.svelte";
+
+    export let settingStore;
+</script>
+
+<Phase name="Focus" bind:value={$settingStore.phaseSettings.focus}/>

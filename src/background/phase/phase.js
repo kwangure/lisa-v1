@@ -1,9 +1,9 @@
 /* eslint-disable max-len */
 import { assign, interpret, Machine, sendParent } from "xstate";
+import createSettings from "../settings.js";
 import { forward } from "../../common/xstate.js";
-import settings from "../settings.js";
 
-function createTimerMachine(phase) {
+function createTimerMachine(phase, settings) {
     const timerMachine = Machine({
         initial: "running",
         states: {
@@ -89,7 +89,7 @@ function createTimerMachine(phase) {
     return timerMachine;
 }
 
-function createPhaseMachine() {
+function createPhaseMachine(settings) {
     const { phaseSettings } = settings;
     const longBreakInterval = phaseSettings.longBreak.interval;
 
@@ -98,7 +98,7 @@ function createPhaseMachine() {
             [phase]: {
                 invoke: {
                     id: "timerMachine",
-                    src: createTimerMachine(phase),
+                    src: createTimerMachine(phase, settings),
                     // `data` here is xState's API
                     // eslint-disable-next-line id-denylist
                     data: (_, event) => {
@@ -235,7 +235,8 @@ function createPhaseMachine() {
     return phaseMachine;
 }
 
-export function createLisaService() {
+export async function createLisaService() {
+    const settings = await createSettings();
     const lisaMachine = Machine({
         initial: "setup",
         states: {
@@ -248,7 +249,7 @@ export function createLisaService() {
             active: {
                 invoke: {
                     id: "phaseMachine",
-                    src: createPhaseMachine(),
+                    src: createPhaseMachine(settings),
                 },
                 on: {
                     DISABLE: "disabled",
@@ -270,5 +271,5 @@ export function createLisaService() {
 
     const lisaService = interpret(lisaMachine);
 
-    return lisaService;
+    return [lisaService, settings];
 }

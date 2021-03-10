@@ -1,15 +1,22 @@
-<script>
-    import settings, { close } from "../../../background/settings";
-    import { Number } from "@kwangure/strawberry/components/Input";
-    import { onDestroy } from "svelte";
-    import Phase from "./_components/phase.svelte";
-
-    onDestroy(close);
+<script context="module">
+    import createSettingStore from "./settings";
+    export async function preload() {
+        return {
+            settingStore: await createSettingStore(),
+        };
+    }
 </script>
 
-<Phase name="Long break" value={settings.phaseSettings.shortBreak}>
+<script>
+    import { Number } from "@kwangure/strawberry/components/Input";
+    import Phase from "./_components/phase.svelte";
+
+    export let settingStore;
+</script>
+
+<Phase name="Long break" bind:value={$settingStore.phaseSettings.longBreak}>
     <div class="form-item">
-        <Number bind:value={settings.phaseSettings.longBreak.interval}
+        <Number bind:value={$settingStore.phaseSettings.longBreak.interval}
             min={0} max={10} readonly>
             <span slot="label">
                 Long break interval

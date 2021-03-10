@@ -1,10 +1,10 @@
-import { target, watch } from "proxy-watcher";
-import { defaultSettings } from "../common/store/settings/default";
+import { defaultSettings } from "../../../common/store/settings/default";
+import { writable } from "svelte/store";
 
 // eslint-disable-next-line no-undef
 const storage = chrome.storage.local;
 
-export default function createSettings() {
+export default function createSettingStore() {
     return new Promise((resolve) => {
         storage.getBytesInUse("settings", async (bytesInUse) => {
             let settings = {};
@@ -19,15 +19,17 @@ export default function createSettings() {
                 });
             }
 
-            const [proxy] = watch(settings, () => {
-                storage.set({ settings: target(proxy) });
+            const settingsWritable = writable(settings);
+
+            settingsWritable.subscribe((settings) => {
+                storage.set({ settings });
             });
 
             storage.onChanged.addListener(({ settings }) => {
-                Object.assign(proxy, settings.newValue);
+                settingsWritable.set(settings.newValue);
             });
 
-            resolve(proxy);
+            resolve(settingsWritable);
         });
     });
 }
