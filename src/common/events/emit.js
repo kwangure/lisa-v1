@@ -1,4 +1,3 @@
-/* global chrome */
 // @ts-nocheck
 export function sendMessageToTabs(message) {
     if (chrome.tabs) {

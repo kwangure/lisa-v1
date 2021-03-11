@@ -1,4 +1,3 @@
-/* global chrome */
 const chromeAPIs = {
     management: ["getSelf"],
     runtime: ["getPackageDirectoryEntry"],

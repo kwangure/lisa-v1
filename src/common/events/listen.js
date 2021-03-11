@@ -1,4 +1,3 @@
-/* global chrome */
 import { sendMessageToRuntime, sendMessageToTabs } from "./emit.js";
 import { escapeRegExp } from "../../utils/regex.js";
 
