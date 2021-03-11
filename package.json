@@ -11,7 +11,7 @@
     "xstate": "^4.11.0"
   },
   "devDependencies": {
-    "@kwangure/eslint-config-svelte": "^0.1.8",
+    "@kwangure/eslint-config-svelte": "^0.1.10",
     "@rollup/plugin-commonjs": "^15.0.0",
     "@rollup/plugin-eslint": "^8.0.1",
     "@rollup/plugin-node-resolve": "^9.0.0",
