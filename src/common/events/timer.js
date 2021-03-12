@@ -1,5 +1,5 @@
 import { EventHandler } from "./listen.js";
-import { timerPositions } from "../store/settings/default";
+import { timerPositions } from "../settings";
 
 class Timer extends EventHandler {
     constructor() {

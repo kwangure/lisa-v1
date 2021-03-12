@@ -9,7 +9,7 @@
 
 <script>
     import Select, { Option } from "@kwangure/strawberry/components/Select";
-    import { timerPositions } from "../../common/store/settings/default";
+    import { timerPositions } from "../../common/settings";
 
     export let settingStore;
 </script>

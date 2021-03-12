@@ -1,5 +1,5 @@
 import { target, watch } from "proxy-watcher";
-import { defaultSettings } from "../common/store/settings/default";
+import { defaultSettings } from "../common/settings";
 
 // eslint-disable-next-line no-undef
 const storage = chrome.storage.local;

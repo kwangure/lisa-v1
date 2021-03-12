@@ -1,4 +1,4 @@
-import { minutesToMilliseconds } from "../../../utils/time";
+import { minutesToMilliseconds } from "../../utils/time";
 
 export const timerPositions = {
     BOTTOM_LEFT: {

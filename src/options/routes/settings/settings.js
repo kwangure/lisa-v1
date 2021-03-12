@@ -1,4 +1,4 @@
-import { defaultSettings } from "../../../common/store/settings/default";
+import { defaultSettings } from "../../../common/settings";
 import { writable } from "svelte/store";
 
 // eslint-disable-next-line no-undef

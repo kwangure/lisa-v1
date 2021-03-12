@@ -11,8 +11,6 @@
     let nextStep = "activate";
 
     $: extendedDurationMs = disableDurationMins * 60 * 1000;
-
-    console.log("running setup", { script });
 </script>
 
 {#if script === "content"}

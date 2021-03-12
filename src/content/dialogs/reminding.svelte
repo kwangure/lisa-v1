@@ -10,7 +10,7 @@
     import Button from "@kwangure/strawberry/components/Button";
     import { millisecondsToHumanReadableTime } from "../../utils/time";
     import Modal from "@kwangure/strawberry/components/Modal";
-    import { phaseNames } from "../../common/store/settings/default";
+    import { phaseNames } from "../../common/settings";
     import { timer } from "../../common/events";
 
     export let script;
