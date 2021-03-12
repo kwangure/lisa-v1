@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { assign, interpret, Machine, sendParent } from "xstate";
 import createSettings from "../settings.js";
 import { forward } from "../../common/xstate.js";
@@ -151,7 +150,9 @@ function createPhaseMachine(settings) {
                                 focusPhasesUntilLongBreak: (context) => {
                                     const { focusPhasesInCycle } = context;
 
-                                    return longBreakInterval - ((focusPhasesInCycle - 1) % longBreakInterval) - 1;
+                                    return longBreakInterval
+                                        - ((focusPhasesInCycle - 1) % longBreakInterval)
+                                        - 1;
                                 },
                             }),
                             assign({
