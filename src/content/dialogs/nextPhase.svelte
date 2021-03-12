@@ -26,6 +26,7 @@
     import { phaseNames } from "../../common/store/settings/default";
     import { timer } from "../../common/events";
 
+    export let script;
     export let focusPhasesUntilLongBreak;
     export let focusPhasesSinceStart;
     export let nextPhase;
@@ -39,50 +40,55 @@
     $: completedPhaseName = phaseNames[completedPhase].toLowerCase();
 </script>
 
-<Modal visible closable="{false}">
-    <div slot="content">
-        <div class="form-item">
-            What would you like to do?
+{#if script === "content"}
+    <Modal visible closable="{false}">
+        <div slot="content">
+            <div class="form-item">
+                What would you like to do?
+            </div>
+            <div class="form-item">
+                <Group bind:value={nextStep}>
+                    <Radio value="extend">
+                        <span slot="label">
+                            Extend {completedPhaseName} by
+                            <Number bind:value={extendDurationMins} min=0 hideLabel>
+                                <span slot="label">Input extend duration</span>
+                            </Number>
+                            minutes
+                        </span>
+                    </Radio>
+                    <Radio  value="proceed">
+                        <span slot="label">
+                            Proceed to {nextPhaseName}
+                        </span>
+                    </Radio>
+                </Group>
+            </div>
+            <div class="form-item tip">
+                <Icon path={mdiInformationOutline} size="16"/>
+                {#if focusPhasesUntilLongBreak === 0}
+                    You have completed {focusPhasesSinceStart} focus sessions!
+                {:else}
+                    You have {focusPhasesUntilLongBreak} focus sessions until the long break.
+                {/if}
+            </div>
+            <div class="form-item">
+                {#if nextStep === "extend"}
+                    <Button fullwidth on:click={() => timer.extendPrevious(extendedDurationMs)}>
+                        Extend {completedPhaseName}
+                    </Button>
+                {:else if nextStep === "proceed"}
+                    <Button fullwidth on:click={() => timer.nextPhase()}>
+                        Continue to {nextPhaseName}
+                    </Button>
+                {/if}
+            </div>
         </div>
-        <div class="form-item">
-            <Group bind:value={nextStep}>
-                <Radio value="extend">
-                    <span slot="label">
-                        Extend {completedPhaseName} by
-                        <Number bind:value={extendDurationMins} min=0 hideLabel>
-                            <span slot="label">Input extend duration</span>
-                        </Number>
-                        minutes
-                    </span>
-                </Radio>
-                <Radio  value="proceed">
-                    <span slot="label">
-                        Proceed to {nextPhaseName}
-                    </span>
-                </Radio>
-            </Group>
-        </div>
-        <div class="form-item tip">
-            <Icon path={mdiInformationOutline} size="16"/>
-            {#if focusPhasesUntilLongBreak === 0}
-                You have completed {focusPhasesSinceStart} focus sessions!
-            {:else}
-                You have {focusPhasesUntilLongBreak} focus sessions until the long break.
-            {/if}
-        </div>
-        <div class="form-item">
-            {#if nextStep === "extend"}
-                <Button fullwidth on:click={() => timer.extendPrevious(extendedDurationMs)}>
-                    Extend {completedPhaseName}
-                </Button>
-            {:else if nextStep === "proceed"}
-                <Button fullwidth on:click={() => timer.nextPhase()}>
-                    Continue to {nextPhaseName}
-                </Button>
-            {/if}
-        </div>
-    </div>
-</Modal>
+    </Modal>
+{:else if script === "popup"}
+    Transitioning to {nextPhaseName}.
+{/if}
+
 
 <style>
     [slot=content] :global(.berry-input-radio) {

@@ -4,7 +4,10 @@
     import { get_current_component } from "svelte/internal";
 
     const thisComponent = get_current_component();
-    createLisaMachine({ target: thisComponent.shadowRoot })
+    createLisaMachine({
+        target: thisComponent.shadowRoot,
+        script: "content",
+    })
         .then((timerMachine) => {
             timerMachine.start();
         });

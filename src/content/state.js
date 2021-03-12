@@ -8,13 +8,16 @@ import { timer } from "../common/events";
 
 let instance, preload, target;
 
-function createComponent(component) {
+function createComponent(component, script) {
     return (context, event) => {
         const props = event.type === "xstate.init" ? context : event;
         preload = component.preload || (() => {});
         instance = new component.default({
             target: target,
-            props: preload(props),
+            props: {
+                script,
+                ...preload(props),
+            },
         });
     };
 }
@@ -31,7 +34,7 @@ function destroyComponent() {
     };
 }
 
-function createTimerMachine(target) {
+function createTimerMachine(script) {
     const timerMachine = Machine({
         initial: "loading",
         context: {},
@@ -45,7 +48,7 @@ function createTimerMachine(target) {
             },
             running: {
                 id: "running",
-                entry: createComponent(running, target),
+                entry: createComponent(running, script),
                 on: {
                     DONE: "transition",
                     PAUSE: "paused",
@@ -59,14 +62,14 @@ function createTimerMachine(target) {
                 initial: "default",
                 states: {
                     default: {
-                        entry: createComponent(running, target),
+                        entry: createComponent(running, script),
                         on: {
                             "PAUSE.REMIND": "reminding",
                         },
                         exit: destroyComponent(),
                     },
                     reminding: {
-                        entry: createComponent(reminding, target),
+                        entry: createComponent(reminding, script),
                         on: {
                             "PAUSE.DEFAULT": "default",
                         },
@@ -79,7 +82,7 @@ function createTimerMachine(target) {
                 },
             },
             transition: {
-                entry: createComponent(nextPhase, target),
+                entry: createComponent(nextPhase, script),
                 on: {
                     EXTEND: "running",
                     NEXT: "running",
@@ -100,13 +103,14 @@ function createTimerMachine(target) {
 
 export async function createLisaMachine(options) {
     target = options.target || document.body;
+    const { script } = options;
     const initialState = await timer.getState();
     const timerMachine = Machine({
         initial: initialState.status,
         context: {},
         states: {
             setup: {
-                entry: createComponent(setup, target),
+                entry: createComponent(setup, script),
                 on: {
                     DISABLE: "disabled",
                     START: "active",
@@ -116,7 +120,7 @@ export async function createLisaMachine(options) {
             active: {
                 invoke: {
                     id: "timer",
-                    src: createTimerMachine(target),
+                    src: createTimerMachine(script),
                     // `data` here is xState's API
                     // eslint-disable-next-line id-denylist
                     data: (_, event) => {

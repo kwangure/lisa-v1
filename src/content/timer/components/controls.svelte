@@ -55,6 +55,7 @@
     .controls {
         display: flex;
         margin: 0 10px;
+        justify-content: center;
     }
     .controls.hidden {
         display: none;

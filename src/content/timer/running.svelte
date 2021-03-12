@@ -12,7 +12,9 @@
     import { millisecondsToHumanReadableTime } from "../../utils/time";
     import Notification from "@kwangure/strawberry/components/Notification";
     import { timer } from "../../common/events";
+    import Timer from "./components/timer.svelte";
 
+    export let script;
     export let phase;
     export let state;
     export let remaining;
@@ -36,10 +38,6 @@
         if (event.code === "Slash") {
             hidden = !hidden;
         }
-    }
-
-    function handleClick() {
-        hidden = !hidden;
     }
 
     function handleDismiss() {
@@ -69,14 +67,17 @@
         )}/>
 {/if}
 
-<div class="countdown-wrapper {position}" class:hidden>
-    <div class="countdown">
-        <div class="timer {phase}" on:click={handleClick}>
-            {time}
+{#if script === "content"}
+    <div class="countdown-wrapper {position}" class:hidden>
+        <div class="countdown">
+            <Timer bind:hidden {phase} {script} {time}/>
+            <Controls {hidden} {state} {position}/>
         </div>
-        <Controls {hidden} {state} {position}/>
     </div>
-</div>
+{:else if  script === "popup"}
+    <Timer bind:hidden {phase} {script} {time}/>
+{/if}
+
 
 <style>
     .countdown-wrapper {
@@ -113,28 +114,5 @@
     .hidden .countdown {
         border-radius: 50%;
         overflow: hidden;
-    }
-    .timer {
-        font-weight: 600;
-        line-height: 50px;
-        padding: 0 20px;
-        border-radius: var(--br-border-radius);
-        cursor: pointer;
-    }
-    .hidden .timer {
-        padding: 0 12px;
-    }
-    .timer.stop {
-        background-color: var(--br-red-light);
-        color: var(--br-red);
-    }
-    .timer.focus {
-        background-color: var(--br-blue-light);
-        color: var(--br-blue);
-    }
-    .timer.shortBreak,
-    .timer.longBreak {
-        background-color: var(--br-green-light);
-        color: var(--br-green);
     }
 </style>

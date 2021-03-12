@@ -1,5 +1,5 @@
 import {
-    assets, background, content, options, watch,
+    assets, background, content, options, popup, watch,
 } from "./config/rollup/index.js";
 
 export default [
@@ -7,5 +7,6 @@ export default [
     background,
     content,
     options,
+    popup,
     watch,
 ];

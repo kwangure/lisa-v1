@@ -21,7 +21,8 @@
     "options_page": "__OPTIONS_PAGE__",
     "browser_action": {
         "default_title": "Lisa",
-        "default_icon": "__BROWSER_ACTION__"
+        "default_icon": "__BROWSER_ACTION__",
+        "default_popup": "__POPUP_PAGE__"
     },
     "permissions": [
         "notifications",
