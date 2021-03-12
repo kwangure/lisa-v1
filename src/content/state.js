@@ -79,6 +79,9 @@ function createTimerMachine(script) {
                 on: {
                     DONE: "transition",
                     PLAY: "running",
+                    TICK: {
+                        actions: updateComponent,
+                    },
                 },
             },
             transition: {
