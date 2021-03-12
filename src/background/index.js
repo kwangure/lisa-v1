@@ -61,6 +61,7 @@ createLisaService().then(([lisaService, settings]) => {
                         remaining: timerMachine.context.remaining,
                         state: timerMachine.value,
                         position: settings.appearanceSettings.timerPosition,
+                        pauseDuration: timerMachine.context.pauseDuration,
                     },
                 });
             }

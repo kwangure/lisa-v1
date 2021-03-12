@@ -33,9 +33,14 @@ function createTimerMachine(phase, settings) {
                 initial: "default",
                 states: {
                     default: {
+                        entry: assign({
+                            pauseDuration: settings.phaseSettings[phase].pauseDuration,
+                        }),
                         after: {
-                            PAUSE_DELAY: "reminding",
-                            actions: sendParent("PAUSE.REMIND"),
+                            PAUSE_DELAY: {
+                                target: "reminding",
+                                actions: sendParent("PAUSE.REMIND"),
+                            },
                         },
                     },
                     reminding: {
@@ -48,6 +53,9 @@ function createTimerMachine(phase, settings) {
                     COMPLETE: "completed",
                     PLAY: "running",
                 },
+                exit: assign({
+                    pauseDuration: undefined,
+                }),
             },
             completed: {
                 always: [
@@ -182,11 +190,15 @@ function createPhaseMachine(settings) {
                     },
                 },
                 on: {
-                    TICK: {
+                    "PAUSE.REMIND": {
+                        actions: sendParent("PAUSE.REMIND"),
+                    },
+                    "TICK": {
                         actions: sendParent("TICK"),
                     },
                     ...forward([
                         "PAUSE",
+                        "PAUSE.DEFAULT",
                         "PLAY",
                     ], "timerMachine"),
                 },
@@ -258,6 +270,7 @@ export async function createLisaService() {
                         "EXTEND",
                         "NEXT",
                         "PAUSE",
+                        "PAUSE.DEFAULT",
                         "PLAY",
                     ], "phaseMachine"),
                 },

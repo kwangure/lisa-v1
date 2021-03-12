@@ -1,6 +1,6 @@
 <script context="module">
     export function preload(context) {
-        const { name: phase, timer: { pauseDuration }} = context;
+        const { phase, timer: { pauseDuration }} = context;
 
         return { phase, pauseDuration };
     }
