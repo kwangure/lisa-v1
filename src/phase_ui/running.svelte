@@ -7,16 +7,14 @@
 </script>
 
 <script>
-    import Content from "./components/content.svelte";
-    import Popup from "./components/popup.svelte";
+    import Content from "./content/components/running.svelte";
+    import Popup from "./popup/components/running.svelte";
 
     export let script;
     export let phase;
     export let state;
     export let remaining;
     export let position;
-
-    $: console.log({ position });
 </script>
 
 {#if script === "content"}

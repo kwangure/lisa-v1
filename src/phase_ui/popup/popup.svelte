@@ -1,6 +1,6 @@
 <script>
-    import { createLisaMachine } from "../content/state";
-    
+    import { createLisaMachine } from "../state";
+
     async function setupTimer(htmlNode) {
         const lisaMachine = await createLisaMachine({
             target: htmlNode,

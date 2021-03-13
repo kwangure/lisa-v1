@@ -1,7 +1,7 @@
-import * as nextPhase from "./dialogs/nextPhase.svelte";
-import * as reminding from "./dialogs/reminding.svelte";
-import * as running from "./timer/running.svelte";
-import * as setup from "./dialogs/setup.svelte";
+import * as nextPhase from "./nextPhase.svelte";
+import * as reminding from "./reminding.svelte";
+import * as running from "./running.svelte";
+import * as setup from "./setup.svelte";
 import { interpret, Machine } from "xstate";
 import { forward } from "../common/xstate";
 import { timer } from "../common/events";

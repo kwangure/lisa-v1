@@ -8,10 +8,10 @@
 
 <script>
     import Button from "@kwangure/strawberry/components/Button";
-    import { millisecondsToHumanReadableTime } from "../../utils/time";
+    import { millisecondsToHumanReadableTime } from "../utils/time";
     import Modal from "@kwangure/strawberry/components/Modal";
-    import { phaseNames } from "../../common/settings";
-    import { timer } from "../../common/events";
+    import { phaseNames } from "../common/settings";
+    import { timer } from "../common/events";
 
     export let script;
     export let phase;

@@ -12,7 +12,7 @@ import svelte from "rollup-plugin-svelte";
 const WEB_COMPONET_POSTFIX = "wc.svelte";
 
 export default {
-    input: "src/content/index.js",
+    input: "src/phase_ui/content/index.js",
     output: {
         dir: CONTENT_OUT,
         entryFileNames: JS_ENTRY_OUT,
