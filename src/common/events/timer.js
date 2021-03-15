@@ -8,8 +8,14 @@ class Timer extends EventHandler {
     destroy() {
         this.emit({ event: "DESTROY" });
     }
-    disable(duration) {
-        this.emit({ event: "DISABLE", payload: duration });
+    disable() {
+        this.emit({ event: "DISABLE" });
+    }
+    disableStart(duration) {
+        this.emit({ event: "DISABLE.START", payload: duration });
+    }
+    disableEnd() {
+        this.emit({ event: "DISABLE.END" });
     }
     dismissRemainingWarning() {
         this.emit({ event: "WARN_REMAINING.DISMISS" });

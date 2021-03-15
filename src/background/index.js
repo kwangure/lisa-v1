@@ -65,6 +65,22 @@ createLisaService().then(([lisaService, settings]) => {
                     },
                 });
             }
+        } else if (status === "disabled") {
+            const { disabledMachine } = lisaChildren;
+
+            Object.assign(formatted, {
+                disabled: disabledMachine.value,
+            });
+
+            if (disabledMachine.value === "default") {
+                const { timerMachine } = disabledMachine.children;
+                Object.assign(formatted, {
+                    timer: {
+                        remaining: timerMachine.context.remaining,
+                        state: timerMachine.value,
+                    },
+                });
+            }
         }
 
         return formatted;

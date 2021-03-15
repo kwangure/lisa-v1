@@ -1,3 +1,5 @@
+import * as disabledSetup from "./disabledSetup.svelte";
+import * as disabledTransition from "./disabledTransition.svelte";
 import * as nextPhase from "./nextPhase.svelte";
 import * as reminding from "./reminding.svelte";
 import * as running from "./running.svelte";
@@ -104,6 +106,57 @@ function createTimerMachine(script) {
     return timerMachine;
 }
 
+function createDisabledMachine(script) {
+    return Machine({
+        initial: "loading",
+        states: {
+            loading: {
+                always: [
+                    { target: "setup", cond: "isSetup" },
+                    { target: "default", cond: "isDefault" },
+                    { target: "transition", cond: "isTransition" },
+                    {
+                        actions: (context, event) => {
+                            console.error("Unhandled state", { context, event });
+                        },
+                    },
+                ],
+            },
+            setup: {
+                entry: createComponent(disabledSetup, script),
+                on: {
+                    "DISABLE.START": "default",
+                },
+                exit: destroyComponent(),
+            },
+            default: {
+                entry: createComponent(running, script),
+                on: {
+                    "DISABLE.SETUP": "setup",
+                    "TICK": {
+                        actions: updateComponent,
+                    },
+                    "DONE": "transition",
+                },
+                exit: destroyComponent(),
+            },
+            transition: {
+                entry: createComponent(disabledTransition, script),
+                on: {
+                    "DISABLE.START": "default",
+                    "DISABLE.SETUP": "setup",
+                },
+                exit: destroyComponent(),
+            },
+        },
+    }, {
+        guards: {
+            isSetup: (context) => context.disabled === "setup",
+            isDefault: (context) => context.disabled === "default",
+        },
+    });
+}
+
 export async function createLisaMachine(options) {
     target = options.target || document.body;
     const { script } = options;
@@ -148,7 +201,30 @@ export async function createLisaMachine(options) {
                     ], "timer"),
                 },
             },
-            disabled: {},
+            disabled: {
+                invoke: {
+                    id: "disabledMachine",
+                    src: createDisabledMachine(script),
+                    // `data` here is xState's API
+                    // eslint-disable-next-line id-denylist
+                    data: (_, event) => {
+                        // `initial` was "disabled"
+                        if (event.type === "xstate.init") return initialState;
+
+                        // got to "disabled" through "active" state
+                        return event;
+                    },
+                },
+                on: {
+                    "DISABLE.END": "active",
+                    ...forward([
+                        "DISABLE.START",
+                        "DONE",
+                        "NEXT",
+                        "TICK",
+                    ], "disabledMachine"),
+                },
+            },
         },
     });
 

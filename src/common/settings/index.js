@@ -47,5 +47,9 @@ export const defaultSettings = {
                 sound: null,
             },
         },
+        // Caches the last disable duration a user used.
+        disabled: {
+            duration: 0,
+        },
     },
 };

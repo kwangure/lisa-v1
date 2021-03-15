@@ -1,8 +1,8 @@
 <script context="module">
     export function preload(context) {
-        const { phase, timer: { position, remaining, state }} = context;
+        const { phase, timer: { position, remaining, state }, status } = context;
 
-        return { phase, position, remaining, state };
+        return { phase, position, remaining, state, status };
     }
 </script>
 
@@ -13,12 +13,13 @@
     export let script;
     export let phase;
     export let state;
+    export let status;
     export let remaining;
     export let position;
 </script>
 
-{#if script === "content"}
+{#if script === "content" && status !== "disabled"}
     <Content {phase} {position} {remaining} {script} {state}/>
 {:else if  script === "popup"}
-    <Popup {phase} {remaining} {script}/>
+    <Popup {phase} {remaining} {script} {status}/>
 {/if}

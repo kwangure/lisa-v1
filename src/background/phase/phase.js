@@ -22,7 +22,10 @@ function createTimerMachine(phase, settings) {
                             "sendParentTick",
                         ],
                     },
-                    PAUSE: "paused",
+                    PAUSE: {
+                        target: "paused",
+                        cond: "isNotDisabled",
+                    },
                     COMPLETE: "completed",
                 },
                 always: [
@@ -87,6 +90,7 @@ function createTimerMachine(phase, settings) {
         guards: {
             isCompleted: (context) => context.remaining <= 0,
             isRunning: (context) => context.remaining > 0,
+            isNotDisabled: () => phase !== "disabled",
         },
         delays: {
             PAUSE_DELAY: () => settings.phaseSettings[phase].pauseDuration,
@@ -248,6 +252,64 @@ function createPhaseMachine(settings) {
     return phaseMachine;
 }
 
+function createDisabledMachine(settings) {
+    const disabledMachine = Machine({
+        initial: "setup",
+        states: {
+            setup: {
+                on: {
+                    "DISABLE.START": {
+                        target: "default",
+                        actions: (_, event) => {
+                            settings.phaseSettings["disabled"].duration = event.value;
+                        },
+                    },
+                },
+            },
+            default: {
+                invoke: {
+                    id: "timerMachine",
+                    src: createTimerMachine("disabled", settings),
+                    // `data` here is xState's API
+                    // eslint-disable-next-line id-denylist
+                    data: () => {
+                        const { duration } = settings.phaseSettings["disabled"];
+
+                        return {
+                            remaining: duration,
+                            elapsed: 0,
+                            extendedDuration: 0,
+                        };
+                    },
+                    onDone: {
+                        target: "transition",
+                        actions: [
+                            sendParent("DONE"),
+                        ],
+                    },
+                },
+                on: {
+                    TICK: {
+                        actions: sendParent("TICK"),
+                    },
+                },
+            },
+            transition: {
+                on: {
+                    "DISABLE.END": sendParent("DISABLE.END"),
+                    "DISABLE.START": {
+                        target: "default",
+                        actions: (_, event) => {
+                            settings.phaseSettings["disabled"].duration = event.value;
+                        },
+                    },
+                },
+            },
+        },
+    });
+    return disabledMachine;
+}
+
 export async function createLisaService() {
     const settings = await createSettings();
     const lisaMachine = Machine({
@@ -276,8 +338,15 @@ export async function createLisaService() {
                 },
             },
             disabled: {
+                invoke: {
+                    id: "disabledMachine",
+                    src: createDisabledMachine(settings),
+                },
                 on: {
-                    ACTIVATE: "active",
+                    "DISABLE.END": "active",
+                    ...forward([
+                        "DISABLE.START",
+                    ], "disabledMachine"),
                 },
             },
         },

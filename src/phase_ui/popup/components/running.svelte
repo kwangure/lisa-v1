@@ -5,8 +5,9 @@
     export let script;
     export let remaining;
     export let phase;
+    export let status;
 
     $: time = millisecondsToHumanReadableTime(remaining);
 </script>
 
-<Timer {phase} {script} {time}/>
+<Timer {phase} {script} {status} {time}/>

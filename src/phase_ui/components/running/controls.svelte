@@ -48,6 +48,7 @@
         </div>
         <Item on:click={() => timer.reset()}>Reset the running timer</Item>
         <Item on:click={() => timer.restart()}>Reset focus cyle</Item>
+        <Item on:click={() => timer.disable()}>Disable timer</Item>
     </Dropdown>
 </div>
 

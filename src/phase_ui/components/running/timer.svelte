@@ -1,5 +1,6 @@
 <script>
     export let script;
+    export let status = "";
     export let phase;
     export let time;
     export let hidden;
@@ -10,7 +11,8 @@
     }
 </script>
 
-<div class="timer {phase}" on:click={handleClick}>
+<div class="timer {phase}" class:disabled={status === "disabled"}
+    on:click={handleClick}>
     {time}
 </div>
 
@@ -38,5 +40,9 @@
     .timer.longBreak {
         background-color: var(--br-green-light);
         color: var(--br-green);
+    }
+    .timer.disabled {
+        background-color: var(--br-red-light);
+        color: var(--br-red);
     }
 </style>
