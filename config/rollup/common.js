@@ -1,6 +1,7 @@
 /* global process */
 import commonjs from "@rollup/plugin-commonjs";
 import copy from "rollup-plugin-copy";
+import { emptyDir } from "fs-extra";
 import eslint from "@rollup/plugin-eslint";
 // import { terser } from "rollup-plugin-terser";
 import path from "path";
@@ -29,6 +30,12 @@ export const CSS_OUT = "bundle.css";
 
 export default {
     plugins: [
+        {
+            name: "empty-dir",
+            buildStart: async ({ dir }) => {
+                if (dir) await emptyDir(dir);
+            },
+        },
         replace({
             "import.meta.env.MODE": `"${MODE}"`,
             "import.meta.env.DEV": String(DEV),
@@ -70,5 +77,6 @@ export function copyHTMLPlugin({ script = JS_ENTRY_OUT, title = "Lisa", dir }) {
                 return contents;
             },
         }],
+        hook: "generateBundle",
     });
 }
