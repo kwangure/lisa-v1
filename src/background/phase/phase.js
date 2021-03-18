@@ -212,6 +212,12 @@ function createPhaseMachine(settings) {
                     "TICK": {
                         actions: sendParent("TICK"),
                     },
+                    "RESTART": {
+                        target: "focus",
+                        actions: assign({
+                            focusPhasesInCycle: 0,
+                        }),
+                    },
                     ...forward([
                         "PAUSE",
                         "PAUSE.DEFAULT",
@@ -348,6 +354,7 @@ export async function createLisaService() {
                         "PAUSE.DEFAULT",
                         "PLAY",
                         "RESET",
+                        "RESTART",
                     ], "phaseMachine"),
                 },
             },
