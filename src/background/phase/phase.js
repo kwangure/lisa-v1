@@ -67,6 +67,18 @@ function createTimerMachine(phase, settings) {
                 type: "final",
             },
         },
+        on: {
+            RESET: {
+                actions: [
+                    assign({
+                        elapsed: 0,
+                        extendedDuration: 0,
+                        wasExtended: false,
+                    }),
+                    "calculateRemaining",
+                ],
+            },
+        },
     }, {
         actions: {
             elapseSecond: assign({
@@ -204,6 +216,7 @@ function createPhaseMachine(settings) {
                         "PAUSE",
                         "PAUSE.DEFAULT",
                         "PLAY",
+                        "RESET",
                     ], "timerMachine"),
                 },
             },
@@ -334,6 +347,7 @@ export async function createLisaService() {
                         "PAUSE",
                         "PAUSE.DEFAULT",
                         "PLAY",
+                        "RESET",
                     ], "phaseMachine"),
                 },
             },
