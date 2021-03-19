@@ -4,7 +4,7 @@ import * as nextPhase from "./nextPhase.svelte";
 import * as reminding from "./reminding.svelte";
 import * as running from "./running.svelte";
 import * as setup from "./setup.svelte";
-import { interpret, Machine } from "xstate";
+import { interpret, Machine, sendParent } from "xstate";
 import { forward } from "../common/xstate";
 import { timer } from "../common/events";
 
@@ -100,28 +100,19 @@ function createDisabledMachine(script) {
         states: {
             loading: {
                 always: [
-                    { target: "setup", cond: "isSetup" },
                     { target: "default", cond: "isDefault" },
                     { target: "transition", cond: "isTransition" },
                     {
+                        target: "default",
                         actions: (context, event) => {
                             console.error("Unhandled state", { context, event });
                         },
-                        target: "default",
                     },
                 ],
-            },
-            setup: {
-                entry: createComponent(disabledSetup, script),
-                on: {
-                    "DISABLE.START": "default",
-                },
-                exit: destroyComponent(),
             },
             default: {
                 entry: createComponent(running, script),
                 on: {
-                    "DISABLE.SETUP": "setup",
                     "TIMER.UPDATE": {
                         actions: updateComponent,
                     },
@@ -133,16 +124,15 @@ function createDisabledMachine(script) {
                 entry: createComponent(disabledTransition, script),
                 on: {
                     "DISABLE.START": "default",
-                    "DISABLE.SETUP": "setup",
                 },
                 exit: destroyComponent(),
             },
         },
     }, {
         guards: {
-            isSetup: (context) => context.disabled === "setup",
             isDefault: (context) => context.disabled === "default",
-            isTransition: (context) => context.phase === "transition",
+            isTransition: (context) => context.disabled === "transition",
+            isSetup: (context) => context.disabled === "setup",
         },
     });
 }
@@ -155,6 +145,7 @@ function createPhaseMachine(script) {
                 always: [
                     { target: "phase", cond: "isPhase" },
                     { target: "transition", cond: "isTransition" },
+                    { target: "disabling", cond: "isDisabling" },
                 ],
             },
             phase: {
@@ -173,6 +164,7 @@ function createPhaseMachine(script) {
                 },
                 on: {
                     DONE: "transition",
+                    DISABLE: "disabling",
                     ...forward([
                         "EXTEND",
                         "PAUSE",
@@ -191,9 +183,18 @@ function createPhaseMachine(script) {
                 },
                 exit: destroyComponent(),
             },
+            disabling: {
+                entry: createComponent(disabledSetup, script),
+                on: {
+                    "DISABLE.START": sendParent("DISABLE.START"),
+                    "DISABLE.CANCEL": "phase",
+                },
+                exit: destroyComponent(),
+            },
         },
     }, {
         guards: {
+            isDisabling: (context) => context.phase === "disabling",
             isTransition: (context) => context.phase === "transition",
             isPhase: (context) => ["focus", "shortBreak", "longBreak"].includes(context.phase),
         },
@@ -231,8 +232,10 @@ export async function createLisaMachine(options) {
                     },
                 },
                 on: {
-                    DISABLE: "disabled",
+                    "DISABLE.START": "disabled",
                     ...forward([
+                        "DISABLE",
+                        "DISABLE.CANCEL",
                         "DONE",
                         "EXTEND",
                         "NEXT",

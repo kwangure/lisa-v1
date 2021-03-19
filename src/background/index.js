@@ -29,12 +29,7 @@ createLisaService().then(([lisaService, settings]) => {
     settingsEvents.on("UPDATE.APPEARANCE.POSITION", (value) => {
         settings.appearanceSettings.timerPosition = value;
 
-        // Force client update
-        // TODO: Do this better
-        timer.emit({
-            event: "TICK",
-            payload: formatLisaData(serializeState(lisaService.state)),
-        });
+        lisaService.send("SETTINGS.UPDATE");
     });
 
     function formatLisaData(lisaMachineState) {
@@ -53,24 +48,13 @@ createLisaService().then(([lisaService, settings]) => {
                 phase: phaseMachine.value,
                 ...phaseMachine.context,
             });
-
-
         } else if (status === "disabled") {
             const { disabledMachine } = lisaChildren;
 
             Object.assign(formatted, {
                 disabled: disabledMachine.value,
+                ...disabledMachine.context,
             });
-
-            if (disabledMachine.value === "default") {
-                const { timerMachine } = disabledMachine.children;
-                Object.assign(formatted, {
-                    timerMachine: {
-                        remaining: timerMachine.context.remaining,
-                        state: timerMachine.value,
-                    },
-                });
-            }
         }
 
         return formatted;

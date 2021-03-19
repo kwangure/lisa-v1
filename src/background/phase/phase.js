@@ -146,6 +146,20 @@ function createTimerMachine(phase, settings) {
     return timerMachine;
 }
 
+function initialTimerData(settings, phase) {
+    const { duration } = settings.phaseSettings[phase];
+    const { timerPosition } = settings.appearanceSettings;
+
+    return {
+        duration: duration,
+        remaining: duration,
+        position: timerPosition,
+        elapsed: 0,
+        extendedDuration: 0,
+        state: "running",
+    };
+}
+
 function createPhaseMachine(settings) {
     const { phaseSettings } = settings;
     const longBreakInterval = phaseSettings.longBreak.interval;
@@ -225,6 +239,7 @@ function createPhaseMachine(settings) {
                     },
                 },
                 on: {
+                    "DISABLE": "disabling",
                     "PAUSE.REMIND": {
                         actions: sendParent("PAUSE.REMIND"),
                     },
@@ -238,6 +253,7 @@ function createPhaseMachine(settings) {
                         target: "focus",
                         actions: assign({
                             focusPhasesInCycle: 0,
+                            timerMachine: initialTimerData(settings, "focus"),
                         }),
                     },
                     ...forward([
@@ -252,31 +268,17 @@ function createPhaseMachine(settings) {
         };
     }
 
-    function initialTimerData(phase) {
-        const { duration } = settings.phaseSettings[phase];
-        const { timerPosition } = settings.appearanceSettings;
-
-        return {
-            duration: duration,
-            remaining: duration,
-            position: timerPosition,
-            elapsed: 0,
-            extendedDuration: 0,
-            state: "running",
-        };
-    }
-
     function setupNextTimerData(phase) {
         return assign({
             currentPhase: phase,
-            timerMachine: initialTimerData(phase),
+            timerMachine: initialTimerData(settings, phase),
         });
     }
 
     function setupExtendedTimerData(phase) {
         return assign({
             timerMachine: (_, event) => {
-                const defaultData = initialTimerData(phase);
+                const defaultData = initialTimerData(settings, phase);
                 const extendedDuration = event.value;
 
                 return Object.assign(defaultData, {
@@ -296,7 +298,7 @@ function createPhaseMachine(settings) {
             focusPhasesUntilLongBreak: longBreakInterval,
             currentPhase: "focus",
             nextPhase: "shortBreak",
-            timerMachine: initialTimerData("focus"),
+            timerMachine: initialTimerData(settings, "focus"),
         },
         states: {
             ...createPhase("focus"),
@@ -340,6 +342,16 @@ function createPhaseMachine(settings) {
                     ],
                 },
             },
+            disabling: {
+                on: {
+                    "DISABLE.START": sendParent("DISABLE.START"),
+                    "DISABLE.CANCEL": [
+                        { target: "focus", cond: "focusIsCurrent" },
+                        { target: "shortBreak", cond: "shortBreakIscurrent" },
+                        { target: "longBreak", cond: "longBreakIscurrent" },
+                    ],
+                },
+            },
         },
     }, {
         actions: {
@@ -348,6 +360,10 @@ function createPhaseMachine(settings) {
             }),
         },
         guards: {
+            focusIsCurrent: (context) => context.currentPhase === "focus",
+            shortBreakIsCurrent: (context) => context.currentPhase === "shortBreak",
+            longBreakIsCurrent: (context) => context.currentPhase === "longBreak",
+
             focusIsNext: (context) => context.nextPhase === "focus",
             shortBreakIsNext: (context) => context.nextPhase === "shortBreak",
             longBreakIsNext: (context) => context.nextPhase === "longBreak",
@@ -363,33 +379,16 @@ function createPhaseMachine(settings) {
 
 function createDisabledMachine(settings) {
     const disabledMachine = Machine({
-        initial: "setup",
+        initial: "default",
+        context: {},
         states: {
-            setup: {
-                on: {
-                    "DISABLE.START": {
-                        target: "default",
-                        actions: (_, event) => {
-                            settings.phaseSettings["disabled"].duration = event.value;
-                        },
-                    },
-                },
-            },
             default: {
                 invoke: {
                     id: "timerMachine",
                     src: createTimerMachine("disabled", settings),
                     // `data` here is xState's API
                     // eslint-disable-next-line id-denylist
-                    data: () => {
-                        const { duration } = settings.phaseSettings["disabled"];
-
-                        return {
-                            remaining: duration,
-                            elapsed: 0,
-                            extendedDuration: 0,
-                        };
-                    },
+                    data: () => initialTimerData(settings, "disabled"),
                     onDone: {
                         target: "transition",
                         actions: [
@@ -399,7 +398,10 @@ function createDisabledMachine(settings) {
                 },
                 on: {
                     "TIMER.UPDATE": {
-                        actions: sendParent("TIMER.UPDATE"),
+                        actions: [
+                            "updateTimerData",
+                            sendParent("TIMER.UPDATE"),
+                        ],
                     },
                 },
             },
@@ -414,6 +416,12 @@ function createDisabledMachine(settings) {
                     },
                 },
             },
+        },
+    }, {
+        actions: {
+            updateTimerData: assign({
+                timerMachine: (_, event) => event.payload,
+            }),
         },
     });
     return disabledMachine;
@@ -436,8 +444,15 @@ export async function createLisaService() {
                     src: createPhaseMachine(settings),
                 },
                 on: {
-                    DISABLE: "disabled",
+                    "DISABLE.START": {
+                        target: "disabled",
+                        actions: (_, event) => {
+                            settings.phaseSettings["disabled"].duration = event.value;
+                        },
+                    },
                     ...forward([
+                        "DISABLE",
+                        "DISABLE.CANCEL",
                         "EXTEND",
                         "NEXT",
                         "PAUSE",

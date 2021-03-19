@@ -17,9 +17,12 @@
             </Number>
             minutes
         </div>
-        <div class="form-item">
-            <Button primary fullwidth on:click={() => timer.disableStart(disableDurationMs)}>
+        <div class="form-item actions">
+            <Button on:click={() => timer.disableStart(disableDurationMs)}>
                 Disable
+            </Button>
+            <Button primary on:click={() => timer.disableCancel()}>
+                Cancel
             </Button>
         </div>
     </div>
@@ -38,7 +41,18 @@
     [slot=content] :global(input[type=radio]) {
         margin-right: 10px;
     }
-    .form-item {
+    .form-item:not(.actions) {
         margin-bottom: 5px;
+    }
+    .actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 10px;
+    }
+    .actions :global(button) {
+        flex: auto;
+    }
+    .actions :global(button:not(:first-child)) {
+        margin-left: 5px;
     }
 </style>

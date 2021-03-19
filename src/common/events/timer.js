@@ -17,6 +17,9 @@ class Timer extends EventHandler {
     disableEnd() {
         this.emit({ event: "DISABLE.END" });
     }
+    disableCancel() {
+        this.emit({ event: "DISABLE.CANCEL" });
+    }
     dismissRemainingWarning() {
         this.emit({ event: "WARN_REMAINING.DISMISS" });
     }
