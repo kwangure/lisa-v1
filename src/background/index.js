@@ -54,17 +54,7 @@ createLisaService().then(([lisaService, settings]) => {
                 ...phaseMachine.context,
             });
 
-            const { timerMachine } = phaseMachine.children;
-            if (timerMachine) {
-                Object.assign(formatted, {
-                    timer: {
-                        remaining: timerMachine.context.remaining,
-                        state: timerMachine.value,
-                        position: settings.appearanceSettings.timerPosition,
-                        pauseDuration: timerMachine.context.pauseDuration,
-                    },
-                });
-            }
+
         } else if (status === "disabled") {
             const { disabledMachine } = lisaChildren;
 
@@ -75,7 +65,7 @@ createLisaService().then(([lisaService, settings]) => {
             if (disabledMachine.value === "default") {
                 const { timerMachine } = disabledMachine.children;
                 Object.assign(formatted, {
-                    timer: {
+                    timerMachine: {
                         remaining: timerMachine.context.remaining,
                         state: timerMachine.value,
                     },

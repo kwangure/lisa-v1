@@ -7,6 +7,10 @@ function createTimerMachine(phase, settings) {
         initial: "running",
         states: {
             running: {
+                entry: [
+                    assign({ state: "running" }),
+                    "sendParentUpdate",
+                ],
                 invoke: {
                     src: () => (sendParentEvent) => {
                         const id = setInterval(() => sendParentEvent("TICK"), 1000);
@@ -19,7 +23,8 @@ function createTimerMachine(phase, settings) {
                         actions: [
                             "elapseSecond",
                             "calculateRemaining",
-                            "sendParentTick",
+                            "updateTimerPosition",
+                            "sendParentUpdate",
                         ],
                     },
                     PAUSE: {
@@ -36,9 +41,13 @@ function createTimerMachine(phase, settings) {
                 initial: "default",
                 states: {
                     default: {
-                        entry: assign({
-                            pauseDuration: settings.phaseSettings[phase].pauseDuration,
-                        }),
+                        entry: [
+                            assign({
+                                pauseDuration: settings.phaseSettings[phase].pauseDuration,
+                                state: { paused: "default" },
+                            }),
+                            "sendParentUpdate",
+                        ],
                         after: {
                             PAUSE_DELAY: {
                                 target: "reminding",
@@ -47,6 +56,12 @@ function createTimerMachine(phase, settings) {
                         },
                     },
                     reminding: {
+                        entry: [
+                            assign({
+                                state: { paused: "reminding" },
+                            }),
+                            "sendParentUpdate",
+                        ],
                         on: {
                             "PAUSE.DEFAULT": "default",
                         },
@@ -61,6 +76,12 @@ function createTimerMachine(phase, settings) {
                 }),
             },
             completed: {
+                entry: [
+                    assign({
+                        state: "completed",
+                    }),
+                    "sendParentUpdate",
+                ],
                 always: [
                     { target: "running", cond: "isRunning" },
                 ],
@@ -68,7 +89,7 @@ function createTimerMachine(phase, settings) {
             },
         },
         on: {
-            RESET: {
+            "RESET": {
                 actions: [
                     assign({
                         elapsed: 0,
@@ -76,6 +97,13 @@ function createTimerMachine(phase, settings) {
                         wasExtended: false,
                     }),
                     "calculateRemaining",
+                ],
+            },
+            "SETTINGS.UPDATE": {
+                actions: [
+                    "calculateRemaining",
+                    "updateTimerPosition",
+                    "sendParentUpdate",
                 ],
             },
         },
@@ -97,7 +125,13 @@ function createTimerMachine(phase, settings) {
                     return (duration + extendedDuration) - elapsed;
                 },
             }),
-            sendParentTick: sendParent("TICK"),
+            updateTimerPosition: assign({
+                position: () => settings.appearanceSettings.timerPosition,
+            }),
+            sendParentUpdate: sendParent((context) => ({
+                type: "TIMER.UPDATE",
+                payload: context,
+            })),
         },
         guards: {
             isCompleted: (context) => context.remaining <= 0,
@@ -124,22 +158,7 @@ function createPhaseMachine(settings) {
                     src: createTimerMachine(phase, settings),
                     // `data` here is xState's API
                     // eslint-disable-next-line id-denylist
-                    data: (_, event) => {
-                        const { duration } = settings.phaseSettings[phase];
-
-                        let remaining, elapsed, extendedDuration;
-                        if (event.type === "EXTEND") {
-                            extendedDuration = event.value;
-                            remaining = event.value;
-                            elapsed = duration;
-                        } else {
-                            extendedDuration = 0;
-                            remaining = duration;
-                            elapsed = 0;
-                        }
-
-                        return { duration, remaining, elapsed, extendedDuration };
-                    },
+                    data: (context) => context.timerMachine,
                     onDone: {
                         target: "transition",
                         actions: [
@@ -181,9 +200,9 @@ function createPhaseMachine(settings) {
                             }),
                             assign({
                                 nextPhase: (context) => {
-                                    const { focusPhasesUntilLongBreak } = context;
+                                    const { currentPhase, focusPhasesUntilLongBreak } = context;
 
-                                    switch (phase) {
+                                    switch (currentPhase) {
                                         case "shortBreak":
                                         case "longBreak":
                                             return "focus";
@@ -209,8 +228,11 @@ function createPhaseMachine(settings) {
                     "PAUSE.REMIND": {
                         actions: sendParent("PAUSE.REMIND"),
                     },
-                    "TICK": {
-                        actions: sendParent("TICK"),
+                    "TIMER.UPDATE": {
+                        actions: [
+                            "updateTimerData",
+                            sendParent("TIMER.UPDATE"),
+                        ],
                     },
                     "RESTART": {
                         target: "focus",
@@ -223,10 +245,47 @@ function createPhaseMachine(settings) {
                         "PAUSE.DEFAULT",
                         "PLAY",
                         "RESET",
+                        "SETTINGS.UPDATE",
                     ], "timerMachine"),
                 },
             },
         };
+    }
+
+    function initialTimerData(phase) {
+        const { duration } = settings.phaseSettings[phase];
+        const { timerPosition } = settings.appearanceSettings;
+
+        return {
+            duration: duration,
+            remaining: duration,
+            position: timerPosition,
+            elapsed: 0,
+            extendedDuration: 0,
+            state: "running",
+        };
+    }
+
+    function setupNextTimerData(phase) {
+        return assign({
+            currentPhase: phase,
+            timerMachine: initialTimerData(phase),
+        });
+    }
+
+    function setupExtendedTimerData(phase) {
+        return assign({
+            timerMachine: (_, event) => {
+                const defaultData = initialTimerData(phase);
+                const extendedDuration = event.value;
+
+                return Object.assign(defaultData, {
+                    remaining: extendedDuration,
+                    elapsed: defaultData.duration,
+                    extendedDuration: extendedDuration,
+                });
+            },
+        });
     }
 
     const phaseMachine = Machine({
@@ -235,7 +294,9 @@ function createPhaseMachine(settings) {
             focusPhasesSinceStart: 0,
             focusPhasesInCycle: 0,
             focusPhasesUntilLongBreak: longBreakInterval,
+            currentPhase: "focus",
             nextPhase: "shortBreak",
+            timerMachine: initialTimerData("focus"),
         },
         states: {
             ...createPhase("focus"),
@@ -244,19 +305,48 @@ function createPhaseMachine(settings) {
             transition: {
                 on: {
                     NEXT: [
-                        { target: "focus", cond: "focusIsNext" },
-                        { target: "shortBreak", cond: "shortBreakIsNext" },
-                        { target: "longBreak", cond: "longBreakIsNext" },
+                        {
+                            target: "focus",
+                            cond: "focusIsNext",
+                            actions: setupNextTimerData("focus"),
+                        },
+                        {
+                            target: "shortBreak",
+                            cond: "shortBreakIsNext",
+                            actions: setupNextTimerData("shortBreak"),
+                        },
+                        {
+                            target: "longBreak",
+                            cond: "longBreakIsNext",
+                            actions: setupNextTimerData("longBreak"),
+                        },
                     ],
                     EXTEND: [
-                        { target: "focus", cond: "isFromFocus" },
-                        { target: "shortBreak", cond: "isFromShortBreak" },
-                        { target: "longBreak", cond: "isFromLongBreak" },
+                        {
+                            target: "focus",
+                            cond: "isFromFocus",
+                            actions: setupExtendedTimerData("focus"),
+                        },
+                        {
+                            target: "shortBreak",
+                            cond: "isFromShortBreak",
+                            actions: setupExtendedTimerData("shortBreak"),
+                        },
+                        {
+                            target: "longBreak",
+                            cond: "isFromLongBreak",
+                            actions: setupExtendedTimerData("longBreak"),
+                        },
                     ],
                 },
             },
         },
     }, {
+        actions: {
+            updateTimerData: assign({
+                timerMachine: (_, event) => event.payload,
+            }),
+        },
         guards: {
             focusIsNext: (context) => context.nextPhase === "focus",
             shortBreakIsNext: (context) => context.nextPhase === "shortBreak",
@@ -308,8 +398,8 @@ function createDisabledMachine(settings) {
                     },
                 },
                 on: {
-                    TICK: {
-                        actions: sendParent("TICK"),
+                    "TIMER.UPDATE": {
+                        actions: sendParent("TIMER.UPDATE"),
                     },
                 },
             },
@@ -355,6 +445,7 @@ export async function createLisaService() {
                         "PLAY",
                         "RESET",
                         "RESTART",
+                        "SETTINGS.UPDATE",
                     ], "phaseMachine"),
                 },
             },

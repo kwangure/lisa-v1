@@ -51,8 +51,8 @@ function createTimerMachine(script) {
                 id: "running",
                 entry: createComponent(running, script),
                 on: {
-                    PAUSE: "paused",
-                    TICK: {
+                    "PAUSE": "paused",
+                    "TIMER.UPDATE": {
                         actions: updateComponent,
                     },
                 },
@@ -77,8 +77,8 @@ function createTimerMachine(script) {
                     },
                 },
                 on: {
-                    PLAY: "running",
-                    TICK: {
+                    "PLAY": "running",
+                    "TIMER.UPDATE": {
                         actions: updateComponent,
                     },
                 },
@@ -86,8 +86,8 @@ function createTimerMachine(script) {
         },
     }, {
         guards: {
-            isRunning: (context) => context.timer?.state === "running",
-            isPaused: (context) => context.timer?.state.paused,
+            isRunning: (context) => context.timerMachine?.state === "running",
+            isPaused: (context) => context.timerMachine?.state.paused,
         },
     });
 
@@ -107,6 +107,7 @@ function createDisabledMachine(script) {
                         actions: (context, event) => {
                             console.error("Unhandled state", { context, event });
                         },
+                        target: "default",
                     },
                 ],
             },
@@ -121,7 +122,7 @@ function createDisabledMachine(script) {
                 entry: createComponent(running, script),
                 on: {
                     "DISABLE.SETUP": "setup",
-                    "TICK": {
+                    "TIMER.UPDATE": {
                         actions: updateComponent,
                     },
                     "DONE": "transition",
@@ -141,6 +142,7 @@ function createDisabledMachine(script) {
         guards: {
             isSetup: (context) => context.disabled === "setup",
             isDefault: (context) => context.disabled === "default",
+            isTransition: (context) => context.phase === "transition",
         },
     });
 }
@@ -177,7 +179,7 @@ function createPhaseMachine(script) {
                         "PAUSE.REMIND",
                         "PAUSE.DEFAULT",
                         "PLAY",
-                        "TICK",
+                        "TIMER.UPDATE",
                     ], "timer"),
                 },
             },
@@ -238,7 +240,7 @@ export async function createLisaMachine(options) {
                         "PAUSE.REMIND",
                         "PAUSE.DEFAULT",
                         "PLAY",
-                        "TICK",
+                        "TIMER.UPDATE",
                     ], "phaseMachine"),
                 },
             },
@@ -262,7 +264,7 @@ export async function createLisaMachine(options) {
                         "DISABLE.START",
                         "DONE",
                         "NEXT",
-                        "TICK",
+                        "TIMER.UPDATE",
                     ], "disabledMachine"),
                 },
             },
