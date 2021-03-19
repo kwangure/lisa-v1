@@ -45,14 +45,12 @@ function createTimerMachine(script) {
                 always: [
                     { target: "running", cond: "isRunning" },
                     { target: "paused", cond: "isPaused" },
-                    { target: "transition", cond: "isTransition" },
                 ],
             },
             running: {
                 id: "running",
                 entry: createComponent(running, script),
                 on: {
-                    DONE: "transition",
                     PAUSE: "paused",
                     TICK: {
                         actions: updateComponent,
@@ -79,27 +77,17 @@ function createTimerMachine(script) {
                     },
                 },
                 on: {
-                    DONE: "transition",
                     PLAY: "running",
                     TICK: {
                         actions: updateComponent,
                     },
                 },
             },
-            transition: {
-                entry: createComponent(nextPhase, script),
-                on: {
-                    EXTEND: "running",
-                    NEXT: "running",
-                },
-                exit: destroyComponent(),
-            },
         },
     }, {
         guards: {
             isRunning: (context) => context.timer?.state === "running",
             isPaused: (context) => context.timer?.state.paused,
-            isTransition: (context) => context.phase === "transition",
         },
     });
 
@@ -157,6 +145,59 @@ function createDisabledMachine(script) {
     });
 }
 
+function createPhaseMachine(script) {
+    return Machine({
+        initial: "loading",
+        states: {
+            loading: {
+                always: [
+                    { target: "phase", cond: "isPhase" },
+                    { target: "transition", cond: "isTransition" },
+                ],
+            },
+            phase: {
+                invoke: {
+                    id: "timer",
+                    src: createTimerMachine(script),
+                    // `data` here is xState's API
+                    // eslint-disable-next-line id-denylist
+                    data: (context, event) => {
+                        if (event.type === "xstate.init") {
+                            return context;
+                        }
+
+                        return event;
+                    },
+                },
+                on: {
+                    DONE: "transition",
+                    ...forward([
+                        "EXTEND",
+                        "PAUSE",
+                        "PAUSE.REMIND",
+                        "PAUSE.DEFAULT",
+                        "PLAY",
+                        "TICK",
+                    ], "timer"),
+                },
+            },
+            transition: {
+                entry: createComponent(nextPhase, script),
+                on: {
+                    EXTEND: "phase",
+                    NEXT: "phase",
+                },
+                exit: destroyComponent(),
+            },
+        },
+    }, {
+        guards: {
+            isTransition: (context) => context.phase === "transition",
+            isPhase: (context) => ["focus", "shortBreak", "longBreak"].includes(context.phase),
+        },
+    });
+}
+
 export async function createLisaMachine(options) {
     target = options.target || document.body;
     const { script } = options;
@@ -175,8 +216,8 @@ export async function createLisaMachine(options) {
             },
             active: {
                 invoke: {
-                    id: "timer",
-                    src: createTimerMachine(script),
+                    id: "phaseMachine",
+                    src: createPhaseMachine(script),
                     // `data` here is xState's API
                     // eslint-disable-next-line id-denylist
                     data: (_, event) => {
@@ -198,7 +239,7 @@ export async function createLisaMachine(options) {
                         "PAUSE.DEFAULT",
                         "PLAY",
                         "TICK",
-                    ], "timer"),
+                    ], "phaseMachine"),
                 },
             },
             disabled: {
@@ -236,5 +277,4 @@ export async function createLisaMachine(options) {
     });
 
     return timerService;
-
 }
