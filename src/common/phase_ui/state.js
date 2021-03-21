@@ -152,8 +152,6 @@ function createPhaseMachine(script) {
                 invoke: {
                     id: "timer",
                     src: createTimerMachine(script),
-                    // `data` here is xState's API
-                    // eslint-disable-next-line id-denylist
                     data: (context, event) => {
                         if (event.type === "xstate.init") {
                             return context;
@@ -221,8 +219,6 @@ export async function createLisaMachine(options) {
                 invoke: {
                     id: "phaseMachine",
                     src: createPhaseMachine(script),
-                    // `data` here is xState's API
-                    // eslint-disable-next-line id-denylist
                     data: (_, event) => {
                         // `initial` was "active"
                         if (event.type === "xstate.init") return initialState;
@@ -251,8 +247,6 @@ export async function createLisaMachine(options) {
                 invoke: {
                     id: "disabledMachine",
                     src: createDisabledMachine(script),
-                    // `data` here is xState's API
-                    // eslint-disable-next-line id-denylist
                     data: (_, event) => {
                         // `initial` was "disabled"
                         if (event.type === "xstate.init") return initialState;

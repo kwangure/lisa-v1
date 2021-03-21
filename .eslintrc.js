@@ -10,8 +10,11 @@ config.rules["max-len"] = ["error", {
     code: 100, // xState objects are painful without this
     ignoreComments: true,
 }];
+config.rules["id-denylist"] = config
+    .rules["id-denylist"]
+    .filter((r) => r !== "data");
 
-config.plugins.push("import")
+config.plugins.push("import");
 config.plugins = [...(new Set(config.plugins))];
 
 config.settings = {
@@ -25,7 +28,7 @@ config.settings = {
                 ["~@popup", path.resolve(__dirname, "./src/popup/")],
                 ["~@utils", path.resolve(__dirname, "./src/utils/")],
             ],
-            extensions: [".js", ".svelte", ".json"]
+            extensions: [".js", ".svelte", ".json"],
         },
     },
 };

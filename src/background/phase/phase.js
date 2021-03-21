@@ -170,8 +170,6 @@ function createPhaseMachine(settings) {
                 invoke: {
                     id: "timerMachine",
                     src: createTimerMachine(phase, settings),
-                    // `data` here is xState's API
-                    // eslint-disable-next-line id-denylist
                     data: (context) => context.timerMachine,
                     onDone: {
                         target: "transition",
@@ -386,8 +384,6 @@ function createDisabledMachine(settings) {
                 invoke: {
                     id: "timerMachine",
                     src: createTimerMachine("disabled", settings),
-                    // `data` here is xState's API
-                    // eslint-disable-next-line id-denylist
                     data: () => initialTimerData(settings, "disabled"),
                     onDone: {
                         target: "transition",
