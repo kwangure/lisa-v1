@@ -2,7 +2,7 @@
     import Button from "@kwangure/strawberry/components/Button";
     import Modal from "@kwangure/strawberry/components/Modal";
     import { Number } from "@kwangure/strawberry/components/Input";
-    import { timer } from "../../../common/events";
+    import { timer } from "~@common/events";
 
     let disableDurationMins = 60;
     $: disableDurationMs = disableDurationMins * 60 * 1000;

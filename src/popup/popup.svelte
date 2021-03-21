@@ -1,5 +1,5 @@
 <script>
-    import { createLisaMachine } from "../state";
+    import { createLisaMachine } from "~@phase_ui/state";
 
     async function setupTimer(htmlNode) {
         const lisaMachine = await createLisaMachine({

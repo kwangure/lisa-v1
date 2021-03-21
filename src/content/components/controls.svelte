@@ -6,7 +6,7 @@
         mdiPictureInPictureBottomRightOutline,
         mdiPlayOutline,
     } from "@mdi/js";
-    import { settings, timer } from "../../../common/events";
+    import { settings, timer } from "~@common/events";
     import Button from "@kwangure/strawberry/components/Button";
 
     export let position;

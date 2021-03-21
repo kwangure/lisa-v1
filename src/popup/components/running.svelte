@@ -1,6 +1,6 @@
 <script>
-    import { millisecondsToHumanReadableTime } from "../../../utils/time";
-    import Timer from "../../components/running/timer.svelte";
+    import { millisecondsToHumanReadableTime } from "~@utils/time";
+    import Timer from "~@phase_ui/components/running/timer.svelte";
 
     export let script;
     export let remaining;

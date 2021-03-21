@@ -17,8 +17,8 @@
 </script>
 
 <script>
-    import Content from "./content/components/nextPhase.svelte";
-    import { phaseNames } from "../common/settings";
+    import Content from "~@content/components/nextPhase.svelte";
+    import { phaseNames } from "../settings";
 
     export let script;
     export let focusPhasesUntilLongBreak;

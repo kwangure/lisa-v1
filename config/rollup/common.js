@@ -1,4 +1,5 @@
-/* global process */
+/* global process, __dirname */
+import alias from "@rollup/plugin-alias";
 import commonjs from "@rollup/plugin-commonjs";
 import copy from "rollup-plugin-copy";
 import { emptyDir } from "fs-extra";
@@ -53,6 +54,18 @@ export default {
         }),
         // PRODUCTION && terser(),
         commonjs(),
+        alias({
+            entries: [
+                {
+                    find: "~@phase_ui",
+                    replacement: path.resolve(__dirname, "./src/common/phase_ui"),
+                },
+                { find: "~@common", replacement: path.resolve(__dirname, "./src/common/") },
+                { find: "~@content", replacement: path.resolve(__dirname, "./src/content/") },
+                { find: "~@popup", replacement: path.resolve(__dirname, "./src/popup/") },
+                { find: "~@utils", replacement: path.resolve(__dirname, "./src/utils/") },
+            ],
+        }),
     ],
     onwarn: (warning, warn) => {
         const unusedCSSWarning

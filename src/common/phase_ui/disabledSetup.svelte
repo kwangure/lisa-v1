@@ -1,5 +1,5 @@
 <script>
-    import Content from "./content/components/disabledTransition.svelte";
+    import Content from "~@content/components/disabledSetup.svelte";
 
     export let script;
 </script>
@@ -7,5 +7,5 @@
 {#if script === "content"}
     <Content/>
 {:else if script === "popup"}
-    It's time to resume Lisa!
+    You're about to disable Lisa.
 {/if}

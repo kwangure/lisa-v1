@@ -4,7 +4,7 @@ import postcss from "rollup-plugin-postcss";
 import svelte from "rollup-plugin-svelte";
 
 export default {
-    input: "src/phase_ui/popup/index.js",
+    input: "src/popup/index.js",
     output: {
         dir: POPUP_OUT,
         entryFileNames: JS_ENTRY_OUT,

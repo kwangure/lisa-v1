@@ -5,7 +5,7 @@
     import { mdiInformationOutline } from "@mdi/js";
     import Modal from "@kwangure/strawberry/components/Modal";
     import { Number } from "@kwangure/strawberry/components/Input";
-    import { timer } from "../../../common/events";
+    import { timer } from "~@common/events";
 
     export let completedPhaseName;
     export let focusPhasesSinceStart;

@@ -5,8 +5,8 @@ import * as reminding from "./reminding.svelte";
 import * as running from "./running.svelte";
 import * as setup from "./setup.svelte";
 import { interpret, Machine, sendParent } from "xstate";
-import { forward } from "../common/xstate";
-import { timer } from "../common/events";
+import { forward } from "../xstate";
+import { timer } from "../events";
 
 let instance, preload, target;
 

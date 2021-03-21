@@ -1,5 +1,5 @@
 <script>
-    import Content from "./content/components/setup.svelte";
+    import Content from "~@content/components/setup.svelte";
 
     export let script;
 </script>

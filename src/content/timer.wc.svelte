@@ -1,5 +1,5 @@
 <script>
-    import { createLisaMachine } from "../state";
+    import { createLisaMachine } from "~@phase_ui/state";
     // eslint-disable-next-line camelcase
     import { get_current_component } from "svelte/internal";
 

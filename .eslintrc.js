@@ -1,4 +1,5 @@
 const config = require("@kwangure/eslint-config-svelte");
+const path = require("path");
 
 config.globals = {
     ...config.globals,
@@ -10,5 +11,23 @@ config.rules["max-len"] = ["error", {
     ignoreComments: true,
 }];
 
+config.plugins.push("import")
+config.plugins = [...(new Set(config.plugins))];
+
+config.settings = {
+    ...config.settings,
+    "import/resolver": {
+        alias: {
+            map: [
+                ["~@phase_ui", path.resolve(__dirname, "./src/common/phase_ui")],
+                ["~@common", path.resolve(__dirname, "./src/common/")],
+                ["~@content", path.resolve(__dirname, "./src/content/")],
+                ["~@popup", path.resolve(__dirname, "./src/popup/")],
+                ["~@utils", path.resolve(__dirname, "./src/utils/")],
+            ],
+            extensions: [".js", ".svelte", ".json"]
+        },
+    },
+};
 
 module.exports = config;

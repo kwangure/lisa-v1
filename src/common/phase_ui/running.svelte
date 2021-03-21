@@ -7,8 +7,8 @@
 </script>
 
 <script>
-    import Content from "./content/components/running.svelte";
-    import Popup from "./popup/components/running.svelte";
+    import Content from "~@content/components/running.svelte";
+    import Popup from "~@popup/components/running.svelte";
 
     export let script;
     export let phase;

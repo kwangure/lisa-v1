@@ -1,10 +1,10 @@
 <script>
-    import { isIOS, isMacintosh } from "../../../utils/platform";
-    import Controls from "../../components/running/controls.svelte";
-    import { millisecondsToHumanReadableTime } from "../../../utils/time";
+    import { isIOS, isMacintosh } from "~@utils/platform";
+    import Controls from "./controls.svelte";
+    import { millisecondsToHumanReadableTime } from "~@utils/time";
     import Notification from "@kwangure/strawberry/components/Notification";
-    import { timer } from "../../../common/events";
-    import Timer from "../../components/running//timer.svelte";
+    import { timer } from "~@common/events";
+    import Timer from "~@phase_ui/components/running/timer.svelte";
 
     export let phase;
     export let position;
