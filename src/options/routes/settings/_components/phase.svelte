@@ -61,7 +61,7 @@
         {/if}
     </div>
     <div class="form-item">
-        <Number bind:value={$warnRemaining} min={0}>
+        <Number bind:value={$warnRemaining} min={0} max={$duration}>
             <span slot="label">Warn before end (minutes)</span>
         </Number>
     </div>
