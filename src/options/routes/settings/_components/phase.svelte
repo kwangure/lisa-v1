@@ -13,16 +13,16 @@
     const ONE_MINUTE = 60000;
 
     const duration = writable(value.duration / ONE_MINUTE);
-    $: value.duration = $duration * ONE_MINUTE;
+    $: value.duration = Math.ceil($duration * ONE_MINUTE);
 
     const sound = writable(value.notification.sound);
     $: value.notification.sound = $sound;
 
     const warnRemaining = writable(value.warnRemaining / ONE_MINUTE);
-    $: value.warnRemaining = $warnRemaining * ONE_MINUTE;
+    $: value.warnRemaining = Math.ceil($warnRemaining * ONE_MINUTE);
 
     const pauseDuration = writable(value.pauseDuration / ONE_MINUTE);
-    $: value.pauseDuration = $pauseDuration * ONE_MINUTE;
+    $: value.pauseDuration = Math.ceil($pauseDuration * ONE_MINUTE);
 
     const audioPlaying = derived(sound, ($sound, setAudioPlaying) => {
         const emptyOrUnchanged = !$sound || $sound === value.notification.sound;
