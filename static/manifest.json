@@ -27,6 +27,7 @@
     "permissions": [
         "notifications",
         "activeTab",
+        "webNavigation",
         "storage"
     ],
     "icons": {

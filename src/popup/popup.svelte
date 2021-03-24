@@ -1,5 +1,7 @@
 <script>
     import { createLisaMachine } from "~@phase_ui/state";
+    import Item from "./components/item.svelte";
+    import open from "../common/page/open";
 
     async function setupTimer(htmlNode) {
         const lisaMachine = await createLisaMachine({
@@ -8,10 +10,17 @@
         });
         lisaMachine.start();
     }
+
+    function showOptions() {
+        open.options();
+    }
 </script>
 
 <div class="popup" >
     <div class="timer" use:setupTimer></div>
+    <Item on:click={showOptions}>
+        Open settings page
+    </Item>
 </div>
 
 <style>
