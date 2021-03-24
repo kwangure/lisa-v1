@@ -20,7 +20,7 @@
             <Group bind:value={nextStep}>
                 <Radio  value="activate">
                     <span slot="label">
-                        Start crushing it! 🚀
+                        Start crushing your day! 🚀
                     </span>
                 </Radio>
                 <Radio value="disable">
