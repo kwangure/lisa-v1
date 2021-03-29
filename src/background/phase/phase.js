@@ -430,8 +430,14 @@ export async function createLisaService() {
         states: {
             setup: {
                 on: {
-                    DISABLE: "disabled",
-                    START: "active",
+                    "DISABLE": "disabled",
+                    "DISABLE.START": {
+                        target: "disabled",
+                        actions: (_, event) => {
+                            settings.phaseSettings["disabled"].duration = event.value;
+                        },
+                    },
+                    "START": "active",
                 },
             },
             active: {

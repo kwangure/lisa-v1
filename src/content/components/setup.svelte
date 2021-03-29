@@ -40,7 +40,7 @@
                     Start Lisa
                 </Button>
             {:else if nextStep === "disable"}
-                <Button primary fullwidth on:click={() => timer.disableDuration(extendedDurationMs)}>
+                <Button primary fullwidth on:click={() => timer.disableStart(extendedDurationMs)}>
                     Disable Lisa
                 </Button>
             {/if}

@@ -210,8 +210,9 @@ export async function createLisaMachine(options) {
             setup: {
                 entry: createComponent(setup, script),
                 on: {
-                    DISABLE: "disabled",
-                    START: "active",
+                    "DISABLE": "disabled",
+                    "DISABLE.START": "disabled",
+                    "START": "active",
                 },
                 exit: destroyComponent(),
             },
