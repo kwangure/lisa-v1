@@ -17,10 +17,12 @@
     "@rollup/plugin-eslint": "^8.0.1",
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@rollup/plugin-replace": "^2.3.3",
+    "archiver": "^5.3.0",
     "eslint": "^7.21.0",
     "eslint-import-resolver-alias": "^1.1.2",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-svelte3": "^2.7.3",
+    "numerable": "^0.3.15",
     "rollup": "^2.36.1",
     "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-postcss": "^3.1.5",
@@ -30,6 +32,7 @@
   "scripts": {
     "dev": "rollup -cw",
     "build": "rollup -c",
+    "deploy": "npm run build && node ./scripts/deploy.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
