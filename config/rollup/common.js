@@ -33,7 +33,7 @@ export default {
     plugins: [
         {
             name: "empty-dir",
-            buildStart: async ({ dir }) => {
+            renderStart: async ({ dir }) => {
                 if (dir) await emptyDir(dir);
             },
         },
