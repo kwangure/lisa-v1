@@ -1,4 +1,3 @@
-/* global process, __dirname */
 import alias from "@rollup/plugin-alias";
 import commonjs from "@rollup/plugin-commonjs";
 import copy from "rollup-plugin-copy";
