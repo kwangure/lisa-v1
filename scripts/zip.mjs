@@ -16,6 +16,10 @@ export function zip(directory, zipOutput) {
 
     archive.finalize();
 
+    output.on("error", (error) => {
+        throw error;
+    });
+
     return new Promise((resolve) => {
         // listen for all archive data to be written
         // 'close' event is fired only when a file descriptor is involved
