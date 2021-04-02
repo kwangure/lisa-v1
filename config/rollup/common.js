@@ -12,7 +12,7 @@ export const MODE = process.env.ROLLUP_WATCH ? "development" : "production";
 export const PRODUCTION = MODE === "production";
 export const DEV = MODE === "development";
 
-export const OUT_DIR = DEV ? path.resolve("dev") : path.resolve("dist");
+export const OUT_DIR = DEV ? path.resolve("dev") : path.resolve("build");
 export const BACKGROUND_DIR = "background";
 export const BACKGROUND_OUT = `${OUT_DIR}/${BACKGROUND_DIR}`;
 export const CONTENT_DIR = "content";

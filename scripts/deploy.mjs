@@ -3,6 +3,6 @@ import path from "path";
 import { zip } from "./zip.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.join(__dirname, "../");
+const dist = path.join(__dirname, "../", "dist");
 
-zip("dist/", `${root}/dist.zip`);
+zip("build/", `${dist}/package.zip`);
