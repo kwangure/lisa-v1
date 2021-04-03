@@ -23,6 +23,7 @@
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-svelte3": "^2.7.3",
     "numerable": "^0.3.15",
+    "puppeteer": "^8.0.0",
     "rollup": "^2.36.1",
     "rollup-plugin-copy": "^3.3.0",
     "rollup-plugin-postcss": "^3.1.5",
