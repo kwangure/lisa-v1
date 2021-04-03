@@ -16,8 +16,8 @@ export default [
         component: () => import("./settings/long-break.svelte"),
     },
     {
-        path: "/appearance",
-        component: () => import("./appearance.svelte"),
+        path: "/settings/appearance",
+        component: () => import("./settings/appearance.svelte"),
     },
 ];
 

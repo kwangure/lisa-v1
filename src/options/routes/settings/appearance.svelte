@@ -1,5 +1,5 @@
 <script context="module">
-    import createSettingStore from "./settings/settings";
+    import createSettingStore from "./settings";
     export async function preload() {
         return {
             settingStore: await createSettingStore(),
@@ -9,7 +9,7 @@
 
 <script>
     import Select, { Option } from "@kwangure/strawberry/components/Select";
-    import { timerPositions } from "../../common/settings";
+    import { timerPositions } from "../../../common/settings";
 
     export let settingStore;
 </script>

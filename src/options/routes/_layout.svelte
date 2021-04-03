@@ -19,7 +19,7 @@
                 <a href="#!/settings/long-break">Long break</a>
             </Item>
             <Item active={$path === "/appearance"}>
-                <a href="#!/appearance">Appearance</a>
+                <a href="#!/settings/appearance">Appearance</a>
             </Item>
         </Sidebar>
     </div>
