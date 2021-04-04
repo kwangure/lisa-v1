@@ -8,6 +8,7 @@ module.exports = {
     plugins: [
         "import",
     ],
+    ignorePatterns: ["*.png", "*.jpg", "*.jpeg"],
     settings: {
         "import/resolver": {
             alias: {
@@ -17,6 +18,7 @@ module.exports = {
                     ["~@content", "./src/content/"],
                     ["~@popup", "./src/popup/"],
                     ["~@utils", "./src/utils/"],
+                    ["~@static", "./static/"],
                 ],
                 extensions: [".js", ".svelte", ".json"],
             },

@@ -25,6 +25,7 @@
 			"~@phase_ui/*": ["src/common/phase_ui"],
 			"~@popup/*": ["src/popup/*"],
 			"~@utils/*": ["src/utils/*"],
+			"~@static/*": ["static/*"],
 		}
 	},
 	"include": ["src/**/*.d.ts", "src/**/*.js", "src/**/*.ts", "src/**/*.svelte"]
