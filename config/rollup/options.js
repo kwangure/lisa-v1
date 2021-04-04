@@ -7,6 +7,7 @@ import common, {
 } from "./common.js";
 import postcss from "rollup-plugin-postcss";
 import svelte from "rollup-plugin-svelte";
+import url from "@rollup/plugin-url";
 
 export default {
     input: "src/options/index.js",
@@ -33,6 +34,7 @@ export default {
             title: "Lisa Options",
             script: JS_ENTRY_OUT,
         }),
+        url(),
     ],
     watch: {
         clearScreen: false,

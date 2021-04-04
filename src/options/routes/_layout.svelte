@@ -1,41 +1,101 @@
 <script>
     import "@kwangure/strawberry/css/standardDOM";
-    import Sidebar, { Item } from "@kwangure/strawberry/components/Sidebar";
+    import Sidebar, { Link, Section } from "@kwangure/strawberry/components/Sidebar";
+    import logo from "~@static/images/browser-action.png";
     import { stores } from "@kwangure/svelte-pagejs-router";
 
-    const { path } = stores();
+    const { path: unhashedPath } = stores();
+    $: path = `#!${$unhashedPath}`;
 </script>
 
-<div class="app-layout">
-    <div class="sidebar">
-        <Sidebar>
-            <Item active={$path === "/" || $path === "/settings/focus"}>
-                <a href="#!/settings/focus">Focus</a>
-            </Item>
-            <Item active={$path === "/settings/short-break"}>
-                <a href="#!/settings/short-break">Short break</a>
-            </Item>
-            <Item active={$path === "/settings/long-break"}>
-                <a href="#!/settings/long-break">Long break</a>
-            </Item>
-            <Item active={$path === "/appearance"}>
-                <a href="#!/settings/appearance">Appearance</a>
-            </Item>
-        </Sidebar>
-    </div>
-    <div>
+<div class="layout">
+    <nav class="header">
+        <div class="left">
+			<a href="#!/" class="logo">
+				<img src={logo} alt="Lisa logo"/>
+			</a>
+		</div>
+		<div class="right">
+
+		</div>
+    </nav>
+    <Sidebar>
+        <Section>
+            <svelte:fragment slot="title">
+                Phase
+            </svelte:fragment>
+            <svelte:fragment slot="items">
+                <Link href="#!/" {path}>
+                    Focus
+                </Link>
+                <Link href="#!/settings/short-break" {path}>
+                    Short break
+                </Link>
+                <Link href="#!/settings/long-break" {path}>
+                    Long break
+                </Link>
+            </svelte:fragment>
+        </Section>
+        <Section>
+            <svelte:fragment slot="title">
+                Other
+            </svelte:fragment>
+            <svelte:fragment slot="items">
+                <Link href="#!/settings/appearance" {path}>
+                    Appearance
+                </Link>
+            </svelte:fragment>
+        </Section>
+    </Sidebar>
+    <main>
         <slot {path}></slot>
-    </div>
+    </main>
 </div>
 
 <style>
-    .app-layout {
-        display: flex;
-        height: 100%;
-        font-size: 14px;
+    .layout {
+        --nav-height: 56px;
     }
-    .sidebar {
-        padding: 10px 0;
-        color: var(--br-grey-dark);
+    .layout {
+        display: grid;
+        grid-template-columns: 240px 1fr;
+        grid-template-rows: max-content 1fr;
+        grid-template-areas:
+            "nav nav"
+            "sidebar main";
+        height: 100%;
+    }
+    nav {
+        grid-area: nav;
+        border-bottom: 1px solid var(--br-border-color);
+        padding: 0 var(--br-outer-gutter);
+    }
+    .left {
+        display: flex;
+        align-items: center;
+		margin: auto;
+    }
+	.left .logo {
+		display: flex;
+		align-items: center;
+	}
+	.left .logo img {
+        display: block;
+        height: 50px;
+		padding: var(--br-outer-gutter);
+	}
+	.right {
+        display: none;
+	}
+    .layout > :global(.berry-sidebar) {
+        grid-area: sidebar;
+    }
+    .layout > :global(.berry-sidebar-section .title) {
+        font-weight: 600;
+        font-size: 12.5px;
+    }
+    main {
+        grid-area: main;
+        padding: var(--br-outer-gutter);
     }
 </style>
