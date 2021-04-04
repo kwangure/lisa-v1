@@ -5,8 +5,10 @@ import { emptyDir } from "fs-extra";
 import eslint from "@rollup/plugin-eslint";
 // import { terser } from "rollup-plugin-terser";
 import path from "path";
+import { preprocessConfig } from "@kwangure/strawberry/config/index.cjs";
 import replace from "@rollup/plugin-replace";
 import resolve from "@rollup/plugin-node-resolve";
+import sveltePreprocess from "svelte-preprocess";
 
 export const MODE = process.env.ROLLUP_WATCH ? "development" : "production";
 export const PRODUCTION = MODE === "production";
@@ -27,6 +29,8 @@ export const IMAGES_DIR = "images";
 export const JS_ENTRY_OUT = "bundle.js";
 export const WATCH_ENTRY_OUT = "watch.js";
 export const CSS_OUT = "bundle.css";
+
+export const strawberryPreprocess = sveltePreprocess(preprocessConfig);
 
 export default {
     plugins: [

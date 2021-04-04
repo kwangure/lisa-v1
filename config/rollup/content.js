@@ -3,9 +3,9 @@ import common, {
     CONTENT_OUT,
     CSS_OUT, DEV,
     JS_ENTRY_OUT,
+    strawberryPreprocess,
 } from "./common.js";
 import postcss from "rollup-plugin-postcss";
-import { preprocessConfig } from "@kwangure/strawberry/config";
 import replace from "@rollup/plugin-replace";
 import svelte from "rollup-plugin-svelte";
 
@@ -25,7 +25,7 @@ export default {
             __CONTENT_CSS__: `${CONTENT_DIR}/${CSS_OUT}`,
         }),
         svelte({
-            preprocess: preprocessConfig,
+            preprocess: strawberryPreprocess,
             exclude: `**/*.${WEB_COMPONET_POSTFIX}`,
             emitCss: true,
             compilerOptions: {

@@ -1,5 +1,10 @@
-import { preprocessConfig } from "@kwangure/strawberry/config";
-import common, { CSS_OUT, DEV, JS_ENTRY_OUT, OPTIONS_OUT, copyHTMLPlugin } from "./common.js";
+import common, {
+    copyHTMLPlugin,
+    CSS_OUT, DEV,
+    JS_ENTRY_OUT,
+    OPTIONS_OUT,
+    strawberryPreprocess,
+} from "./common.js";
 import postcss from "rollup-plugin-postcss";
 import svelte from "rollup-plugin-svelte";
 
@@ -14,7 +19,7 @@ export default {
     plugins: [
         ...common.plugins,
         svelte({
-            preprocess: preprocessConfig,
+            preprocess: strawberryPreprocess,
             emitCss: true,
             compilerOptions: {
                 dev: DEV,
