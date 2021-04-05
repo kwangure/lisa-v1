@@ -3,12 +3,12 @@ import commonjs from "@rollup/plugin-commonjs";
 import copy from "rollup-plugin-copy";
 import { emptyDir } from "fs-extra";
 import eslint from "@rollup/plugin-eslint";
-// import { terser } from "rollup-plugin-terser";
 import path from "path";
 import { preprocessConfig } from "@kwangure/strawberry/config/index.cjs";
 import replace from "@rollup/plugin-replace";
 import resolve from "@rollup/plugin-node-resolve";
 import sveltePreprocess from "svelte-preprocess";
+import { terser } from "rollup-plugin-terser";
 
 export const MODE = process.env.ROLLUP_WATCH ? "development" : "production";
 export const PRODUCTION = MODE === "production";
@@ -55,7 +55,17 @@ export default {
             dedupe: (importee) => importee === "svelte" || importee.startsWith("svelte/"),
             preferBuiltins: true,
         }),
-        // PRODUCTION && terser(),
+        // TODO: Only minify in Production
+        /*
+            Minification in dev works around a @popper/core bug used in @kwangure/strawberry.
+            @popper/core compiled into es5, where a variable `var top = "top"` is being overwritten
+            by Window.top, I assume due to how content scripts are imported in extensions.
+
+            This renames to `var x= "top"`;
+
+            I've not done further investigation/repro to confirm.
+        */
+        terser(),
         commonjs(),
         alias({
             entries: [
