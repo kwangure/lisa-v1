@@ -42,10 +42,10 @@
         <Button icon={mdiPictureInPictureBottomRightOutline}
             on:click={() => settings.appearance.updatePositionBottomRight()}/>
     {/if}
-    <Dropdown placement="topRight">
-        <div slot="button">
+    <Dropdown placement="auto-end">
+        <svelte:fragment slot="button">
             <Button icon={mdiDotsHorizontal}/>
-        </div>
+        </svelte:fragment>
         <Item on:click={() => timer.reset()}>Reset the running timer</Item>
         <Item on:click={() => timer.restart()}>Reset focus cyle</Item>
         <Item on:click={() => timer.disable()}>Disable timer</Item>
