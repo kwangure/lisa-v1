@@ -342,7 +342,9 @@ function createPhaseMachine(settings) {
             },
             disabling: {
                 on: {
-                    "DISABLE.START": sendParent("DISABLE.START"),
+                    "DISABLE.START": {
+                        actions: sendParent("DISABLE.START"),
+                    },
                     "DISABLE.CANCEL": [
                         { target: "focus", cond: "focusIsCurrent" },
                         { target: "shortBreak", cond: "shortBreakIscurrent" },
@@ -403,7 +405,9 @@ function createDisabledMachine(settings) {
             },
             transition: {
                 on: {
-                    "DISABLE.END": sendParent("DISABLE.END"),
+                    "DISABLE.END": {
+                        actions: sendParent("DISABLE.END"),
+                    },
                     "DISABLE.START": {
                         target: "default",
                         actions: (_, event) => {
