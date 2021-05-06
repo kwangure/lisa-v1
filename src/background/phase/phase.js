@@ -1,4 +1,5 @@
 import { assign, interpret, Machine, sendParent } from "xstate";
+import { differenceInMilliseconds, isBefore } from "date-fns";
 import createSettings from "../settings.js";
 import { forward } from "../../common/xstate.js";
 
@@ -378,6 +379,63 @@ function createPhaseMachine(settings) {
 }
 
 function createDisabledMachine(settings) {
+    const disabledTimerMachine = Machine({
+        initial: "running",
+        states: {
+            running: {
+                entry: [
+                    assign({ state: "running" }),
+                    "sendParentUpdate",
+                ],
+                invoke: {
+                    src: () => (sendParentEvent) => {
+                        const id = setInterval(() => sendParentEvent("TICK"), 1000);
+
+                        return () => clearInterval(id);
+                    },
+                },
+                on: {
+                    TICK: {
+                        actions: [
+                            "calculateRemaining",
+                            "updateTimerPosition",
+                            "sendParentUpdate",
+                        ],
+                    },
+                },
+                always: [
+                    { target: "completed", cond: "isCompleted" },
+                ],
+            },
+            completed: {
+                entry: [
+                    assign({ state: "completed" }),
+                    "sendParentUpdate",
+                ],
+                type: "final",
+            },
+        },
+    }, {
+        actions: {
+            calculateRemaining: assign({
+                remaining: (context) => {
+                    const { disabledEnd } = context;
+                    return differenceInMilliseconds(disabledEnd, Date.now());
+                },
+            }),
+            updateTimerPosition: assign({
+                position: () => settings.appearanceSettings.timerPosition,
+            }),
+            sendParentUpdate: sendParent((context) => ({
+                type: "TIMER.UPDATE",
+                payload: context,
+            })),
+        },
+        guards: {
+            isCompleted: (context) => isBefore(context.disabledEnd, Date.now()),
+        },
+    });
+
     const disabledMachine = Machine({
         initial: "default",
         context: {},
@@ -385,8 +443,19 @@ function createDisabledMachine(settings) {
             default: {
                 invoke: {
                     id: "timerMachine",
-                    src: createTimerMachine("disabled", settings),
-                    data: () => initialTimerData(settings, "disabled"),
+                    src: disabledTimerMachine,
+                    data: () => {
+                        const { duration } = settings.phaseSettings["disabled"];
+                        const disabledEnd = new Date(duration);
+                        const { timerPosition } = settings.appearanceSettings;
+
+                        return {
+                            disabledEnd: disabledEnd,
+                            remaining: differenceInMilliseconds(disabledEnd, Date.now()),
+                            position: timerPosition,
+                            state: "running",
+                        };
+                    },
                     onDone: {
                         target: "transition",
                         actions: [

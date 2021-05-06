@@ -1,13 +1,18 @@
 <script>
+    import { addHours, isBefore, isValid } from "date-fns";
     import Radio, { Group } from "@kwangure/strawberry/components/Input/Radio";
     import Button from "@kwangure/strawberry/components/Button";
     import Modal from "@kwangure/strawberry/components/Modal";
-    import { Number } from "@kwangure/strawberry/components/Input";
+    import { Time } from "@kwangure/strawberry/components/Input";
     import { timer } from "~@common/events";
 
     let nextStep = "focus";
-    let disabledDurationMins = 5;
-    $: disabledDurationMs = disabledDurationMins * 60 * 1000;
+
+    let disableTime = addHours(Date.now(), 1);
+
+    $: if (isValid(disableTime) && isBefore(disableTime, Date.now())) {
+        disableTime = addHours(disableTime, 24);
+    }
 </script>
 
 <Modal visible closable="{false}">
@@ -19,11 +24,10 @@
             <Group bind:value={nextStep}>
                 <Radio value="disable">
                     <span slot="label">
-                        Disable Lisa for another
-                        <Number bind:value={disabledDurationMins} min=0 hideLabel>
-                            <span slot="label">Input disable duration</span>
-                        </Number>
-                        minutes
+                        Disable Lisa for until
+                        <Time bind:value={disableTime} hideLabel>
+                            <span slot="label">Input extend duration</span>
+                        </Time>
                     </span>
                 </Radio>
                 <Radio  value="focus">
@@ -35,7 +39,7 @@
         </div>
         <div class="form-item">
             {#if nextStep === "disable"}
-                <Button fullwidth on:click={() => timer.disableStart(disabledDurationMs)}>
+                <Button fullwidth on:click={() => timer.disableStart(disableTime)}>
                     Disable Lisa
                 </Button>
             {:else if nextStep === "focus"}
@@ -56,8 +60,7 @@
         display: flex;
         align-items: center;
     }
-    [slot=content] :global([slot=label] .berry-input-number) {
-        width: auto;
+    [slot=content] :global(.berry-timepicker) {
         margin-left: 1ch;
         margin-right: 1ch;
     }

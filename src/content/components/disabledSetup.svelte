@@ -1,24 +1,27 @@
 <script>
+    import { addHours, isBefore, isValid } from "date-fns";
     import Button from "@kwangure/strawberry/components/Button";
     import Modal from "@kwangure/strawberry/components/Modal";
-    import { Number } from "@kwangure/strawberry/components/Input";
+    import { Time } from "@kwangure/strawberry/components/Input";
     import { timer } from "~@common/events";
 
-    let disableDurationMins = 60;
-    $: disableDurationMs = disableDurationMins * 60 * 1000;
+    let disableTime = addHours(Date.now(), 1);
+
+    $: if (isValid(disableTime) && isBefore(disableTime, Date.now())) {
+        disableTime = addHours(disableTime, 24);
+    }
 </script>
 
 <Modal visible closable="{false}">
     <div slot="content">
         <div class="form-item">
-            Disable Lisa for
-            <Number bind:value={disableDurationMins} min=0 hideLabel>
+            Disable Lisa until
+            <Time bind:value={disableTime} hideLabel>
                 <span slot="label">Input extend duration</span>
-            </Number>
-            minutes
+            </Time>
         </div>
         <div class="form-item actions">
-            <Button on:click={() => timer.disableStart(disableDurationMs)}>
+            <Button on:click={() => timer.disableStart(disableTime)}>
                 Disable
             </Button>
             <Button primary on:click={() => timer.disableCancel()}>
@@ -33,8 +36,7 @@
         display: flex;
         align-items: center;
     }
-    [slot=content] :global(.berry-input-number) {
-        width: auto;
+    [slot=content] :global(.berry-timerpicker) {
         margin-left: 1ch;
         margin-right: 1ch;
     }
