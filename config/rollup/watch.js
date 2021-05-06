@@ -9,7 +9,7 @@ export default {
         sourcemap: "inline",
     },
     plugins: [
-        ...common.plugins.filter((p) => p.name !== "empty-dir"),
+        ...common.plugins,
     ],
     watch: {
         clearScreen: false,

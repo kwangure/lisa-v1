@@ -4,9 +4,9 @@ import {
 
 export default [
     assets,
+    watch,
     background,
     content,
     options,
     popup,
-    watch,
 ];
