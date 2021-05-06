@@ -28,8 +28,6 @@
         min-width: 250px;
     }
     .timer {
-        text-align: center;
-        align-items: center;
         background-color: var(--br-white);
         border-radius: var(--br-border-radius);
         color: var(--br-text);
