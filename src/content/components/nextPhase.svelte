@@ -79,14 +79,7 @@
     [slot=content] :global(.berry-input-radio [slot=label]) {
         display: flex;
         align-items: center;
-    }
-    [slot=content] :global([slot=label] .berry-input-number) {
-        width: auto;
-        margin-left: 1ch;
-        margin-right: 1ch;
-    }
-    [slot=content] :global(input[type=radio]) {
-        margin-right: 10px;
+        gap: 1ch;
     }
     .form-item {
         margin-bottom: 5px;
