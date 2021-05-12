@@ -8,7 +8,7 @@
     let remaining;
     $: ({ timerMachine: { remaining }} = $state);
     $: time = formatMilliseconds(remaining, {
-        format: ["minutes", "seconds"],
+        format: ["hours", "minutes", "seconds"],
         delimiter: ":",
         formatter: { xHours: "", xMinutes: "", xSeconds: "" },
         zero: true,
