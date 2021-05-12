@@ -10,21 +10,17 @@
 
     $: ({ timerMachine } = $state);
     $: ({ position, remaining, state: timerState } = timerMachine);
-
-    let hidden = false;
-
-    $: time = hidden
-        ? formatMilliseconds(remaining, {
-            format: ["minutes"],
-            formatter: { xMinutes: "m" },
-        })
-        : formatMilliseconds(remaining, {
-            format: ["minutes", "seconds"],
-            delimiter: ":",
-            formatter: { xHours: "", xMinutes: "", xSeconds: "" },
-            zero: true,
-            pad: true,
-        });
+    $: shortTime = formatMilliseconds(remaining, {
+        format: ["minutes"],
+        formatter: { xMinutes: "m" },
+    });
+    $: clockTime = formatMilliseconds(remaining, {
+        format: ["minutes", "seconds"],
+        delimiter: ":",
+        formatter: { xHours: "", xMinutes: "", xSeconds: "" },
+        zero: true,
+        pad: true,
+    });
 
     function handleDismiss() {
         timer.dismissRemainingWarning();
@@ -42,10 +38,11 @@
         message="{formatMilliseconds(remaining)} remaining"/>
 {/if}
 
-<div class="countdown-wrapper {position}" class:hidden>
+<div class="countdown-wrapper {position}">
     <div class="countdown">
-        <Timer bind:hidden {time}/>
-        <Controls {hidden}/>
+        <Timer time={clockTime}/>
+        <Timer time={shortTime}/>
+        <Controls/>
     </div>
 </div>
 
@@ -81,8 +78,30 @@
     .countdown:hover {
         opacity: 1;
     }
-    .hidden .countdown {
-        border-radius: 50%;
+    .countdown :global(.controls) {
+        width: 0px;
+        margin: 0px;
+        transition: all 0.35s ease-out;
+        /* Override all transition */
+        transition-property: width, margin, padding;
         overflow: hidden;
+    }
+    .countdown:hover :global(.controls) {
+        /*
+            Hard code width to workaround Custom Elemnt transition issue.
+            See https://github.com/sveltejs/svelte/issues/4735 for more.
+        */
+        width: 132px;
+        margin: 0px 10px;
+    }
+    .countdown :global(.berry-dropdown-menu.visible) {
+        display: none;
+    }
+    .countdown:hover :global(.berry-dropdown-menu.visible) {
+        display: block;
+    }
+    .countdown:not(:hover) :global(.timer:nth-child(1)),
+    .countdown:hover :global(.timer:nth-child(2)) {
+        display: none;
     }
 </style>

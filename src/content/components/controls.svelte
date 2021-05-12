@@ -10,8 +10,6 @@
     import Button from "@kwangure/strawberry/components/Button";
     import { getContext } from "svelte";
 
-    export let hidden;
-
     const state = getContext("timer-state");
 
     let position, timerState;
@@ -32,7 +30,7 @@
 
 <svelte:window on:keydown={handleKeyDown}/>
 
-<div class="controls" class:hidden>
+<div class="controls">
     {#if timerState.paused === "default" || timerState === "completed"}
         <Button icon={mdiPlayOutline} on:click={() => timer.play()}/>
     {:else}
@@ -61,9 +59,6 @@
         display: flex;
         margin: 0 10px;
         justify-content: center;
-    }
-    .controls.hidden {
-        display: none;
     }
     .controls :global(.berry-button) {
         border: none !important;
