@@ -38,8 +38,8 @@ async function getExtensionId(browser, extensionName) {
 }
 
 export async function screenshot(extPath, screenshotDir) {
-    const width = 1280;
-    const height = 800;
+    const width = 960;
+    const height = 600;
     const puppeteerOptions ={
         defaultViewport: { width, height },
         headless: false,
@@ -48,15 +48,20 @@ export async function screenshot(extPath, screenshotDir) {
             "--start-maximized",
             `--load-extension=${extPath}`,
             `--window-size=${width},${height}`,
+            "--force-device-scale-factor=1.33333",
         ],
     };
 
     const browser = await puppeteer.launch(puppeteerOptions);
     const [page] = await browser.pages();
+    /* Makes resolution 1280 * 800 */
+    const deviceScaleFactor = 1.3333;
+    await page.setViewport({ width, height, deviceScaleFactor });
 
     const extensionManifest = getExtensionManifest(extPath);
     const { name: extensionName } = extensionManifest;
     const extensionID = await getExtensionId(browser, extensionName);
+    const delay = (t) => new Promise((resolve) => setTimeout(resolve, t));
 
     await snapUrls({
         screenshotDir: screenshotDir,
@@ -67,27 +72,20 @@ export async function screenshot(extPath, screenshotDir) {
                 url: "https://google.com/search?q=define+focus&aqs=chrome.0.69i59j69i57.1731j0j9",
                 beforeSnap: async (page) => {
                     await page.evaluate(() => {
-                        document.body.insertAdjacentHTML(
-                            "beforeEnd",
-                            "<div style=\"width: 100%;\
-                                height: 100vh;\
-                                background: linear-gradient(155deg, black, transparent 95%);\
-                                position: absolute;\
-                                z-index: 200;\
-                                opacity: 0.8;\
-                                top: 0; left: 0;\">\
-                            </div>"
-                        );
-                    });
-
-                    await page.evaluate(() => {
                         document.querySelector("body > lisa-timer")
                             .shadowRoot.querySelector("div.content button")
                             .click();
                     });
+
+                    await delay(1000);
                 },
             },
-            { url: `chrome-extension://${extensionID}/options/index.html` },
+            {
+                url: `chrome-extension://${extensionID}/options/index.html`,
+                beforeSnap: async () => {
+                    await delay(1000);
+                },
+            },
         ],
     });
 
