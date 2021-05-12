@@ -10,10 +10,7 @@
 
     const state = readable({}, (set) => {
         timer.getState().then(set);
-        timer.all((_, payload) => {
-            console.log({ event: _, payload });
-            set(payload);
-        });
+        timer.all((_, payload) => set(payload));
     });
 
     setContext("timer-state", state);

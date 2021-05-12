@@ -16,7 +16,6 @@
     setContext("timer-state", state);
 
     $: ({ status, phase, disabled } = $state);
-    $: console.log({ $state });
 </script>
 
 <svelte:options tag="lisa-timer"/>
