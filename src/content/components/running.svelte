@@ -1,16 +1,16 @@
 <script>
     import { isIOS, isMacintosh } from "~@utils/platform";
     import Controls from "./controls.svelte";
+    import { getContext } from "svelte";
     import { millisecondsToHumanReadableTime } from "~@utils/time";
     import Notification from "@kwangure/strawberry/components/Notification";
     import { timer } from "~@common/events";
     import Timer from "~@phase_ui/components/running/timer.svelte";
 
-    export let phase;
-    export let position;
-    export let remaining;
-    export let script;
-    export let state;
+    const state = getContext("timer-state");
+
+    $: ({ phase, timerMachine } = $state);
+    $: ({ position, remaining, state: timerState } = timerMachine);
 
     let hidden = false;
 
@@ -38,12 +38,12 @@
 
 <svelte:window on:keydown={handleKeyDown}/>
 <svelte:head>
-    {#if state.paused === "default"}
+    {#if timerState.paused === "default"}
         <style>html { filter: grayscale(100%) }</style>
     {/if}
 </svelte:head>
 
-{#if state.running === "warnRemaining"}
+{#if timerState.running === "warnRemaining"}
     <Notification
         on:dismiss={handleDismiss}
         message={millisecondsToHumanReadableTime(
@@ -60,8 +60,8 @@
 
 <div class="countdown-wrapper {position}" class:hidden>
     <div class="countdown">
-        <Timer bind:hidden {phase} {script} {time}/>
-        <Controls {hidden} {state} {position}/>
+        <Timer bind:hidden {phase} {time}/>
+        <Controls {hidden}/>
     </div>
 </div>
 

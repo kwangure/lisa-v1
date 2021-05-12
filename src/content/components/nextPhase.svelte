@@ -1,20 +1,29 @@
 <script>
     import Radio, { Group } from "@kwangure/strawberry/components/Input/Radio";
     import Button from "@kwangure/strawberry/components/Button";
+    import { getContext } from "svelte";
     import Icon from "@kwangure/strawberry/components/Icon";
     import { mdiInformationOutline } from "@mdi/js";
     import Modal from "@kwangure/strawberry/components/Modal";
     import { Number } from "@kwangure/strawberry/components/Input";
+    import { phaseNames } from "~@common/settings";
     import { timer } from "~@common/events";
 
-    export let completedPhaseName;
-    export let focusPhasesSinceStart;
-    export let focusPhasesUntilLongBreak;
-    export let nextPhaseName;
+    const state = getContext("timer-state");
+
+    $: ({
+        completedPhase: { name: completedPhase },
+        focusPhasesSinceStart,
+        focusPhasesUntilLongBreak,
+        nextPhase,
+    } = $state);
 
     let nextStep = "proceed";
     let extendDurationMins = 5;
     $: extendedDurationMs = extendDurationMins * 60 * 1000;
+
+    $: nextPhaseName = phaseNames[nextPhase].toLowerCase();
+    $: completedPhaseName = phaseNames[completedPhase].toLowerCase();
 </script>
 
 <Modal visible closable="{false}">

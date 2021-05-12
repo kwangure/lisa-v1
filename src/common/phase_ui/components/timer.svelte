@@ -1,12 +1,16 @@
 <script>
-    export let script;
-    export let status = "";
-    export let phase;
-    export let time;
+    import { getContext } from "svelte";
+
     export let hidden;
+    export let time;
+
+    const state = getContext("timer-state");
+    const script = getContext("script");
+
+    $: ({ phase, status } = $state);
 
     function handleClick() {
-        if (script !== "content") return;
+        if (!script !== "content") return;
         hidden = !hidden;
     }
 </script>

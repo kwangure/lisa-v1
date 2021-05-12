@@ -8,10 +8,14 @@
     } from "@mdi/js";
     import { settings, timer } from "~@common/events";
     import Button from "@kwangure/strawberry/components/Button";
+    import { getContext } from "svelte";
 
-    export let position;
-    export let state;
     export let hidden;
+
+    const state = getContext("timer-state");
+
+    let position, timerState;
+    $: ({ timerMachine: { position, state: timerState }} = $state);
 
     function handleKeyDown(event) {
         if (!event.altKey) return;
@@ -29,7 +33,7 @@
 <svelte:window on:keydown={handleKeyDown}/>
 
 <div class="controls" class:hidden>
-    {#if state.paused === "default" || state === "completed"}
+    {#if timerState.paused === "default" || timerState === "completed"}
         <Button icon={mdiPlayOutline} on:click={() => timer.play()}/>
     {:else}
         <Button icon={mdiPause} on:click={() => timer.pause()}/>
