@@ -11,8 +11,10 @@
     $: ({ timerMachine } = $state);
     $: ({ position, remaining, state: timerState } = timerMachine);
     $: shortTime = formatMilliseconds(remaining, {
-        format: ["hours", "minutes"],
-        formatter: { xHours: "h", xMinutes: "m" },
+        format: remaining < 60000
+            ? ["hours", "minutes", "seconds"]
+            : ["hours", "minutes"],
+        formatter: { xHours: "h", xMinutes: "m", xSeconds: "s" },
     });
     $: clockTime = formatMilliseconds(remaining, {
         format: ["hours", "minutes", "seconds"],
