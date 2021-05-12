@@ -1,5 +1,4 @@
 <script>
-    import { isIOS, isMacintosh } from "~@utils/platform";
     import Controls from "./controls.svelte";
     import { getContext } from "svelte";
     import { millisecondsToHumanReadableTime } from "~@utils/time";
@@ -21,22 +20,11 @@
         )
         : millisecondsToHumanReadableTime(remaining);
 
-    function handleKeyDown(event) {
-        const isApple = isIOS || isMacintosh;
-        if (isApple && !event.metaKey) return;
-        if (!isApple && !event.ctrlKey) return;
-
-        if (event.code === "Slash") {
-            hidden = !hidden;
-        }
-    }
-
     function handleDismiss() {
         timer.dismissRemainingWarning();
     }
 </script>
 
-<svelte:window on:keydown={handleKeyDown}/>
 <svelte:head>
     {#if timerState.paused === "default"}
         <style>html { filter: grayscale(100%) }</style>
