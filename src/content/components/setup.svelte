@@ -1,14 +1,17 @@
 <script>
+    import { addHours, isBefore, isValid } from "date-fns";
     import Radio, { Group } from "@kwangure/strawberry/components/Input/Radio";
     import Button from "@kwangure/strawberry/components/Button";
     import Modal from "@kwangure/strawberry/components/Modal";
-    import { Number } from "@kwangure/strawberry/components/Input";
+    import { Time } from "@kwangure/strawberry/components/Input";
     import { timer } from "~@common/events";
 
     let nextStep = "activate";
+    let disableTime = addHours(Date.now(), 1);
 
-    let disableDurationMins = 5;
-    $: extendedDurationMs = disableDurationMins * 60 * 1000;
+    $: if (isValid(disableTime) && isBefore(disableTime, Date.now())) {
+        disableTime = addHours(disableTime, 24);
+    }
 </script>
 
 <Modal visible closable="{false}">
@@ -25,11 +28,10 @@
                 </Radio>
                 <Radio value="disable">
                     <span slot="label">
-                        Disable Lisa for
-                        <Number bind:value={disableDurationMins} min=0 hideLabel>
+                        Disable Lisa until
+                        <Time bind:value={disableTime} min=0 hideLabel>
                             <span slot="label">Input extend duration</span>
-                        </Number>
-                        minutes
+                        </Time>
                     </span>
                 </Radio>
             </Group>
@@ -40,7 +42,7 @@
                     Start Lisa
                 </Button>
             {:else if nextStep === "disable"}
-                <Button primary fullwidth on:click={() => timer.disableStart(extendedDurationMs)}>
+                <Button primary fullwidth on:click={() => timer.disableStart(disableTime)}>
                     Disable Lisa
                 </Button>
             {/if}
@@ -56,14 +58,7 @@
     [slot=content] :global(.berry-input-radio [slot=label]) {
         display: flex;
         align-items: center;
-    }
-    [slot=content] :global([slot=label] .berry-input-number) {
-        width: auto;
-        margin-left: 1ch;
-        margin-right: 1ch;
-    }
-    [slot=content] :global(input[type=radio]) {
-        margin-right: 10px;
+        gap: 1ch;
     }
     .form-item {
         margin-bottom: 10px;
