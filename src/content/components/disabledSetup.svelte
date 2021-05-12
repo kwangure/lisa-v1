@@ -35,10 +35,7 @@
     .form-item:first-child {
         display: flex;
         align-items: center;
-    }
-    [slot=content] :global(.berry-timerpicker) {
-        margin-left: 1ch;
-        margin-right: 1ch;
+        gap: 1ch;
     }
     [slot=content] :global(input[type=radio]) {
         margin-right: 10px;
