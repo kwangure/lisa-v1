@@ -5,11 +5,11 @@
     import { millisecondsToHumanReadableTime } from "~@utils/time";
     import Notification from "@kwangure/strawberry/components/Notification";
     import { timer } from "~@common/events";
-    import Timer from "~@phase_ui/components/running/timer.svelte";
+    import Timer from "~@phase_ui/components/timer.svelte";
 
     const state = getContext("timer-state");
 
-    $: ({ phase, timerMachine } = $state);
+    $: ({ timerMachine } = $state);
     $: ({ position, remaining, state: timerState } = timerMachine);
 
     let hidden = false;
@@ -53,14 +53,14 @@
                     return `${minutes} minutes ${seconds} seconds remaining`;
                 }
 
-                return ` ${seconds} seconds remaining`;
+                return `${seconds} seconds remaining`;
             })
         )}/>
 {/if}
 
 <div class="countdown-wrapper {position}" class:hidden>
     <div class="countdown">
-        <Timer bind:hidden {phase} {time}/>
+        <Timer bind:hidden {time}/>
         <Controls {hidden}/>
     </div>
 </div>
