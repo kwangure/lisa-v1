@@ -10,7 +10,7 @@
     $: ({ phase, status } = $state);
 
     function handleClick() {
-        if (!script !== "content") return;
+        if (script !== "content") return;
         hidden = !hidden;
     }
 </script>

@@ -1,7 +1,7 @@
 <script>
     import Controls from "./controls.svelte";
+    import { formatMilliseconds } from "~@utils/time";
     import { getContext } from "svelte";
-    import { millisecondsToHumanReadableTime } from "~@utils/time";
     import Notification from "@kwangure/strawberry/components/Notification";
     import { timer } from "~@common/events";
     import Timer from "~@phase_ui/components/timer.svelte";
@@ -14,11 +14,17 @@
     let hidden = false;
 
     $: time = hidden
-        ? millisecondsToHumanReadableTime(
-            remaining,
-            (({ minutes }) => `${minutes}m`)
-        )
-        : millisecondsToHumanReadableTime(remaining);
+        ? formatMilliseconds(remaining, {
+            format: ["minutes"],
+            formatter: { xMinutes: "m" },
+        })
+        : formatMilliseconds(remaining, {
+            format: ["minutes", "seconds"],
+            delimiter: ":",
+            formatter: { xHours: "", xMinutes: "", xSeconds: "" },
+            zero: true,
+            pad: true,
+        });
 
     function handleDismiss() {
         timer.dismissRemainingWarning();
@@ -32,18 +38,8 @@
 </svelte:head>
 
 {#if timerState.running === "warnRemaining"}
-    <Notification
-        on:dismiss={handleDismiss}
-        message={millisecondsToHumanReadableTime(
-            remaining,
-            (({ minutes, seconds }) => {
-                if (minutes > 0) {
-                    return `${minutes} minutes ${seconds} seconds remaining`;
-                }
-
-                return `${seconds} seconds remaining`;
-            })
-        )}/>
+    <Notification on:dismiss={handleDismiss}
+        message="{formatMilliseconds(remaining)} remaining"/>
 {/if}
 
 <div class="countdown-wrapper {position}" class:hidden>

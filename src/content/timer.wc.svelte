@@ -14,6 +14,7 @@
     });
 
     setContext("timer-state", state);
+    setContext("script", "content");
 
     $: ({ status, phase, disabled } = $state);
 </script>
