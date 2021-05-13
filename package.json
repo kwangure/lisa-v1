@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "",
   "dependencies": {
-    "@kwangure/strawberry": "^0.27.4",
+    "@kwangure/strawberry": "^0.27.5",
     "@kwangure/svelte-pagejs-router": "^0.3.1",
     "@webcomponents/custom-elements": "^1.4.2",
     "date-fns": "^2.21.2",
