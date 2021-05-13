@@ -8,15 +8,37 @@ function createTimerMachine(phase, settings) {
         initial: "running",
         states: {
             running: {
-                entry: [
-                    assign({ state: "running" }),
-                    "sendParentUpdate",
-                ],
+                initial: "default",
                 invoke: {
                     src: () => (sendParentEvent) => {
                         const id = setInterval(() => sendParentEvent("TICK"), 1000);
 
                         return () => clearInterval(id);
+                    },
+                },
+                states: {
+                    default: {
+                        entry: assign({
+                            state: { running: "default" },
+                        }),
+                        always: {
+                            target: "warnRemaining",
+                            cond: "shouldWarn",
+                        },
+                    },
+                    warnRemaining: {
+                        entry: assign({
+                            state: { running: "warnRemaining" },
+                        }),
+                        on: {
+                            "WARN_REMAINING.DISMISS": "default",
+                        },
+                        exit: [
+                            assign({
+                                warnDismissed: true,
+                            }),
+                            "sendParentUpdate",
+                        ],
                     },
                 },
                 on: {
@@ -138,6 +160,10 @@ function createTimerMachine(phase, settings) {
             isCompleted: (context) => context.remaining <= 0,
             isRunning: (context) => context.remaining > 0,
             isNotDisabled: () => phase !== "disabled",
+            shouldWarn: (context) => {
+                const { remaining, warnDismissed } = context;
+                return remaining <= settings.phaseSettings[phase].warnRemaining && !warnDismissed;
+            },
         },
         delays: {
             PAUSE_DELAY: () => settings.phaseSettings[phase].pauseDuration,
@@ -261,6 +287,7 @@ function createPhaseMachine(settings) {
                         "PLAY",
                         "RESET",
                         "SETTINGS.UPDATE",
+                        "WARN_REMAINING.DISMISS",
                     ], "timerMachine"),
                 },
             },
@@ -536,6 +563,7 @@ export async function createLisaService() {
                         "RESET",
                         "RESTART",
                         "SETTINGS.UPDATE",
+                        "WARN_REMAINING.DISMISS",
                     ], "phaseMachine"),
                 },
             },

@@ -40,10 +40,9 @@
     {/if}
 </svelte:head>
 
-{#if timerState.running === "warnRemaining"}
-    <Notification on:dismiss={handleDismiss}
-        message="{formatMilliseconds(remaining)} remaining"/>
-{/if}
+<Notification on:dismiss={handleDismiss}
+    visible={timerState.running === "warnRemaining"} removeAfter={0}
+    message="{formatMilliseconds(remaining)} remaining"/>
 
 <div class="countdown-wrapper {position}">
     <div class="countdown">
