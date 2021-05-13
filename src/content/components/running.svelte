@@ -8,16 +8,21 @@
 
     const state = getContext("timer-state");
 
+    const SECOND = 1000;
+    const MINUTE = 60 * SECOND;
+
     $: ({ timerMachine } = $state);
     $: ({ position, remaining, state: timerState } = timerMachine);
     $: shortTime = formatMilliseconds(remaining, {
-        format: remaining < 60000
+        format: remaining < (60 * SECOND)
             ? ["hours", "minutes", "seconds"]
             : ["hours", "minutes"],
         formatter: { xHours: "h", xMinutes: "m", xSeconds: "s" },
     });
     $: clockTime = formatMilliseconds(remaining, {
-        format: ["hours", "minutes", "seconds"],
+        format: remaining < (60 * MINUTE)
+            ? ["minutes", "seconds"]
+            : ["hours", "minutes", "seconds"],
         delimiter: ":",
         formatter: { xHours: "", xMinutes: "", xSeconds: "" },
         zero: true,
