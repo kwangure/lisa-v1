@@ -4,7 +4,7 @@ export function minutesToMilliseconds(mins) {
     return mins * 60 * 1000;
 }
 
-export function formatMilliseconds(ms, options) {
+export function formatMilliseconds(ms, options = {}) {
     const { formatter, pad, ...restOptions } = options;
     if (formatter) {
         const tokenStrings = Object.assign({
