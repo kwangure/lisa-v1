@@ -1,11 +1,15 @@
-import common, { BACKGROUND_OUT, JS_ENTRY_OUT } from "./common.js";
+import common, { OUT_DIR } from "./common.js";
 
 export default {
-    input: "src/background/index.js",
+    input: [
+        "src/background/service_worker.js",
+        "src/background/background.js",
+    ],
     output: {
-        dir: BACKGROUND_OUT,
+        // TODO: Move to background folder once Chrome 93 is stable
+        // See https://stackoverflow.com/a/66115801
+        dir: OUT_DIR,
         format: "esm",
-        entryFileNames: JS_ENTRY_OUT,
         sourcemap: "inline",
     },
     plugins: [

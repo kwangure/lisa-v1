@@ -4,14 +4,10 @@
     "description": "Become more productive",
     "version": "0.1.3",
     "homepage_url": "https://github.com/kwangure/lisa",
-    "manifest_version": 2,
+    "manifest_version": 3,
     "offline_enabled": true,
     "background": {
-        "scripts": [
-            "__BACKGROUND_JS__",
-            "__RELOAD_JS__"
-        ],
-        "persistent": true
+        "service_worker": "__BACKGROUND_JS__"
     },
     "content_scripts": [{
         "matches": ["<all_urls>"],
@@ -19,7 +15,7 @@
         "js": ["__CONTENT_JS__"]
     }],
     "options_page": "__OPTIONS_PAGE__",
-    "browser_action": {
+    "action": {
         "default_title": "Lisa",
         "default_icon": "__BROWSER_ACTION__",
         "default_popup": "__POPUP_PAGE__"
@@ -32,10 +28,9 @@
     "icons": {
         "128": "__BROWSER_ACTION__"
     },
-    "web_accessible_resources": [
-        "**/bundle.js",
-        "**/bundle.css"
-    ],
-    "minimum_chrome_version": "70",
-    "content_security_policy": "script-src 'self'; object-src 'self'"
+    "web_accessible_resources": [{
+        "matches": ["<all_urls>"],
+        "resources": ["**/bundle.js", "**/bundle.css"]
+    }],
+    "minimum_chrome_version": "90"
 }

@@ -21,7 +21,7 @@
 
 <svelte:options tag="lisa-timer"/>
 
-<link rel="stylesheet" href={chrome.extension.getURL("__CONTENT_CSS__")}/>
+<link rel="stylesheet" href={chrome.runtime.getURL("__CONTENT_CSS__")}/>
 
 {#if status === "setup"}
     <Setup/>
