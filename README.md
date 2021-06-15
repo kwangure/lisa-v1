@@ -1,7 +1,9 @@
 <p align="center">
     <a href="#what-is-lisa"><strong>What is Lisa?</strong></a> •
     <a href="#development"><strong>Development</strong></a> •
-    <a href="https://chrome.google.com/webstore/detail/lisa/eifhbkffnfdohkcijfiiggcblnfhcogc"><strong>Chrome Webstore</strong></a>
+    <a href="https://chrome.google.com/webstore/detail/lisa/eifhbkffnfdohkcijfiiggcblnfhcogc" target="_blank">
+        <strong>Chrome Webstore</strong>
+    </a>
 </p>
 
 ## What is Lisa?
