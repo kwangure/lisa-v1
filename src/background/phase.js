@@ -1,8 +1,6 @@
 import { assign, interpret, Machine, sendParent } from "xstate";
 import { differenceInMilliseconds, isBefore } from "date-fns";
-// import createSettings from "../settings.js";
-import { createSettings2 } from "../settings.js";
-import { forward } from "../../common/xstate.js";
+import { forward } from "../common/xstate.js";
 
 function createTimerMachine(phase, settings) {
     const timerMachine = Machine({

@@ -1,6 +1,6 @@
 import { serializeState, stateOrChildStateChanged } from "./xstate.js";
 import { settings as settingsEvents, timer } from "../common/events";
-import { createLisaService } from "./phase/phase";
+import { createLisaService } from "./phase";
 import createSettings from "./settings";
 
 const settings = createSettings();
