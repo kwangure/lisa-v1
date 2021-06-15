@@ -3,6 +3,7 @@ import {
 } from "./config/rollup/index.js";
 
 export default [
+    // Array order matters
     assets,
     watch,
     background,
