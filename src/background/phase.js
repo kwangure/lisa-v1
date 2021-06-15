@@ -1,4 +1,5 @@
 import { assign, interpret, Machine, sendParent } from "xstate";
+import { chromeClearInterval, chromeSetInterval } from "./time";
 import { differenceInMilliseconds, isBefore } from "date-fns";
 import { forward } from "../common/xstate.js";
 
@@ -10,9 +11,11 @@ function createTimerMachine(phase, settings) {
                 initial: "default",
                 invoke: {
                     src: () => (sendParentEvent) => {
-                        const id = setInterval(() => sendParentEvent("TICK"), 1000);
+                        const id = chromeSetInterval(() => {
+                            sendParentEvent("TICK");
+                        }, 1000);
 
-                        return () => clearInterval(id);
+                        return () => chromeClearInterval(id);
                     },
                 },
                 states: {

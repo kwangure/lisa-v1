@@ -9,6 +9,7 @@
     "date-fns": "^2.21.2",
     "proxy-watcher": "^3.4.1",
     "svelte": "^3.37.0",
+    "uid": "^1.0.0",
     "xstate": "^4.11.0"
   },
   "devDependencies": {

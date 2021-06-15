@@ -21,6 +21,7 @@
         "default_popup": "__POPUP_PAGE__"
     },
     "permissions": [
+        "alarms",
         "activeTab",
         "webNavigation",
         "storage"
