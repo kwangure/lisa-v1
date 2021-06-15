@@ -1,6 +1,7 @@
 import { assign, interpret, Machine, sendParent } from "xstate";
 import { differenceInMilliseconds, isBefore } from "date-fns";
-import createSettings from "../settings.js";
+// import createSettings from "../settings.js";
+import { createSettings2 } from "../settings.js";
 import { forward } from "../../common/xstate.js";
 
 function createTimerMachine(phase, settings) {
@@ -523,8 +524,7 @@ function createDisabledMachine(settings) {
     return disabledMachine;
 }
 
-export async function createLisaService() {
-    const settings = await createSettings();
+export function createLisaService(settings) {
     const lisaMachine = Machine({
         initial: "setup",
         states: {
@@ -582,7 +582,5 @@ export async function createLisaService() {
         },
     });
 
-    const lisaService = interpret(lisaMachine);
-
-    return [lisaService, settings];
+    return interpret(lisaMachine);
 }

@@ -5,29 +5,22 @@ import { defaultSettings } from "../common/settings";
 const storage = chrome.storage.local;
 
 export default function createSettings() {
-    return new Promise((resolve) => {
-        storage.getBytesInUse("settings", async (bytesInUse) => {
-            let settings = {};
-            if (bytesInUse === 0) {
-                settings = defaultSettings;
-                storage.set({ settings });
-            } else {
-                settings = await new Promise((resolve) => {
-                    storage.get("settings", (result) => {
-                        resolve(result.settings);
-                    });
-                });
-            }
-
-            const [proxy] = watch(settings, () => {
-                storage.set({ settings: target(proxy) });
-            });
-
-            storage.onChanged.addListener(({ settings }) => {
-                Object.assign(proxy, settings.newValue);
-            });
-
-            resolve(proxy);
-        });
+    const settings = defaultSettings;
+    const [proxy] = watch(settings, () => {
+        storage.set({ settings: target(proxy) });
     });
+
+    storage.onChanged.addListener(({ settings }) => {
+        Object.assign(proxy, settings.newValue);
+    });
+
+    storage.getBytesInUse("settings", (bytesInUse) => {
+        if (bytesInUse !== 0) {
+            storage.get("settings", (result) => {
+                Object.assign(proxy, result.settings);
+            });
+        }
+    });
+
+    return proxy;
 }
