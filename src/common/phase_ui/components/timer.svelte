@@ -1,22 +1,14 @@
 <script>
     import { getContext } from "svelte";
 
-    export let hidden;
     export let time;
 
     const state = getContext("timer-state");
-    const script = getContext("script");
 
     $: ({ phase, status } = $state);
-
-    function handleClick() {
-        if (script !== "content") return;
-        hidden = !hidden;
-    }
 </script>
 
-<div class="timer {phase}" class:disabled={status === "disabled"}
-    on:click={handleClick}>
+<div class="timer {phase}" class:disabled={status === "disabled"}>
     {time}
 </div>
 
@@ -28,9 +20,6 @@
         border-radius: var(--br-border-radius);
         cursor: pointer;
         text-align: center;
-    }
-    :global(.hidden) .timer {
-        padding: 0 12px;
     }
     .timer.stop {
         background-color: var(--br-red-light);

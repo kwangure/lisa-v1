@@ -54,9 +54,11 @@ async function openExtensionPage(url) {
 }
 
 export default {
-    options: async (route) => {
+    options: (route) => {
         const path = `${manifest.options_page}${route ? `#/${route}`: ""}`;
         const url = chrome.extension.getURL(path);
-        await openExtensionPage(url);
+        // await openExtensionPage(url);
+        console.error(`Refactoring in Progress.
+TODO: Open extension URL '${url}' from Service Worker`);
     },
 };
