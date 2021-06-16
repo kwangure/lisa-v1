@@ -1,10 +1,13 @@
+import createLisaMachine, { formatLisaData } from "./machines/lisa";
 import { serializeState, stateOrChildStateChanged } from "./xstate.js";
 import { settings as settingsEvents, timer } from "../common/events";
-import { createLisaService } from "./phase";
 import createSettings from "./settings";
+import { interpret } from "xstate";
 
-const settings = createSettings();
-const lisaService = createLisaService(settings);
+const { settings } = createSettings();
+const lisaMachine = createLisaMachine(settings);
+const lisaService = interpret(lisaMachine);
+
 // Forward background events to other extension scripts
 lisaService.onTransition((state, event) => {
     if (stateOrChildStateChanged(state)) {
@@ -33,26 +36,3 @@ settingsEvents.on("UPDATE.APPEARANCE.POSITION", (value) => {
 
     lisaService.send("SETTINGS.UPDATE");
 });
-
-function formatLisaData(lisaMachineState) {
-    const { value: status, event, children } = lisaMachineState;
-    const formatted = { status, event };
-
-    if (status === "active") {
-        const { phaseMachine } = children;
-
-        Object.assign(formatted, {
-            phase: phaseMachine.value,
-            ...phaseMachine.context,
-        });
-    } else if (status === "disabled") {
-        const { disabledMachine } = children;
-
-        Object.assign(formatted, {
-            disabled: disabledMachine.value,
-            ...disabledMachine.context,
-        });
-    }
-
-    return formatted;
-}

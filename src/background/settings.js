@@ -9,9 +9,19 @@ export default function createSettings() {
     const [proxy] = watch(settings, () => {
         storage.set({ settings: target(proxy) });
     });
+    const listeners = new Set();
+    function addListener(fn) {
+        listeners.add(fn);
+    }
 
     storage.onChanged.addListener(({ settings }) => {
-        Object.assign(proxy, settings.newValue);
+        const { newValue } = settings;
+
+        for (const listener of listeners) {
+            listener(newValue);
+        }
+
+        Object.assign(proxy, newValue);
     });
 
     storage.getBytesInUse("settings", (bytesInUse) => {
@@ -22,5 +32,8 @@ export default function createSettings() {
         }
     });
 
-    return proxy;
+    return {
+        settings: proxy,
+        addListener: addListener,
+    };
 }
