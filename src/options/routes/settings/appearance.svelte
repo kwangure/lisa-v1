@@ -1,17 +1,9 @@
-<script context="module">
-    import createSettingStore from "./settings";
-    export async function preload() {
-        return {
-            settingStore: await createSettingStore(),
-        };
-    }
-</script>
-
 <script>
     import Select, { Option } from "@kwangure/strawberry/components/Select";
-    import { timerPositions } from "../../../common/settings";
+    import createSettingStore from "./settings";
+    import { timerPositions } from "~@common/settings";
 
-    export let settingStore;
+    const settingStore = createSettingStore();
 </script>
 
 <Select bind:value={$settingStore.appearanceSettings.timerPosition}>

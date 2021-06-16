@@ -1,17 +1,9 @@
-<script context="module">
-    import createSettingStore from "./settings";
-    export async function preload() {
-        return {
-            settingStore: await createSettingStore(),
-        };
-    }
-</script>
-
 <script>
+    import createSettingStore from "./settings";
     import { Number } from "@kwangure/strawberry/components/Input";
     import Phase from "./_components/phase.svelte";
 
-    export let settingStore;
+    const settingStore = createSettingStore();
 </script>
 
 <Phase name="Long break" bind:value={$settingStore.phaseSettings.longBreak}>
