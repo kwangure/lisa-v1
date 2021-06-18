@@ -1,4 +1,5 @@
 <script>
+    import { createSettingStore, timerPositions } from "~@common/settings";
     import Dropdown, { Item } from "@kwangure/strawberry/components/Dropdown";
     import {
         mdiDotsHorizontal,
@@ -6,29 +7,26 @@
         mdiPictureInPictureBottomRightOutline,
         mdiPlayOutline,
     } from "@mdi/js";
-    import { settings, timer } from "~@common/events";
     import Button from "@kwangure/strawberry/components/Button";
     import { getContext } from "svelte";
+    import { timer } from "~@common/events";
 
     const state = getContext("timer-state");
+    const settings = createSettingStore();
 
-    let position, timerState;
-    $: ({ timerMachine: { position, state: timerState }} = $state);
+    let timerState;
+    $: ({ timerMachine: { state: timerState }} = $state);
+    $: ({ timerPosition } = $settings.appearanceSettings);
+    $: timerPositionRight = timerPosition === timerPositions.BOTTOM_RIGHT.value;
 
-    function handleKeyDown(event) {
-        if (!event.altKey) return;
+    function positionLeft() {
+        $settings.appearanceSettings.timerPosition = timerPositions.BOTTOM_LEFT.value;
+    }
 
-        if (event.code === "ArrowRight") {
-            timer.positionRight();
-        }
-
-        if (event.code === "ArrowLeft") {
-            timer.positionLeft();
-        }
+    function positionRight() {
+        $settings.appearanceSettings.timerPosition = timerPositions.BOTTOM_RIGHT.value;
     }
 </script>
-
-<svelte:window on:keydown={handleKeyDown}/>
 
 <div class="controls">
     {#if timerState.paused === "default" || timerState === "completed"}
@@ -36,13 +34,13 @@
     {:else}
         <Button icon={mdiPause} on:click={() => timer.pause()}/>
     {/if}
-    {#if timer.isRightPosition(position)}
+    {#if timerPositionRight}
         <Button icon={mdiPictureInPictureBottomRightOutline}
             iconProps={{ flip: { horizontal: true }}}
-            on:click={() => settings.appearance.updatePositionBottomLeft()}/>
+            on:click={positionLeft}/>
     {:else}
         <Button icon={mdiPictureInPictureBottomRightOutline}
-            on:click={() => settings.appearance.updatePositionBottomRight()}/>
+            on:click={positionRight}/>
     {/if}
     <Dropdown placement="auto-end">
         <svelte:fragment slot="button">

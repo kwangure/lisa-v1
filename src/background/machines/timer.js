@@ -46,7 +46,6 @@ export default function createTimerMachine(phase, settings) {
                         actions: [
                             "elapseSecond",
                             "calculateRemaining",
-                            "updateTimerPosition",
                             "sendParentUpdate",
                         ],
                     },
@@ -125,7 +124,6 @@ export default function createTimerMachine(phase, settings) {
             "SETTINGS.UPDATE": {
                 actions: [
                     "calculateRemaining",
-                    "updateTimerPosition",
                     "sendParentUpdate",
                 ],
             },
@@ -147,9 +145,6 @@ export default function createTimerMachine(phase, settings) {
                     const { extendedDuration, elapsed } = context;
                     return (duration + extendedDuration) - elapsed;
                 },
-            }),
-            updateTimerPosition: assign({
-                position: () => settings.appearanceSettings.timerPosition,
             }),
             sendParentUpdate: sendParent((context) => ({
                 type: "TIMER.UPDATE",

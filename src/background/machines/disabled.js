@@ -26,7 +26,6 @@ export default function createDisabledMachine(settings) {
                     TICK: {
                         actions: [
                             "calculateRemaining",
-                            "updateTimerPosition",
                             "sendParentUpdate",
                         ],
                     },
@@ -51,9 +50,6 @@ export default function createDisabledMachine(settings) {
                     return differenceInMilliseconds(disabledEnd, Date.now());
                 },
             }),
-            updateTimerPosition: assign({
-                position: () => settings.appearanceSettings.timerPosition,
-            }),
             sendParentUpdate: sendParent((context) => ({
                 type: "TIMER.UPDATE",
                 payload: context,
@@ -75,12 +71,10 @@ export default function createDisabledMachine(settings) {
                     data: () => {
                         const { duration } = settings.phaseSettings["disabled"];
                         const disabledEnd = new Date(duration);
-                        const { timerPosition } = settings.appearanceSettings;
 
                         return {
                             disabledEnd: disabledEnd,
                             remaining: differenceInMilliseconds(disabledEnd, Date.now()),
-                            position: timerPosition,
                             state: "running",
                         };
                     },

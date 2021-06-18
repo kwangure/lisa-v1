@@ -1,5 +1,4 @@
 import { EventHandler } from "./listen.js";
-import { timerPositions } from "../settings";
 
 class Timer extends EventHandler {
     constructor() {
@@ -31,9 +30,6 @@ class Timer extends EventHandler {
     }
     isInitialized() {
         return this.request("IS_INITIALIZED");
-    }
-    isRightPosition(position) {
-        return timerPositions.BOTTOM_RIGHT.value === position;
     }
     nextPhase() {
         this.emit({ event: "NEXT" });

@@ -4,12 +4,10 @@ import { forward } from "~@common/xstate.js";
 
 function initialTimerData(settings, phase) {
     const { duration } = settings.phaseSettings[phase];
-    const { timerPosition } = settings.appearanceSettings;
 
     return {
         duration: duration,
         remaining: duration,
-        position: timerPosition,
         elapsed: 0,
         extendedDuration: 0,
         state: "running",

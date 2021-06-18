@@ -1,5 +1,6 @@
 <script>
     import Controls from "./controls.svelte";
+    import { createSettingStore } from "~@common/settings";
     import { formatMilliseconds } from "~@utils/time";
     import { getContext } from "svelte";
     import Notification from "@kwangure/strawberry/components/Notification";
@@ -7,12 +8,14 @@
     import Timer from "~@phase_ui/components/timer.svelte";
 
     const state = getContext("timer-state");
+    const settings = createSettingStore();
 
     const SECOND = 1000;
     const MINUTE = 60 * SECOND;
 
     $: ({ timerMachine } = $state);
-    $: ({ position, remaining, state: timerState } = timerMachine);
+    $: ({ remaining, state: timerState } = timerMachine);
+    $: ({ timerPosition } = $settings.appearanceSettings);
     $: shortTime = formatMilliseconds(remaining, {
         format: remaining < (60 * SECOND)
             ? ["hours", "minutes", "seconds"]
@@ -44,7 +47,7 @@
     visible={timerState.running === "warnRemaining"} removeAfter={0}
     message="{formatMilliseconds(remaining)} remaining"/>
 
-<div class="countdown-wrapper {position}">
+<div class="countdown-wrapper {timerPosition}">
     <div class="countdown">
         <Timer time={clockTime}/>
         <Timer time={shortTime}/>
