@@ -1,10 +1,10 @@
 import createLisaMachine, { formatLisaData } from "./machines/lisa";
 import { serializeState, stateOrChildStateChanged } from "./xstate.js";
-import { settings as settingsEvents, timer } from "../common/events";
 import createSettings from "./settings";
 import { interpret } from "xstate";
+import { timer } from "../common/events";
 
-const { settings } = createSettings();
+const { settings, addListener: onSettingsChange } = createSettings();
 const lisaMachine = createLisaMachine(settings);
 const lisaService = interpret(lisaMachine);
 
@@ -31,8 +31,6 @@ timer.on("FETCH", (_, respond) => {
 
 lisaService.start();
 
-settingsEvents.on("UPDATE.APPEARANCE.POSITION", (value) => {
-    settings.appearanceSettings.timerPosition = value;
-
+onSettingsChange(() => {
     lisaService.send("SETTINGS.UPDATE");
 });
