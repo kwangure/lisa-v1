@@ -9,6 +9,7 @@
     "date-fns": "^2.21.2",
     "just-clone": "^3.2.1",
     "just-compare": "^1.4.0",
+    "just-typeof": "^2.0.0",
     "proxy-watcher": "^3.4.1",
     "svelte": "^3.37.0",
     "uid": "^1.0.0",

@@ -1,5 +1,6 @@
 import { sendMessageToRuntime, sendMessageToTabs } from "./emit.js";
 import { escapeRegExp } from "../../utils/regex.js";
+import typeOf from "just-typeof";
 
 export class EventHandler {
     constructor(namespace = "") {
@@ -57,10 +58,20 @@ export class EventHandler {
         sendMessageToTabs({ event, payload });
         sendMessageToRuntime({ event, payload });
     }
-    request(query) {
+    request(options) {
+        let payload = {};
+        let query = "";
+        if (typeOf(options) === "object") {
+            ({ query, payload } = options);
+        } else if (typeOf(options) === "string") {
+            query = options;
+        } else {
+            throw TypeError("Expected String or Object.");
+        }
+
         const event = this._namespace ? `${this._namespace}.${query}` : query;
         return new Promise((resolve) => {
-            chrome.runtime.sendMessage({ event }, (response) => {
+            chrome.runtime.sendMessage({ event, payload }, (response) => {
                 // eslint-disable-next-line no-unused-expressions
                 chrome.runtime.lastError;
                 resolve(response);
