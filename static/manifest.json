@@ -7,18 +7,18 @@
     "manifest_version": 3,
     "offline_enabled": true,
     "background": {
-        "service_worker": "__BACKGROUND_JS__"
+        "service_worker": "service_worker.js"
     },
     "content_scripts": [{
         "matches": ["<all_urls>"],
         "run_at": "document_end",
-        "js": ["__CONTENT_JS__"]
+        "js": ["content/index.js"]
     }],
-    "options_page": "__OPTIONS_PAGE__",
+    "options_page": "options/index.html",
     "action": {
         "default_title": "Lisa",
-        "default_icon": "__BROWSER_ACTION__",
-        "default_popup": "__POPUP_PAGE__"
+        "default_icon": "images/browser-action.png",
+        "default_popup": "popup/index.html"
     },
     "permissions": [
         "alarms",
@@ -27,11 +27,11 @@
         "storage"
     ],
     "icons": {
-        "128": "__BROWSER_ACTION__"
+        "128": "images/browser-action.png"
     },
     "web_accessible_resources": [{
         "matches": ["<all_urls>"],
-        "resources": ["**/bundle.js", "**/bundle.css"]
+        "resources": ["**/index.js", "**/index.css"]
     }],
-    "minimum_chrome_version": "90"
+    "minimum_chrome_version": "91"
 }
