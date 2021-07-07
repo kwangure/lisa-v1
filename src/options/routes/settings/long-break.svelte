@@ -1,6 +1,6 @@
 <script>
     import createSettingStore from "./settings";
-    import { Number } from "@kwangure/strawberry/components/Input";
+    import Number from "@kwangure/strawberry/components/Input/Number";
     import Phase from "./_components/phase.svelte";
 
     const settingStore = createSettingStore();

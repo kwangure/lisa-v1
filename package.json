@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "",
   "dependencies": {
-    "@kwangure/strawberry": "^0.29.3",
+    "@kwangure/strawberry": "^0.30.2",
     "@kwangure/svelte-pagejs-router": "^0.3.1",
     "@webcomponents/custom-elements": "^1.4.2",
     "date-fns": "^2.21.2",
@@ -16,7 +16,7 @@
     "xstate": "^4.11.0"
   },
   "devDependencies": {
-    "@kwangure/eslint-config-svelte": "^0.1.11",
+    "@kwangure/eslint-config-svelte": "^0.1.12",
     "@rollup/plugin-alias": "^3.1.2",
     "@rollup/plugin-commonjs": "^15.0.0",
     "@rollup/plugin-eslint": "^8.0.1",

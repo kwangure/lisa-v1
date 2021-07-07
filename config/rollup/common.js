@@ -60,7 +60,6 @@ const sharedPlugins = {
         },
     },
     svelte: svelte({
-        preprocess: strawberryPreprocess,
         exclude: "**/*.wc.svelte",
         emitCss: true,
         compilerOptions: {

@@ -5,7 +5,7 @@
     import Icon from "@kwangure/strawberry/components/Icon";
     import { mdiInformationOutline } from "@mdi/js";
     import Modal from "@kwangure/strawberry/components/Modal";
-    import { Number } from "@kwangure/strawberry/components/Input";
+    import Number from "@kwangure/strawberry/components/Input/Number";
     import { phaseNames } from "~@common/settings";
     import { timer } from "~@common/events";
 

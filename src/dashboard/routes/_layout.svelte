@@ -17,9 +17,6 @@
 
 <style>
     .layout {
-        --nav-height: 56px;
-    }
-    .layout {
         display: grid;
         grid-template-columns: 240px 1fr;
         grid-template-rows: max-content 1fr;

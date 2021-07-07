@@ -2,7 +2,7 @@
     import { addHours, isBefore, isValid } from "date-fns";
     import Button from "@kwangure/strawberry/components/Button";
     import Modal from "@kwangure/strawberry/components/Modal";
-    import { Time } from "@kwangure/strawberry/components/Input";
+    import Time from "@kwangure/strawberry/components/Input/Time";
     import { timer } from "~@common/events";
 
     let disableTime = addHours(Date.now(), 1);
