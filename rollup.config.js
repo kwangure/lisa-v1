@@ -1,12 +1,12 @@
 import {
-    assets, background, content, options, popup,
+    assets, background, content, dashboard, options, popup,
 } from "./config/rollup/index.js";
 
 export default [
-    // Array order matters
     assets,
     background,
     content,
+    dashboard,
     options,
     popup,
 ];

@@ -1,7 +1,6 @@
-try {
-    console.log("Registered");
-    // eslint-disable-next-line no-undef
-    importScripts("background.js");
-} catch (error) {
-    console.error(error);
-}
+chrome.runtime.onStartup.addListener(() => {
+    const url = chrome.runtime.getURL("dashboard/index.html");
+    chrome.tabs.create({ url: url }, (tab) => {
+        chrome.windows.update(tab.windowId, { focused: true });
+    });
+});

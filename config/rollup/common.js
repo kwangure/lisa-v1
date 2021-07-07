@@ -4,11 +4,9 @@ import copy from "../../scripts/rollup-plugin-copy-watch.js";
 import { emptyDir } from "fs-extra";
 import path from "path";
 import postcss from "rollup-plugin-postcss";
-import { preprocessConfig } from "@kwangure/strawberry/config/index.cjs";
 import replace from "@rollup/plugin-replace";
 import resolve from "@rollup/plugin-node-resolve";
 import svelte from "rollup-plugin-svelte";
-import sveltePreprocess from "svelte-preprocess";
 import { terser } from "rollup-plugin-terser";
 import url from "@rollup/plugin-url";
 
@@ -18,8 +16,6 @@ export const DEV = MODE === "development";
 
 export const OUT_DIR = DEV ? path.resolve("dev") : path.resolve("build");
 export const CSS_OUT = "bundle.css";
-
-export const strawberryPreprocess = sveltePreprocess(preprocessConfig);
 
 const commonPlugins = [
     replace({
@@ -54,10 +50,6 @@ const sharedPlugins = {
         targets: [{
             src: "static/index.html",
             verbose: true,
-            transform: (contents, { dest }) => {
-                const script = dest.split("/").pop();
-                return contents.toString().replace(/__SCRIPT__/g, script);
-            },
         }],
         watch: ["static"],
     }),
