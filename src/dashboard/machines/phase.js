@@ -6,7 +6,7 @@ function initialTimerData(settings, phase) {
     const { duration } = settings.phaseSettings[phase];
 
     return {
-        duration: duration,
+        duration,
         remaining: duration,
         elapsed: 0,
         extendedDuration: 0,
@@ -21,6 +21,7 @@ export default function createPhaseMachine(settings) {
     function createPhase(phase) {
         return {
             [phase]: {
+                entry: console.log,
                 invoke: {
                     id: "timerMachine",
                     src: createTimerMachine(phase, settings),
@@ -31,7 +32,7 @@ export default function createPhaseMachine(settings) {
                             assign({
                                 completedPhase: (context) => ({
                                     name: phase,
-                                    context: context,
+                                    context,
                                 }),
                             }),
                             assign({
@@ -137,7 +138,7 @@ export default function createPhaseMachine(settings) {
                 return Object.assign(defaultData, {
                     remaining: extendedDuration,
                     elapsed: defaultData.duration,
-                    extendedDuration: extendedDuration,
+                    extendedDuration,
                 });
             },
         });

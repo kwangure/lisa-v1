@@ -1,48 +1,22 @@
-import common, {
-    CONTENT_DIR,
-    CONTENT_OUT,
-    CSS_OUT, DEV,
-    JS_ENTRY_OUT,
-    strawberryPreprocess,
-} from "./common.js";
-import postcss from "rollup-plugin-postcss";
-import replace from "@rollup/plugin-replace";
-import svelte from "rollup-plugin-svelte";
+import { createConfig } from "./common.js";
 
-const WEB_COMPONET_POSTFIX = "wc.svelte";
-
-export default {
+export default createConfig({
     input: "src/content/index.js",
-    output: {
-        dir: CONTENT_OUT,
-        entryFileNames: JS_ENTRY_OUT,
-        format: "esm",
-        sourcemap: "inline",
-    },
+    output: "content",
     plugins: [
-        ...common.plugins,
-        replace({
-            __CONTENT_CSS__: `${CONTENT_DIR}/${CSS_OUT}`,
-        }),
-        svelte({
-            preprocess: strawberryPreprocess,
-            exclude: `**/*.${WEB_COMPONET_POSTFIX}`,
-            emitCss: true,
-            compilerOptions: {
-                dev: DEV,
-            },
-        }),
-        svelte({
-            include: `**/*.${WEB_COMPONET_POSTFIX}`,
-            compilerOptions: {
-                customElement: true,
-                dev: DEV,
-            },
-        }),
-        postcss({
-            extract: `${CSS_OUT}`,
-        }),
+        "svelte",
+        "svelteWC",
+        "postcss",
+        // TODO: Only minify in Production
+        /*
+            Minification in dev works around a @popper/core bug used in @kwangure/strawberry.
+            @popper/core compiled into es5, where a variable `var top = "top"` is being overwritten
+            by Window.top, I assume due to how content scripts are imported in extensions.
+
+            This renames to `var x= "top"`;
+
+            I've not done further investigation/repro to confirm.
+        */
+        "terser",
     ],
-    onwarn: common.onwarn,
-    preserveEntrySignatures: false,
-};
+});

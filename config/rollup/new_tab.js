@@ -1,37 +1,11 @@
-import common, { CSS_OUT, DEV, JS_OUT, OUT_DIR, strawberryPreprocess } from "./common.js";
-import postcss from "rollup-plugin-postcss";
-import svelte from "rollup-plugin-svelte";
+import { createConfig } from "./common.js";
 
-const WEB_COMPONET_POSTFIX = "wc.svelte";
-
-export default {
-    input: "src/newtab/index.js",
-    output: {
-        dir: OUT_DIR,
-        format: "esm",
-        entryFileNames: `${JS_OUT}/new_tab.js`,
-        chunkFileNames: `${JS_OUT}/[name].[hash].js`,
-        sourcemap: "inline",
-    },
+export default createConfig({
+    input: "src/options/index.js",
+    output: "new_tab",
     plugins: [
-        ...common.plugins,
-        svelte({
-            preprocess: strawberryPreprocess,
-            exclude: `**/*.${WEB_COMPONET_POSTFIX}`,
-            emitCss: true,
-            compilerOptions: {
-                dev: DEV,
-            },
-        }),
-        svelte({
-            include: `**/*.${WEB_COMPONET_POSTFIX}`,
-            compilerOptions: {
-                customElement: true,
-                dev: DEV,
-            },
-        }),
-        postcss({
-            extract: `${CSS_OUT}/new_tab.css`,
-        }),
+        "svelte",
+        "postcss",
     ],
-};
+});
+
