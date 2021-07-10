@@ -3,5 +3,6 @@
 		"include": [
 			"chrome"
 		]
-	}
+	},
+	"exclude": ["node_modules", "build", "dev", "dist"],
 }
