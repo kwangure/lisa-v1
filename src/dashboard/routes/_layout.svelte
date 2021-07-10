@@ -17,20 +17,12 @@
 
 <style>
     .layout {
-        display: grid;
-        grid-template-columns: 240px 1fr;
-        grid-template-rows: max-content 1fr;
-        grid-template-areas:
-            "nav nav"
-            "sidebar main";
         height: 100%;
+        display: grid;
+        grid-template-rows: max-content 1fr;
     }
-    .layout > :global(.berry-sidebar) {
-        grid-area: sidebar;
-    }
-    .layout > :global(.berry-sidebar-section .title) {
-        font-weight: 600;
-        font-size: 12.5px;
+    .layout :global(.berry-navbar) {
+        --br-nav-border: var(--br-border);
     }
     img {
         display: block;
@@ -38,7 +30,6 @@
 		padding: var(--br-outer-gutter);
 	}
     main {
-        grid-area: main;
         padding: var(--br-outer-gutter);
     }
 </style>

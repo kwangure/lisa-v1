@@ -1,10 +1,8 @@
 import { writable } from "./object-writable.js";
 
-const { storage } = chrome;
-
 function getInitialValue(name, defaultValue) {
     return new Promise((resolve) => {
-        storage.local.get(name, (storageValue) => {
+        chrome.storage.local.get(name, (storageValue) => {
             if (Object.hasOwnProperty.call(storageValue, name)) {
                 resolve(storageValue[name]);
             } else {
@@ -22,7 +20,7 @@ function getInitialValue(name, defaultValue) {
  * @param {import("svelte/store").Subscriber} run A subscribtion function
  * @returns {function} unsubsription function
  */
-function later(store, run) {
+export function later(store, run) {
     let listen = false;
     return store.subscribe((value) => {
         if (listen) return run(value);
@@ -31,7 +29,7 @@ function later(store, run) {
 }
 
 export default function chromeStorageWritable(name, defaultValue) {
-    const { get, set, subscribe, update } = writable(null, async (set) => {
+    const store = writable(null, async (set) => {
         set(await getInitialValue(name, defaultValue));
 
         function setStorageValue(storage) {
@@ -40,40 +38,35 @@ export default function chromeStorageWritable(name, defaultValue) {
             }
         }
 
-        storage.onChanged.addListener(setStorageValue);
+        chrome.storage.onChanged.addListener(setStorageValue);
 
         return () => {
-            storage.onChanged.removeListener(setStorageValue);
+            chrome.storage.onChanged.removeListener(setStorageValue);
         };
     });
 
-    // If we blindly subscribe to the writable it will always have at least
-    // one subscriber (us) and wont get to zero and run `removeListener`.
-    // So we track subscriber count then subscribe/unsubscribe accordingly.
-    let cleanup = () => {};
-    let subscribeCount = 0;
-    function customSubscribe(fn) {
-        const unsubscribe = subscribe(fn);
-        subscribeCount += 1;
-        if (subscribeCount === 1) {
-            cleanup = later({ subscribe }, (value) => {
-                if (value !== undefined) {
-                    storage.local.set({ [name]: value });
-                }
-            });
+    // Set directly to Chrome's storage.
+    // The listener will propagate to the writable.
+    function set(value) {
+        if (value !== undefined) {
+            chrome.storage.local.set({ [name]: value });
+        } else {
+            console.error(`Cannot set '${name}' storage to "undefined"`);
         }
-
-        return () => {
-            unsubscribe();
-            subscribeCount -= 1;
-            if (subscribeCount === 0) cleanup();
-        };
     }
 
     return {
-        get,
+        get() {
+            return new Promise((resolve) => {
+                const unsubscribe = later(store, (value) => {
+                    resolve([value, unsubscribe]);
+                });
+            });
+        },
         set,
-        subscribe: customSubscribe,
-        update,
+        subscribe: store.subscribe,
+        async update(fn) {
+            set(fn(await this.getAsync()));
+        },
     };
 }

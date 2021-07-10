@@ -1,5 +1,5 @@
-import createLisaMachine, { formatLisaData } from "./machines/lisa";
-import { serializeState, stateOrChildStateChanged } from "./xstate.js";
+import createLisaMachine, { formatLisaData } from "../dashboard/machines/lisa";
+import { serializeState, stateOrChildStateChanged } from "../dashboard/xstate.js";
 import createSettings from "./settings";
 import { interpret } from "xstate";
 import { timer } from "../common/events";
