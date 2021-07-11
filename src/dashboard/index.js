@@ -4,6 +4,6 @@ import router from "@kwangure/svelte-pagejs-router";
 router(routes, {
     hashbang: true,
     base: "/dashboard/index.html",
-    error: error,
-    layout: layout,
+    error,
+    layout,
 });

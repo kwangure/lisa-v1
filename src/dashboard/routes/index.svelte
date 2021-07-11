@@ -2,7 +2,9 @@
     import { setup } from "../setup.js";
 
     export async function preload() {
-        return { timer: await setup() };
+        const returning = { timer: await setup() };
+        console.log("running preload", { returning });
+        return returning;
     }
 </script>
 

@@ -1,7 +1,7 @@
 <script>
     import { formatMilliseconds } from "~@utils/time";
     import { getContext } from "svelte";
-    import Timer from "~@phase_ui/components/timer.svelte";
+    import Timer from "./timer.svelte";
 
     const state = getContext("timer-state");
 

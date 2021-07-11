@@ -16,13 +16,10 @@
     setContext("timer-state", state);
     setContext("script", "content");
 
-    $: console.log({ $state });
-    $: ({ status, phase, disabled } = $state);
+    $: ({ status, phase, disabled } = $state || {});
 </script>
 
-<svelte:options tag="lisa-timer"/>
-
-<link rel="stylesheet" href={chrome.runtime.getURL("content/index.css")}/>
+<link rel="stylesheet" href={chrome.runtime.getURL("/assets/content/index.css")}/>
 
 {#if status === "setup"}
     <Setup/>

@@ -5,7 +5,7 @@
     import { getContext } from "svelte";
     import Notification from "@kwangure/strawberry/components/Notification";
     import { timer } from "~@common/events";
-    import Timer from "~@phase_ui/components/timer.svelte";
+    import Timer from "./timer.svelte";
 
     const state = getContext("timer-state");
     const settings = createSettingStore();

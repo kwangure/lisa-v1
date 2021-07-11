@@ -13,7 +13,6 @@ module.exports = {
         "import/resolver": {
             alias: {
                 map: [
-                    ["~@phase_ui", "./src/common/phase_ui"],
                     ["~@common", "./src/common/"],
                     ["~@content", "./src/content/"],
                     ["~@popup", "./src/popup/"],
