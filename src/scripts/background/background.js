@@ -2,7 +2,7 @@ import createLisaMachine, { formatLisaData } from "../dashboard/machines/lisa";
 import { serializeState, stateOrChildStateChanged } from "../dashboard/xstate.js";
 import createSettings from "./settings";
 import { interpret } from "xstate";
-import { timer } from "../common/events";
+import { timer } from "~@common/events";
 
 const { settings, addListener: onSettingsChange } = createSettings();
 const lisaMachine = createLisaMachine(settings);

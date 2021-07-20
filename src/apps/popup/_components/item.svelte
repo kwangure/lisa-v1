@@ -1,7 +1,5 @@
 <script>
-    import { createEventForwarder } from "@kwangure/strawberry/utils/forward-events";
-
-    const forward = createEventForwarder();
+    const forward = () => {};
 </script>
 
 <div class="popup-item" use:forward>

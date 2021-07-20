@@ -4,7 +4,7 @@
     import { fade } from "svelte/transition";
     import Icon from "@kwangure/strawberry/components/Icon";
     import { mdiVolumeHigh } from "@mdi/js";
-    import { notificationSounds } from "../../../../common/audio";
+    import { notificationSounds } from "~@common/audio";
     import Number from "@kwangure/strawberry/components/Input/Number";
 
     export let name;

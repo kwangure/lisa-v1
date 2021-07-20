@@ -19,7 +19,7 @@
     $: ({ status, phase, disabled } = $state || {});
 </script>
 
-<link rel="stylesheet" href={chrome.runtime.getURL("/assets/content/index.css")}/>
+<!--link rel="stylesheet" href={chrome.runtime.getURL("/assets/content/index.css")}/-->
 
 {#if status === "setup"}
     <Setup/>

@@ -1,24 +1,24 @@
 <script context="module">
-    import { setup } from "../setup.js";
+    import { setup } from "./setup.js";
 
-    export async function preload() {
-        const returning = { timer: await setup() };
-        console.log("running preload", { returning });
-        return returning;
+    export async function load() {
+        return {
+            props: {
+                timer: await setup()
+            },
+        };
     }
 </script>
 
 <script>
-    import Disabled from "./components/disabled.svelte";
-    import DisabledSetup from "./components/disabledSetup.svelte";
-    import DisabledTransition from "./components/disabledTransition.svelte";
-    import NextPhase from "./components/nextPhase.svelte";
-    import Running from "./components/running.svelte";
-    import Setup from "./components/setup.svelte";
+    import Disabled from "./_components/disabled.svelte";
+    import DisabledSetup from "./_components/disabledSetup.svelte";
+    import DisabledTransition from "./_components/disabledTransition.svelte";
+    import NextPhase from "./_components/nextPhase.svelte";
+    import Running from "./_components/running.svelte";
+    import Setup from "./_components/setup.svelte";
 
     export let timer;
-
-    $: console.log({ timer });
 
     $: isLoading = $timer === null;
     $: ({ status, phase, disabled } = $timer || {});

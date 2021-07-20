@@ -2,10 +2,9 @@
     import "@kwangure/strawberry/css/standardDOM";
     import Sidebar, { Link, Section } from "@kwangure/strawberry/components/Sidebar";
     import logo from "~@static/images/browser-action.png";
-    import { stores } from "@kwangure/svelte-pagejs-router";
+    import { page } from "$app/stores";
 
-    const { path: unhashedPath } = stores();
-    $: path = `#!${$unhashedPath}`;
+    $: path = `#!${$page.path}`;
 </script>
 
 <div class="layout">
@@ -28,10 +27,10 @@
                 <Link href="#!/" {path}>
                     Focus
                 </Link>
-                <Link href="#!/settings/short-break" {path}>
+                <Link href="#!/short-break" {path}>
                     Short break
                 </Link>
-                <Link href="#!/settings/long-break" {path}>
+                <Link href="#!/long-break" {path}>
                     Long break
                 </Link>
             </svelte:fragment>
@@ -41,7 +40,7 @@
                 Other
             </svelte:fragment>
             <svelte:fragment slot="items">
-                <Link href="#!/settings/appearance" {path}>
+                <Link href="#!/appearance" {path}>
                     Appearance
                 </Link>
             </svelte:fragment>

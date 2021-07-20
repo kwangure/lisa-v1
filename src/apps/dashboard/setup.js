@@ -1,4 +1,4 @@
-import createLisaMachine, { formatLisaData } from "./machines/lisa";
+import createLisaMachine, { formatLisaData } from "./_machines/lisa";
 import { serializeState, stateOrChildStateChanged } from "./xstate.js";
 import clone from "just-clone";
 import { defaultSettings } from "~@common/settings";

@@ -1,10 +1,8 @@
 <script>
-    import Disabled from "./components/disabled.svelte";
-    import Item from "./components/item.svelte";
-    import open from "~@common/page/open";
+    import Disabled from "./_components/disabled.svelte";
     import { phaseNames } from "~@common/settings";
     import { readable } from "svelte/store";
-    import Running from "./components/running.svelte";
+    import Running from "./_components/running.svelte";
     import { setContext } from "svelte";
     import { timer } from "~@common/events";
 
@@ -18,9 +16,6 @@
     $: ({ disabled, phase, status, nextPhase } = $state);
     $: nextPhaseName = phaseNames[nextPhase]?.toLowerCase();
 
-    function showOptions() {
-        open.options();
-    }
 </script>
 
 <div class="popup" >
@@ -43,9 +38,6 @@
             {/if}
         {/if}
     </div>
-    <Item on:click={showOptions}>
-        Open settings page
-    </Item>
 </div>
 
 <style>
