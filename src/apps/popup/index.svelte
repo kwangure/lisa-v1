@@ -13,7 +13,7 @@
 
     setContext("timer-state", state);
 
-    $: ({ disabled, phase, status, nextPhase } = $state);
+    $: ({ disabled, phase, status, nextPhase } = $state || {});
     $: nextPhaseName = phaseNames[nextPhase]?.toLowerCase();
 
 </script>
