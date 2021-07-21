@@ -36,22 +36,22 @@
     "rollup-plugin-copy-watch": "^0.0.1"
   },
   "scripts": {
-    "dev": "vite build --watch --mode=development",
-    "build": "vite build",
+    "dev": "patootie dev",
+    "build": "patootie build",
     "deploy": "npm run build && node ./scripts/deploy.mjs",
     "lint": "eslint ./src/**/*.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kwangure/lisa-v2.git"
+    "url": "https://github.com/kwangure/lisa.git"
   },
   "keywords": [],
   "author": "Kafungo Wangure",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/kwangure/lisa-v2/issues"
+    "url": "https://github.com/kwangure/lisa/issues"
   },
-  "homepage": "https://github.com/kwangure/lisa-v2#readme",
+  "homepage": "https://github.com/kwangure/lisa#readme",
   "type": "module"
 }
