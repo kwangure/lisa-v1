@@ -11,7 +11,6 @@
     "just-clone": "^3.2.1",
     "just-compare": "^1.4.0",
     "just-typeof": "^2.0.0",
-    "patootie": "file:../patootie",
     "proxy-watcher": "^3.4.1",
     "set-value": "^4.0.0",
     "svelte": "^3.37.0",
@@ -31,6 +30,7 @@
     "fs-extra": "^8.1.0",
     "is-plain-object": "^5.0.0",
     "numerable": "^0.3.15",
+    "patootie": "^0.0.1",
     "postcss": "^8.3.0",
     "puppeteer": "^8.0.0",
     "rollup-plugin-copy-watch": "^0.0.1"
