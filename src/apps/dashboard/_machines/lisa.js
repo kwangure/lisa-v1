@@ -1,10 +1,10 @@
+import { interpret, Machine } from "xstate";
 import createDisabledMachine from "./disabled";
 import createPhaseMachine from "./phase";
 import { forward } from "~@common/xstate.js";
-import { Machine } from "xstate";
 
 export default function createLisaMachine(settings) {
-    return Machine({
+    const machine = Machine({
         initial: "setup",
         states: {
             setup: {
@@ -61,6 +61,7 @@ export default function createLisaMachine(settings) {
         },
     });
 
+    return interpret(machine);
 }
 
 export function formatLisaData(lisaMachineState) {

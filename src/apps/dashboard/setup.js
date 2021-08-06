@@ -1,98 +1,102 @@
 import createLisaMachine, { formatLisaData } from "./_machines/lisa";
 import { serializeState, stateOrChildStateChanged } from "./xstate.js";
+import chromePersistable from "./storage.js";
 import clone from "just-clone";
 import { defaultSettings } from "~@common/settings";
-import { interpret } from "xstate";
 import { startOfToday } from "date-fns";
-import storageWritable from "./storage.js";
-import { writable } from "./object-writable";
+import { transformable } from "storables";
+import { derived } from "svelte/store";
 
 function serialize(state) {
     return formatLisaData(serializeState(state));
 }
 
-export const settingsStorage = storageWritable("lisa-settings", clone(defaultSettings));
-export const historyStorage = storageWritable("lisa-history", {});
+function onDone(...stores) {
+    return Promise.all(stores.map((store) => new Promise((resolve) => {
+        const unsubscribe = store.subscribe((status) => {
+            if (status === "done") {
+                unsubscribe();
+                resolve();
+            }
+        })
+    })));
+}
+
+export const { settings, settingsReadStatus, settingsWriteStatus }
+    = chromePersistable("settings", clone(defaultSettings));
+export const { history, historyReadStatus, historyWriteStatus }
+    = chromePersistable("history", {});
+
+const dayStart = startOfToday().toISOString();
+// TODO: Create a more ergonomic nestable store
+const { today } = transformable({
+    name: "history",
+    start(set) {
+        return history.subscribe(set);
+    },
+    transforms: {
+        today: {
+            validate(today) {
+                history.update((value) => {
+                    value[dayStart()].lastState = today;
+                });
+            },
+            from(history) {
+                return history[dayStart()].lastState || {};
+            },
+        },
+    },
+});
 
 export function setup() {
-    let actions = {};
-    const { subscribe } = writable(null, async (set) => {
-        const [settings, unsubscribeSettings] = await settingsStorage.get();
-        const lisaMachine = createLisaMachine(settings);
-        const lisaService = interpret(lisaMachine);
+    const subscribers = new Set();
+    function subscribe(subscriber) {
+        subscribers.add(subscriber);
+        subscriber(null);
+        return () => {
+            subscribers.delete(subscriber);
+        };
+    }
 
-        const [history, unsubscribeHistory] = await historyStorage.get();
-        const today = startOfToday().getTime();
+    onDone(settingsReadStatus, historyReadStatus).then(() => {
+        const lisaService = createLisaMachine(settings.get());
 
-        if (!history[today]) {
-            history[today] = {};
-        }
-
-        let writableValue;
         lisaService.onTransition((state) => {
-            if (stateOrChildStateChanged(state)) {
-                history[today].lastState = state;
-                writableValue = serialize(state);
-                set(writableValue);
+            if(stateOrChildStateChanged(state)) {
+                today.set(state);
             }
         });
 
-        const lastState = history[today]?.lastState;
-        lisaService.start(lastState);
+        lisaService.start(today.get().lastState);
 
-        set(serialize(lisaService.initialState));
+        const { send } = lisaService;
 
-        Object.assign(actions, {
-            destroy() {
-                lisaService.send("DESTROY");
-            },
-            disable() {
-                lisaService.send("DISABLE");
-            },
-            disableStart(duration) {
-                lisaService.send("DISABLE.START", { value: duration });
-            },
-            disableEnd() {
-                lisaService.send("DISABLE.END");
-            },
-            disableCancel() {
-                lisaService.send("DISABLE.CANCEL");
-            },
-            dismissRemainingWarning() {
-                lisaService.send("WARN_REMAINING.DISMISS");
-            },
-            extendPrevious(duration) {
-                lisaService.send("EXTEND", { value: duration });
-            },
-            nextPhase() {
-                lisaService.send("NEXT");
-            },
-            pause() {
-                lisaService.send("PAUSE");
-            },
-            pauseDefault() {
-                lisaService.send("PAUSE.DEFAULT");
-            },
-            play() {
-                lisaService.send("PLAY");
-            },
-            reset() {
-                lisaService.send("RESET");
-            },
-            restart() {
-                lisaService.send("RESTART");
-            },
-            start() {
-                lisaService.send("START");
-            },
-        });
-
-        return () => {
-            actions = {};
-            unsubscribeHistory();
-            unsubscribeSettings();
+        const actions = {
+            destroy: () => send("DESTROY"),
+            disable: () => send("DISABLE"),
+            disableStart: (duration) => send("DISABLE.START", { value: duration }),
+            disableEnd: () => send("DISABLE.END"),
+            disableCancel: () => send("DISABLE.CANCEL"),
+            dismissRemainingWarning: () => send("WARN_REMAINING.DISMISS"),
+            extendPrevious: (duration) => send("EXTEND", { value: duration }),
+            nextPhase: () => send("NEXT"),
+            pause: () => send("PAUSE"),
+            pauseDefault: () => send("PAUSE.DEFAULT"),
+            play: () => send("PLAY"),
+            reset: () => send("RESET"),
+            restart: () => send("RESTART"),
+            start: () => send("START"),
         };
+
+        for (const subscriber of subscribers) {
+            subscriber(actions);
+        }
     });
 
-    return Object.assign(actions, { subscribe });
+    return {
+        lisa: { subscribe },
+        state: derived(today, ($today) => {
+            return serialize($today.lastState)
+        }),
+    };
 }
