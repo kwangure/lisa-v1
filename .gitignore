@@ -6,6 +6,7 @@ node_modules/
 *.zip
 
 # Output folders
+.patootie/
 build/
 dev/
 dist/

@@ -1,5 +1,5 @@
 import { sendMessageToRuntime, sendMessageToTabs } from "./emit.js";
-import { escapeRegExp } from "../../utils/regex.js";
+import { escapeRegExp } from "~@utils/regex.js";
 import typeOf from "just-typeof";
 
 export class EventHandler {
@@ -51,7 +51,7 @@ export class EventHandler {
             chrome.runtime.onMessage.removeListener(this._eventHandler);
         }
     }
-    emit({ event, payload = {}}) {
+    emit({ event, payload = {} }) {
         event = this._namespace
             ? `${this._namespace}.${event}`
             : event;
