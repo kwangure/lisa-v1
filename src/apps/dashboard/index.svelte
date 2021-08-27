@@ -1,10 +1,10 @@
 <script context="module">
-    import { setup } from "./setup.js";
+    import { createTimerStore } from "./timer.js";
 
     export async function load() {
         return {
             props: {
-                timer: await setup()
+                timer: await createTimerStore()
             },
         };
     }
@@ -21,27 +21,28 @@
     export let timer;
 
     $: isLoading = $timer === null;
-    $: ({ status, phase, disabled } = $timer || {});
+    $: ({ state } = $timer || {})
+    $: ({ status, phase, disabled } = $state || {});
 </script>
 
 {#if isLoading}
     Lisa is loading...
 {:else}
     {#if status === "setup"}
-        <Setup {timer}/>
+        <Setup timer={$timer}/>
     {:else if  status === "active"}
         {#if phase === "disabling"}
-            <DisabledSetup {timer}/>
+            <DisabledSetup timer={$timer}/>
         {:else if phase === "transition"}
             <NextPhase/>
         {:else}
-            <Running {timer}/>
+            <Running timer={$timer}/>
         {/if}
     {:else if status === "disabled"}
         {#if disabled == "default"}
-            <Disabled {timer}/>
+            <Disabled timer={$timer}/>
         {:else if disabled == "transition"}
-            <DisabledTransition {timer}/>
+            <DisabledTransition timer={$timer}/>
         {/if}
     {/if}
 {/if}

@@ -14,7 +14,9 @@
 
     export let timer;
 
-    $: ({ timerMachine, phase } = $timer);
+    const { state } = timer;
+
+    $: ({ timerMachine, phase } = $state);
     $: ({ remaining, state: timerState } = timerMachine);
     $: clockTime = formatMilliseconds(remaining, {
         format: remaining < minutesToMilliseconds(60)

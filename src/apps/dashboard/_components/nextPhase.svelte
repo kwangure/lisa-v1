@@ -8,12 +8,14 @@
 
     export let timer;
 
+    const { state } = timer;
+
     $: ({
         completedPhase: { name: completedPhase },
         focusPhasesSinceStart,
         focusPhasesUntilLongBreak,
         nextPhase,
-    } = $timer);
+    } = $state);
 
     let nextStep = "proceed";
     let extendDurationMins = 5;

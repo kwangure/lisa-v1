@@ -3,8 +3,10 @@
 
     export let timer;
 
+    const { state } = timer;
+
     let disabledEnd;
-    $: ({ timerMachine: { disabledEnd }} = $timer);
+    $: ({ timerMachine: { disabledEnd }} = $state);
     $: disabledEndTime = format(new Date(disabledEnd), "h:mm bbb");
 </script>
 

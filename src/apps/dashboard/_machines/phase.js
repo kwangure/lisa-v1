@@ -21,7 +21,6 @@ export default function createPhaseMachine(settings) {
     function createPhase(phase) {
         return {
             [phase]: {
-                entry: console.log,
                 invoke: {
                     id: "timerMachine",
                     src: createTimerMachine(phase, settings),
