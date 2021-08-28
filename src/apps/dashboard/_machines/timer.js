@@ -1,11 +1,23 @@
 import { assign, Machine, sendParent } from "xstate";
 
-export default function createTimerMachine(phase, settings) {
+export default function createTimerMachine(phase, settings, saved_state) {
+    let initial_state = "running";
+    let initial_substate = "default";
+    if (saved_state?.state) {
+        if (saved_state.state.paused) {
+            initial_state = "paused";
+            initial_substate = saved_state.state.paused;
+        } else if (saved_state.state.running) {
+            initial_state = "running"
+            initial_substate = saved_state.state.running;
+        }
+    }
+
     return Machine({
-        initial: "running",
+        initial: initial_state,
         states: {
             running: {
-                initial: "default",
+                initial: initial_substate,
                 invoke: {
                     src: () => (sendParentEvent) => {
                         const id = setInterval(() => {
@@ -59,7 +71,7 @@ export default function createTimerMachine(phase, settings) {
                 ],
             },
             paused: {
-                initial: "default",
+                initial: initial_substate,
                 states: {
                     default: {
                         entry: [

@@ -4,7 +4,7 @@ export default function chromePersistable(name, default_value) {
     const stores = persistable({
         name,
         io: {
-            read(name) {
+            read() {
                 return new Promise((resolve) => {
                     chrome.storage.local.get(name, (storage) => {
                         const value = Object.hasOwnProperty.call(storage, name)
@@ -14,7 +14,7 @@ export default function chromePersistable(name, default_value) {
                     });
                 });
             },
-            update(name, set) {
+            update(set) {
                 function setStorageValue(storage) {
                     if (storage[name]?.newValue) {
                         set(storage[name].newValue);
@@ -27,7 +27,7 @@ export default function chromePersistable(name, default_value) {
                     chrome.storage.onChanged.removeListener(setStorageValue);
                 };
             },
-            write(name, value) {
+            write(value) {
                 chrome.storage.local.set({ [name]: value });
             },
         }

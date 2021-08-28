@@ -3,9 +3,9 @@ import createDisabledMachine from "./disabled";
 import createPhaseMachine from "./phase";
 import { forward } from "~@common/xstate.js";
 
-export default function createLisaMachine(settings) {
+export default function createLisaMachine(settings, initial_state) {
     const machine = Machine({
-        initial: "setup",
+        initial: initial_state.status,
         states: {
             setup: {
                 on: {
@@ -22,7 +22,7 @@ export default function createLisaMachine(settings) {
             active: {
                 invoke: {
                     id: "phaseMachine",
-                    src: createPhaseMachine(settings),
+                    src: createPhaseMachine(settings, initial_state),
                 },
                 on: {
                     "DISABLE.START": {
@@ -49,7 +49,7 @@ export default function createLisaMachine(settings) {
             disabled: {
                 invoke: {
                     id: "disabledMachine",
-                    src: createDisabledMachine(settings),
+                    src: createDisabledMachine(settings, initial_state),
                 },
                 on: {
                     "DISABLE.END": "active",
@@ -61,7 +61,7 @@ export default function createLisaMachine(settings) {
         },
     });
 
-    return interpret(machine);
+    return interpret(machine).start();
 }
 
 export function formatLisaData(lisaMachineState) {
@@ -73,14 +73,16 @@ export function formatLisaData(lisaMachineState) {
 
         Object.assign(formatted, {
             phase: phaseMachine.value,
-            ...phaseMachine.context,
+            done: phaseMachine.done,
+            context: phaseMachine.context,
         });
     } else if (status === "disabled") {
         const { disabledMachine } = children;
 
         Object.assign(formatted, {
             disabled: disabledMachine.value,
-            ...disabledMachine.context,
+            done: disabledMachine.done,
+            context: disabledMachine.context,
         });
     }
 

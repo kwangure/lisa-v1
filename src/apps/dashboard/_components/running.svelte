@@ -16,7 +16,8 @@
 
     const { state } = timer;
 
-    $: ({ timerMachine, phase } = $state);
+    $: ({ context, phase } = $state);
+    $: ({ timerMachine } = context)
     $: ({ remaining, state: timerState } = timerMachine);
     $: clockTime = formatMilliseconds(remaining, {
         format: remaining < minutesToMilliseconds(60)

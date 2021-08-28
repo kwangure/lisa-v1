@@ -6,7 +6,7 @@
     const { state } = timer;
 
     let disabledEnd;
-    $: ({ timerMachine: { disabledEnd }} = $state);
+    $: ({ context: { timerMachine: { disabledEnd }}} = $state);
     $: disabledEndTime = format(new Date(disabledEnd), "h:mm bbb");
 </script>
 

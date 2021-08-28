@@ -14,16 +14,37 @@ function initialTimerData(settings, phase) {
     };
 }
 
-export default function createPhaseMachine(settings) {
+export default function createPhaseMachine(settings, saved_state) {
     const { phaseSettings } = settings;
     const longBreakInterval = phaseSettings.longBreak.interval;
+
+    let initial_phase = "focus";
+    let initial_timer_state = {};
+    let initial_context = {
+        focusPhasesSinceStart: 0,
+        focusPhasesInCycle: 0,
+        focusPhasesUntilLongBreak: longBreakInterval,
+        completedPhase: {
+            name: "",
+            context: {},
+        },
+        currentPhase: "focus",
+        nextPhase: "shortBreak",
+        timerMachine: initialTimerData(settings, "focus"),
+    };
+
+    if (saved_state.status === "active") {
+        initial_phase = saved_state.phase;
+        initial_context = saved_state.context;
+        initial_timer_state = saved_state.context.timerMachine;
+    }
 
     function createPhase(phase) {
         return {
             [phase]: {
                 invoke: {
                     id: "timerMachine",
-                    src: createTimerMachine(phase, settings),
+                    src: createTimerMachine(phase, settings, initial_timer_state),
                     data: (context) => context.timerMachine,
                     onDone: {
                         target: "transition",
@@ -144,19 +165,8 @@ export default function createPhaseMachine(settings) {
     }
 
     return Machine({
-        initial: "focus",
-        context: {
-            focusPhasesSinceStart: 0,
-            focusPhasesInCycle: 0,
-            focusPhasesUntilLongBreak: longBreakInterval,
-            completedPhase: {
-                name: "",
-                context: {},
-            },
-            currentPhase: "focus",
-            nextPhase: "shortBreak",
-            timerMachine: initialTimerData(settings, "focus"),
-        },
+        initial: initial_phase,
+        context: initial_context,
         states: {
             ...createPhase("focus"),
             ...createPhase("shortBreak"),

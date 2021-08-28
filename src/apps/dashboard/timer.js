@@ -3,9 +3,7 @@ import { serializeState, stateOrChildStateChanged } from "./xstate.js";
 import chromePersistable from "./storage.js";
 import clone from "just-clone";
 import { defaultSettings } from "~@common/settings";
-import { derived } from "svelte/store";
-import { persistable } from "storables";
-import { startOfToday } from "date-fns";
+import { readable } from "svelte/store";
 
 function serialize(state) {
     return formatLisaData(serializeState(state));
@@ -24,10 +22,18 @@ function onDone(...stores) {
 
 export const { settings, settingsReadStatus, settingsWriteStatus }
     = chromePersistable("settings", clone(defaultSettings));
-export const { history, historyReadStatus, historyWriteStatus }
-    = chromePersistable("history", {});
 
-const dayStart = () => startOfToday().toISOString();
+function throwErrors(...stores) {
+    stores.forEach((store) => {
+        store.subscribe((status) => {
+            if (status === "error") {
+                throw store.error;
+            }
+        });
+    });
+}
+
+throwErrors(settingsReadStatus, settingsWriteStatus);
 
 export function createTimerStore() {
     const subscribers = new Set();
@@ -39,40 +45,30 @@ export function createTimerStore() {
         };
     }
 
-    onDone(settingsReadStatus, historyReadStatus).then(() => {
-        // TODO: Create a more ergonomic nestable store
-        const { today } = persistable({
-            name: "today",
-            io: {
-                read: () => history.get(),
-                update(set) {
-                    history.subscribe(set);
-                },
-                write(lisaState) {
-                    history.update((history) => {
-                        history[dayStart()].lastState = lisaState;
-                        return history;
-                    });
-                },
-            },
+    onDone(settingsReadStatus).then(() => {
+        const saved_state = JSON.parse(localStorage.getItem("machine-state"));
+        let initial_state = {
+            status: "setup",
+        };
+        if (saved_state && saved_state.done === false) {
+            initial_state = saved_state;
+        }
+        const lisaService = createLisaMachine(settings.get(), initial_state);
+
+        const state = readable(initial_state, (set) => {
+            lisaService.onTransition((state) => {
+                if (stateOrChildStateChanged(state)) {
+                    const serialized = serialize(state);
+                    localStorage.setItem("machine-state", JSON.stringify(serialized));
+                    set(serialized);
+                }
+            });
         });
-
-        const lisaService = createLisaMachine(settings.get());
-
-        lisaService.onTransition((state) => {
-            if(stateOrChildStateChanged(state)) {
-                today.set(state);
-            }
-        });
-
-        lisaService.start();
 
         const { send } = lisaService;
 
         const timer = {
-            state: derived(today, ($today) => {
-                return serialize($today.lastState || lisaService.state);
-            }),
+            state,
             destroy: () => send("DESTROY"),
             disable: () => send("DISABLE"),
             disableStart: (duration) => send("DISABLE.START", { value: duration }),

@@ -6,6 +6,7 @@ export function serializeState(state) {
         event: state.event.type,
         changed: state.changed,
         context: state.context,
+        done: state.done,
     };
 
     if (!state.children) return serialized;
@@ -28,7 +29,7 @@ export function stateOrChildStateChanged(state) {
 
 function childStateChanged(state) {
     for (const child of Object.values(state.children)) {
-        if (stateOrChildStateChanged(child.state)) return true;
+        if (child.state && stateOrChildStateChanged(child.state)) return true;
     }
 
     return false;
