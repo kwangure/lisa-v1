@@ -4,7 +4,7 @@
     export async function load() {
         return {
             props: {
-                timer: await createTimerStore()
+                timer: await createTimerStore(),
             },
         };
     }
