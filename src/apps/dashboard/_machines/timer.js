@@ -17,7 +17,9 @@ export default function createTimerMachine(phase, settings, saved_state) {
         initial: initial_state,
         states: {
             running: {
-                initial: initial_substate,
+                initial: initial_state === "running"
+                    ? initial_substate
+                    : "default",
                 invoke: {
                     src: () => (sendParentEvent) => {
                         const id = setInterval(() => {
@@ -71,7 +73,9 @@ export default function createTimerMachine(phase, settings, saved_state) {
                 ],
             },
             paused: {
-                initial: initial_substate,
+                initial: initial_state === "paused"
+                    ? initial_substate
+                    : "default",
                 states: {
                     default: {
                         entry: [
