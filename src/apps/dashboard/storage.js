@@ -9,7 +9,7 @@ export default function chromePersistable(name, default_value) {
                     chrome.storage.local.get(name, (storage) => {
                         const value = Object.hasOwnProperty.call(storage, name)
                             ? storage[name]
-                            : null;
+                            : undefined;
                         resolve(value);
                     });
                 });
