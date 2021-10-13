@@ -1,10 +1,9 @@
 export function forward(events, to) {
-    return events.reduce((obj, event) => {
+    const obj = {};
+    for (const event of events) {
         obj[event] = {
-            actions: (context, event) => {
-                context[to].send(event);
-            },
+            actions: (_, event) => to().send(event),
         };
-        return obj;
-    }, {});
+    }
+    return obj;
 }

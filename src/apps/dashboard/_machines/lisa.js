@@ -16,6 +16,7 @@ function onDone(...stores) {
 }
 
 export default function createLisaMachine(settings) {
+    let phase_service, disabled_service;
     const machine = Machine({
         initial: "loading",
         context: {},
@@ -67,7 +68,7 @@ export default function createLisaMachine(settings) {
                         "RESTART",
                         "SETTINGS.UPDATE",
                         "WARN_REMAINING.DISMISS",
-                    ], "phase_service"),
+                    ], () => phase_service),
                 },
                 exit: "destroy_phase_service"
             },
@@ -77,7 +78,7 @@ export default function createLisaMachine(settings) {
                     "DISABLE.END": "active",
                     ...forward([
                         "DISABLE.START",
-                    ], "disabled_service"),
+                    ], () => disabled_service),
                 },
                 exit: "destroy_disabled_service",
             },
@@ -91,63 +92,37 @@ export default function createLisaMachine(settings) {
         },
     }, {
         actions: {
-            create_phase_service: assign({
-                phase_service: () => {
-                    const phase_service = createPhaseMachine(settings);
-                    phase_service.onTransition((state) => {
-                        service.send("PHASE.UPDATE", {
-                            payload: state.context,
-                        });
+            create_phase_service: () => {
+                phase_service = createPhaseMachine(settings);
+                phase_service.onTransition((state) => {
+                    service.send("PHASE.UPDATE", {
+                        payload: state.context,
                     });
-
-                    return phase_service;
-                },
-
-            }),
-            destroy_phase_service: assign({
-                phase_service: (context) => {
-                    context.phase_service.stop();
-                    return null;
-                },
-            }),
-            create_disabled_service: assign({
-                disabled_service: () => {
-                    const disabled_machine = createDisabledMachine(settings)
-                    const saved_state =
-                        JSON.parse(localStorage.getItem("disabled-state"))
-                        || disabled_machine.initialState;
-                    const initial_state = State.create(saved_state);
-                    const resolved_state = disabled_machine.resolveState(initial_state);
-                    const disabled_service = interpret(disabled_machine)
-                        .start(resolved_state);
-                    service.send({
-                        type: "PHASE.UPDATE",
-                        payload: disabled_service.state.context,
+                });
+            },
+            destroy_phase_service: () => {
+                phase_service.stop();
+                phase_service = null;
+            },
+            create_disabled_service: () => {
+                disabled_service = createDisabledMachine(settings);
+                disabled_service.onTransition((state) => {
+                    service.send("PHASE.UPDATE", {
+                        payload: state.context,
                     });
-                    disabled_service.onTransition((state) => {
-                        localStorage.setItem("disabled-state", JSON.stringify(state));
-                        service.send({
-                            type: "PHASE.UPDATE",
-                            payload: state.context,
-                        });
-                    });
-
-                    return disabled_service;
-                },
-            }),
-            destroy_disabled_service: assign({
-                disabled_service: (context) => {
-                    context.disabled_service.stop();
-                    return null;
-                },
-            })
-        }
+                });
+            },
+            destroy_disabled_service: () => {
+                disabled_service.stop();
+                disabled_service = null;
+            },
+        },
     });
 
     const service = interpret(machine);
     service.start();
 
-    const default_state = { last_state: "setup", context: {}};
+    const default_state = { last_state: "setup", context: {} };
     const { lisaState, lisaStateReadStatus, lisaStateWriteStatus }
         = chromePersistable("lisaState", default_state);
 
@@ -156,9 +131,9 @@ export default function createLisaMachine(settings) {
         service.send("DONE", state);
 
         // Persist data after loading is done
-        // service.onTransition(({ value, context }) => {
-        //     lisaState.set({ last_state: value, context });
-        // });
+        service.onTransition(({ value, context }) => {
+            lisaState.set({ last_state: value, context });
+        });
     });
 
     return service;

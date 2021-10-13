@@ -41,7 +41,7 @@ export default function createPhaseMachine(settings) {
                         "RESET",
                         "SETTINGS.UPDATE",
                         "WARN_REMAINING.DISMISS",
-                    ], "timer_service"),
+                    ], () => timer_service),
                 },
                 exit: "destroy_timer_service"
             },
@@ -83,6 +83,7 @@ export default function createPhaseMachine(settings) {
         timerMachine: initialTimerData(settings, "focus"),
     };
     const context = JSON.parse(localStorage.getItem("phase-state")) || default_context;
+    let timer_service;
     const machine = Machine({
         initial: context.currentPhase,
         states: {
@@ -149,26 +150,20 @@ export default function createPhaseMachine(settings) {
         },
     }, {
         actions: {
-            create_timer_service: assign({
-                timer_service: (context, event) => {
-                    const { currentPhase, timerMachine } = context;
-                    const timer_service = createTimerMachine(currentPhase, settings, timerMachine)
-                    timer_service.onTransition(async (state) => {
-                        if (state.event.type === "xstate.init") return;
-                        service.send("TIMER.UPDATE", {
-                            payload: state.context,
-                        });
+            create_timer_service: (context) => {
+                const { currentPhase, timerMachine } = context;
+                timer_service = createTimerMachine(currentPhase, settings, timerMachine)
+                timer_service.onTransition(async (state) => {
+                    if (state.event.type === "xstate.init") return;
+                    service.send("TIMER.UPDATE", {
+                        payload: state.context,
                     });
-
-                    return timer_service;
-                },
-            }),
-            destroy_timer_service: assign({
-                timer_service: (context) => {
-                    context.timer_service.stop();
-                    return null;
-                },
-            })
+                });
+            },
+            destroy_timer_service: () => {
+                timer_service.stop();
+                timer_service = null;
+            },
         },
         guards: {
             focusIsCurrent: (context) => context.currentPhase === "focus",
