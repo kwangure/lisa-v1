@@ -36,49 +36,33 @@ function throwErrors(...stores) {
 throwErrors(settingsReadStatus, settingsWriteStatus);
 
 export function createTimerStore() {
-    const subscribers = new Set();
-    function subscribe(subscriber) {
-        subscribers.add(subscriber);
-        subscriber(null);
-        return () => {
-            subscribers.delete(subscriber);
-        };
-    }
-
-    onDone(settingsReadStatus).then(() => {
-        const lisa_service = createLisaMachine(settings.get());
-        const state = writable(serialize(lisa_service.state));
-        lisa_service.onTransition((machineState) => {
-            if (machineState.event.type === "xstate.init") return;
-            if (machineState.changed) {
-                state.set(serialize(machineState));
-            }
-        });
-
-        const { send } = lisa_service;
-
-        const timer = {
-            state,
-            destroy: () => send("DESTROY"),
-            disable: () => send("DISABLE"),
-            disableStart: (duration) => send("DISABLE.START", { value: duration }),
-            disableEnd: () => send("DISABLE.END"),
-            disableCancel: () => send("DISABLE.CANCEL"),
-            dismissRemainingWarning: () => send("WARN_REMAINING.DISMISS"),
-            extendPrevious: (duration) => send("EXTEND", { value: duration }),
-            nextPhase: () => send("NEXT"),
-            pause: () => send("PAUSE"),
-            pauseDefault: () => send("PAUSE.DEFAULT"),
-            play: () => send("PLAY"),
-            reset: () => send("RESET"),
-            restart: () => send("RESTART"),
-            start: () => send("START"),
-        };
-
-        for (const subscriber of subscribers) {
-            subscriber(timer);
+    const lisa_service = createLisaMachine();
+    const state = writable(serialize(lisa_service.state));
+    lisa_service.onTransition((machineState) => {
+        if (machineState.event.type === "xstate.init") return;
+        if (machineState.changed) {
+            state.set(serialize(machineState));
         }
     });
 
-    return { subscribe };
+    const { send } = lisa_service;
+
+    Object.assign(state, {
+        destroy: () => send("DESTROY"),
+        disable: () => send("DISABLE"),
+        disableStart: (duration) => send("DISABLE.START", { value: duration }),
+        disableEnd: () => send("DISABLE.END"),
+        disableCancel: () => send("DISABLE.CANCEL"),
+        dismissRemainingWarning: () => send("WARN_REMAINING.DISMISS"),
+        extendPrevious: (duration) => send("EXTEND", { value: duration }),
+        nextPhase: () => send("NEXT"),
+        pause: () => send("PAUSE"),
+        pauseDefault: () => send("PAUSE.DEFAULT"),
+        play: () => send("PLAY"),
+        reset: () => send("RESET"),
+        restart: () => send("RESTART"),
+        start: () => send("START"),
+    });
+
+    return state;
 }

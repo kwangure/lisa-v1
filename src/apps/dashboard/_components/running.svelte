@@ -14,44 +14,31 @@
 
     export let timer;
 
-    const { state } = timer;
-
-    let remaining = 0;
-    let pauseDuration = 0;
-    let timerState = {};
-    let clockTime = "";
-    let showPlay = false;
-
-    $: ({ currentPhase, timerMachine } = $state.phaseMachine);
-    $: if (timerMachine) {
-        ({ remaining, pauseDuration, state: timerState } = timerMachine);
-        clockTime = formatMilliseconds(remaining, {
-            format:
-                remaining < minutesToMilliseconds(60)
-                    ? ["minutes", "seconds"]
-                    : ["hours", "minutes", "seconds"],
-            delimiter: ":",
-            formatter: { xHours: "", xMinutes: "", xSeconds: "" },
-            zero: true,
-            pad: true,
-        });
-        showPlay =
-            timerState.paused === "default" || timerState === "completed";
-    }
+    $: ({ currentPhase, timerMachine } = $timer.phaseMachine);
+    $: ({ remaining, pauseDuration, state: timerState } = timerMachine);
+    $: clockTime = formatMilliseconds(remaining, {
+        format:
+            remaining < minutesToMilliseconds(60)
+                ? ["minutes", "seconds"]
+                : ["hours", "minutes", "seconds"],
+        delimiter: ":",
+        formatter: { xHours: "", xMinutes: "", xSeconds: "" },
+        zero: true,
+        pad: true,
+    });
+    $: showPlay = timerState.paused === "default" || timerState === "completed";
 
     function handleDismiss() {
         timer.dismissRemainingWarning();
     }
 </script>
 
-{#if timerMachine}
-    <Notification
-        on:dismiss={handleDismiss}
-        visible={timerState.running === "warnRemaining"}
-        removeAfter={0}
-        message="{formatMilliseconds(remaining)} remaining"
-    />
-{/if}
+<Notification
+    on:dismiss={handleDismiss}
+    visible={timerState.running === "warnRemaining"}
+    removeAfter={0}
+    message="{formatMilliseconds(remaining)} remaining"
+/>
 
 {#if timerState.paused === "reminding"}
     <p>

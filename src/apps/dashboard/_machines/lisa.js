@@ -1,8 +1,10 @@
 import chromePersistable from "../storage.js";
+import clone from "just-clone";
 import createDisabledMachine from "./disabled";
 import createPhaseMachine from "./phase";
+import { defaultSettings } from "~@common/settings";
 import { forward } from "~@common/xstate.js";
-import { assign, interpret, Machine, State } from "xstate";
+import { assign, interpret, Machine } from "xstate";
 
 function onDone(...stores) {
     return Promise.all(stores.map((store) => new Promise((resolve) => {
@@ -15,7 +17,7 @@ function onDone(...stores) {
     })));
 }
 
-export default function createLisaMachine(settings) {
+export default function createLisaMachine() {
     let phase_service, disabled_service;
     const machine = Machine({
         initial: "loading",
@@ -41,7 +43,10 @@ export default function createLisaMachine(settings) {
                     "DISABLE.START": {
                         target: "disabled",
                         actions: (_, event) => {
-                            settings.phaseSettings["disabled"].duration = event.value;
+                            settings.update((s) => {
+                                s.phaseSettings["disabled"].duration = event.value;
+                                return s;
+                            });
                         },
                     },
                     "START": "active",
@@ -53,7 +58,10 @@ export default function createLisaMachine(settings) {
                     "DISABLE.START": {
                         target: "disabled",
                         actions: (_, event) => {
-                            settings.phaseSettings["disabled"].duration = event.value;
+                            settings.update((s) => {
+                                s.phaseSettings["disabled"].duration = event.value;
+                                return s;
+                            });
                         },
                     },
                     ...forward([
@@ -93,7 +101,7 @@ export default function createLisaMachine(settings) {
     }, {
         actions: {
             create_phase_service: () => {
-                phase_service = createPhaseMachine(settings);
+                phase_service = createPhaseMachine(settings.get());
                 phase_service.onTransition((state) => {
                     service.send("PHASE.UPDATE", {
                         payload: state.context,
@@ -105,7 +113,7 @@ export default function createLisaMachine(settings) {
                 phase_service = null;
             },
             create_disabled_service: () => {
-                disabled_service = createDisabledMachine(settings);
+                disabled_service = createDisabledMachine(settings.get());
                 disabled_service.onTransition((state) => {
                     service.send("PHASE.UPDATE", {
                         payload: state.context,
@@ -122,11 +130,13 @@ export default function createLisaMachine(settings) {
     const service = interpret(machine);
     service.start();
 
-    const default_state = { last_state: "setup", context: {} };
+    const default_state = { last_state: "setup", context: {}};
     const { lisaState, lisaStateReadStatus, lisaStateWriteStatus }
         = chromePersistable("lisaState", default_state);
+    const { settings, settingsReadStatus, settingsWriteStatus }
+        = chromePersistable("settings", clone(defaultSettings));
 
-    onDone(lisaStateReadStatus).then(() => {
+    onDone(lisaStateReadStatus, settingsReadStatus).then(() => {
         const state = lisaState.get();
         service.send("DONE", state);
 

@@ -20,29 +20,27 @@
 
     export let timer;
 
-    $: isLoading = $timer === null;
-    $: ({ state } = $timer || {})
-    $: ({ status, phaseMachine, disabledMachine } = $state || {});
+    $: ({ status, phaseMachine, disabledMachine } = $timer || {});
 </script>
 
-{#if isLoading}
+{#if status === "loading"}
     Lisa is loading...
 {:else}
     {#if status === "setup"}
-        <Setup timer={$timer}/>
+        <Setup {timer}/>
     {:else if  status === "active"}
         {#if phaseMachine.currentPhase === "disabling"}
-            <DisabledSetup timer={$timer}/>
+            <DisabledSetup {timer}/>
         {:else if phaseMachine.currentPhase === "transition"}
             <NextPhase/>
         {:else}
-            <Running timer={$timer}/>
+            <Running {timer}/>
         {/if}
     {:else if status === "disabled"}
         {#if disabledMachine.currentPhase == "default"}
-            <Disabled timer={$timer}/>
+            <Disabled {timer}/>
         {:else if disabledMachine.currentPhase == "transition"}
-            <DisabledTransition timer={$timer}/>
+            <DisabledTransition {timer}/>
         {/if}
     {/if}
 {/if}
