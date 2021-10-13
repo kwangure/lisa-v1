@@ -16,11 +16,11 @@
 
     const { state } = timer;
 
-    let remaining;
-    let pauseDuration;
-    let timerState;
-    let clockTime;
-    let showPlay;
+    let remaining = 0;
+    let pauseDuration = 0;
+    let timerState = {};
+    let clockTime = "";
+    let showPlay = false;
 
     $: ({ currentPhase, timerMachine } = $state.phaseMachine);
     $: if (timerMachine) {
@@ -44,12 +44,14 @@
     }
 </script>
 
-<Notification
-    on:dismiss={handleDismiss}
-    visible={timerState.running === "warnRemaining"}
-    removeAfter={0}
-    message="{formatMilliseconds(remaining)} remaining"
-/>
+{#if timerMachine}
+    <Notification
+        on:dismiss={handleDismiss}
+        visible={timerState.running === "warnRemaining"}
+        removeAfter={0}
+        message="{formatMilliseconds(remaining)} remaining"
+    />
+{/if}
 
 {#if timerState.paused === "reminding"}
     <p>
