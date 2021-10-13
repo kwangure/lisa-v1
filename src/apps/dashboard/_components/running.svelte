@@ -16,19 +16,28 @@
 
     const { state } = timer;
 
+    let remaining;
+    let pauseDuration;
+    let timerState;
+    let clockTime;
+    let showPlay;
+
     $: ({ currentPhase, timerMachine } = $state.phaseMachine);
-    $: ({ remaining, pauseDuration, state: timerState } = timerMachine);
-    $: clockTime = formatMilliseconds(remaining, {
-        format:
-            remaining < minutesToMilliseconds(60)
-                ? ["minutes", "seconds"]
-                : ["hours", "minutes", "seconds"],
-        delimiter: ":",
-        formatter: { xHours: "", xMinutes: "", xSeconds: "" },
-        zero: true,
-        pad: true,
-    });
-    $: showPlay = timerState.paused === "default" || timerState === "completed";
+    $: if (timerMachine) {
+        ({ remaining, pauseDuration, state: timerState } = timerMachine);
+        clockTime = formatMilliseconds(remaining, {
+            format:
+                remaining < minutesToMilliseconds(60)
+                    ? ["minutes", "seconds"]
+                    : ["hours", "minutes", "seconds"],
+            delimiter: ":",
+            formatter: { xHours: "", xMinutes: "", xSeconds: "" },
+            zero: true,
+            pad: true,
+        });
+        showPlay =
+            timerState.paused === "default" || timerState === "completed";
+    }
 
     function handleDismiss() {
         timer.dismissRemainingWarning();
