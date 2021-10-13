@@ -48,13 +48,10 @@ export function createTimerStore() {
     onDone(settingsReadStatus).then(() => {
         const lisa_service = createLisaMachine(settings.get());
         const state = writable(serialize(lisa_service.state));
-        console.log({ machineState: lisa_service.state });
         lisa_service.onTransition((machineState) => {
             if (machineState.event.type === "xstate.init") return;
-            console.log({ machineState });
             if (stateOrChildStateChanged(machineState)) {
                 state.set(serialize(machineState));
-                console.log({ state: machineState });
             }
         });
 

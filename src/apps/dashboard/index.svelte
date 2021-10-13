@@ -23,8 +23,6 @@
     $: isLoading = $timer === null;
     $: ({ state } = $timer || {})
     $: ({ status, phaseMachine, disabledMachine } = $state || {});
-
-    $: console.log({ phaseMachine });
 </script>
 
 {#if isLoading}

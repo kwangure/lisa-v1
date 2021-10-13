@@ -143,11 +143,7 @@ export default function createPhaseMachine(settings) {
         on: {
             "TIMER.UPDATE": {
                 actions: assign({
-                    timerMachine: (_, event) => {
-                        console.log("updating timerMachine", { event })
-                        return event.payload
-                    }
-                    ,
+                    timerMachine: (_, event) => event.payload,
                 }),
             },
         },
@@ -159,7 +155,6 @@ export default function createPhaseMachine(settings) {
                     const timer_service = createTimerMachine(currentPhase, settings, timerMachine)
                     timer_service.onTransition(async (state) => {
                         if (state.event.type === "xstate.init") return;
-                        console.log("transitioning timer machine", { state, service });
                         service.send("TIMER.UPDATE", {
                             payload: state.context,
                         });

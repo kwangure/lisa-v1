@@ -135,7 +135,6 @@ export default function createTimerMachine(phase, settings, context) {
                 elapsed: (context) => {
                     const { duration } = settings.phaseSettings[phase];
                     const { elapsed, extendedDuration } = context;
-                    console.log({ elapsed })
                     return elapsed >= (duration + extendedDuration)
                         ? elapsed
                         : elapsed + 1000 /* one second */;
@@ -145,7 +144,6 @@ export default function createTimerMachine(phase, settings, context) {
                 remaining: (context) => {
                     const { duration } = settings.phaseSettings[phase];
                     const { extendedDuration, elapsed } = context;
-                    console.log({ elapsed })
                     return (duration + extendedDuration) - elapsed;
                 },
             }),
