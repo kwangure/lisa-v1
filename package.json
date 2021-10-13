@@ -12,7 +12,7 @@
     "just-compare": "^1.4.0",
     "just-typeof": "^2.0.0",
     "proxy-watcher": "^3.4.1",
-    "set-value": "^4.0.0",
+    "set-value": "^4.0.1",
     "storables": "^0.2.0-rc.0",
     "svelte": "^3.37.0",
     "uid": "^1.0.0",
