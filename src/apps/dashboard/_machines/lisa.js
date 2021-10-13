@@ -1,14 +1,39 @@
+import chromePersistable from "../storage.js";
 import createDisabledMachine from "./disabled";
 import createPhaseMachine from "./phase";
 import { forward } from "~@common/xstate.js";
 import { assign, interpret, Machine, State } from "xstate";
 
+function onDone(...stores) {
+    return Promise.all(stores.map((store) => new Promise((resolve) => {
+        const unsubscribe = store.subscribe((status) => {
+            if (status === "done") {
+                unsubscribe();
+                resolve();
+            }
+        })
+    })));
+}
+
 export default function createLisaMachine(settings) {
-    const { value: initial = "setup", context = {} } = JSON
-        .parse(localStorage.getItem("lisa-state")) || {};
     const machine = Machine({
-        initial,
+        initial: "loading",
+        context: {},
         states: {
+            loading: {
+                on: {
+                    DONE: [
+                        {
+                            target: "active",
+                            cond: (_, event) => event.last_state === "active",
+                        },
+                        {
+                            target: "setup",
+                        }
+                    ],
+                },
+                exit: assign((_, event) => event.context),
+            },
             setup: {
                 on: {
                     "DISABLE": "disabled",
@@ -70,7 +95,6 @@ export default function createLisaMachine(settings) {
                 phase_service: () => {
                     const phase_service = createPhaseMachine(settings);
                     phase_service.onTransition((state) => {
-                        if (state.event.type === "xstate.init") return;
                         service.send("PHASE.UPDATE", {
                             payload: state.context,
                         });
@@ -120,10 +144,21 @@ export default function createLisaMachine(settings) {
         }
     });
 
-    const service = interpret(machine.withContext(context)).start();
+    const service = interpret(machine);
+    service.start();
 
-    service.onTransition(({ value, context }) => {
-        localStorage.setItem("lisa-state", JSON.stringify({ value, context }));
+    const default_state = { last_state: "setup", context: {}};
+    const { lisaState, lisaStateReadStatus, lisaStateWriteStatus }
+        = chromePersistable("lisaState", default_state);
+
+    onDone(lisaStateReadStatus).then(() => {
+        const state = lisaState.get();
+        service.send("DONE", state);
+
+        // Persist data after loading is done
+        // service.onTransition(({ value, context }) => {
+        //     lisaState.set({ last_state: value, context });
+        // });
     });
 
     return service;
