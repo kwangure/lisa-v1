@@ -1,5 +1,5 @@
 import createLisaMachine, { formatLisaData } from "./_machines/lisa";
-import { serializeState, stateOrChildStateChanged } from "./xstate.js";
+import { serializeState } from "./xstate.js";
 import chromePersistable from "./storage.js";
 import clone from "just-clone";
 import { defaultSettings } from "~@common/settings";
@@ -50,7 +50,7 @@ export function createTimerStore() {
         const state = writable(serialize(lisa_service.state));
         lisa_service.onTransition((machineState) => {
             if (machineState.event.type === "xstate.init") return;
-            if (stateOrChildStateChanged(machineState)) {
+            if (machineState.changed) {
                 state.set(serialize(machineState));
             }
         });
