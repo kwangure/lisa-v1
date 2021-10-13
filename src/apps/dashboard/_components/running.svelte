@@ -16,13 +16,13 @@
 
     const { state } = timer;
 
-    $: ({ context, phase } = $state);
-    $: ({ timerMachine } = context)
+    $: ({ currentPhase, timerMachine } = $state.phaseMachine);
     $: ({ remaining, pauseDuration, state: timerState } = timerMachine);
     $: clockTime = formatMilliseconds(remaining, {
-        format: remaining < minutesToMilliseconds(60)
-            ? ["minutes", "seconds"]
-            : ["hours", "minutes", "seconds"],
+        format:
+            remaining < minutesToMilliseconds(60)
+                ? ["minutes", "seconds"]
+                : ["hours", "minutes", "seconds"],
         delimiter: ":",
         formatter: { xHours: "", xMinutes: "", xSeconds: "" },
         zero: true,
@@ -35,9 +35,12 @@
     }
 </script>
 
-<Notification on:dismiss={handleDismiss}
-    visible={timerState.running === "warnRemaining"} removeAfter={0}
-    message="{formatMilliseconds(remaining)} remaining"/>
+<Notification
+    on:dismiss={handleDismiss}
+    visible={timerState.running === "warnRemaining"}
+    removeAfter={0}
+    message="{formatMilliseconds(remaining)} remaining"
+/>
 
 {#if timerState.paused === "reminding"}
     <p>
@@ -45,7 +48,7 @@
     </p>
     <div>
         <Button primary icon={mdiPlayOutline} on:click={timer.pauseDefault}>
-            Resume {phase}
+            Resume {currentPhase}
         </Button>
         <Button icon={mdiPause} on:click={timer.pauseDefault}>
             Stay paused
@@ -53,7 +56,7 @@
     </div>
 {:else}
     <div class="countdown">
-        <div class="timer {phase}">
+        <div class="timer {currentPhase}">
             {clockTime}
         </div>
         <div class="controls">
@@ -61,20 +64,25 @@
                 <svelte:fragment slot="popup">
                     {showPlay ? "Resume" : "Pause"}
                 </svelte:fragment>
-                <Button icon={showPlay ? mdiPlayOutline : mdiPause}
-                    on:click={showPlay ? timer.play : timer.pause}/>
+                <Button
+                    icon={showPlay ? mdiPlayOutline : mdiPause}
+                    on:click={showPlay ? timer.play : timer.pause}
+                />
             </Tooltip>
             <Tooltip>
                 <svelte:fragment slot="popup">Disable</svelte:fragment>
-                <Button icon={mdiAlarmOff} on:click={timer.disable}/>
+                <Button icon={mdiAlarmOff} on:click={timer.disable} />
             </Tooltip>
             <Tooltip>
-                <svelte:fragment slot="popup">Restart running timer</svelte:fragment>
-                <Button icon={mdiRestart} on:click={timer.reset}/>
+                <svelte:fragment slot="popup"
+                    >Restart running timer</svelte:fragment
+                >
+                <Button icon={mdiRestart} on:click={timer.reset} />
             </Tooltip>
             <Tooltip>
-                <svelte:fragment slot="popup">Reset focus cycle</svelte:fragment>
-                <Button icon={mdiAutorenew} on:click={timer.restart}/>
+                <svelte:fragment slot="popup">Reset focus cycle</svelte:fragment
+                >
+                <Button icon={mdiAutorenew} on:click={timer.restart} />
             </Tooltip>
         </div>
     </div>

@@ -1,4 +1,4 @@
-import { assign, Machine, sendParent } from "xstate";
+import { assign, interpret, Machine, sendParent, State } from "xstate";
 import createTimerMachine from "./timer";
 import { forward } from "~@common/xstate.js";
 
@@ -14,113 +14,18 @@ function initialTimerData(settings, phase) {
     };
 }
 
-export default function createPhaseMachine(settings, saved_state) {
+export default function createPhaseMachine(settings) {
     const { phaseSettings } = settings;
     const longBreakInterval = phaseSettings.longBreak.interval;
-
-    let initial_phase = "focus";
-    let initial_timer_state = {};
-    let initial_context = {
-        focusPhasesSinceStart: 0,
-        focusPhasesInCycle: 0,
-        focusPhasesUntilLongBreak: longBreakInterval,
-        completedPhase: {
-            name: "",
-            context: {},
-        },
-        currentPhase: "focus",
-        nextPhase: "shortBreak",
-        timerMachine: initialTimerData(settings, "focus"),
-    };
-
-    if (saved_state.status === "active") {
-        initial_phase = saved_state.phase;
-        initial_context = saved_state.context;
-        initial_timer_state = saved_state.context.timerMachine;
-    }
 
     function createPhase(phase) {
         return {
             [phase]: {
-                invoke: {
-                    id: "timerMachine",
-                    src: createTimerMachine(phase, settings, initial_timer_state),
-                    data: (context) => context.timerMachine,
-                    onDone: {
-                        target: "transition",
-                        actions: [
-                            assign({
-                                completedPhase: (context) => ({
-                                    name: phase,
-                                    context,
-                                }),
-                            }),
-                            assign({
-                                focusPhasesSinceStart: (context) => {
-                                    const { focusPhasesSinceStart = 0, completedPhase } = context;
-                                    const { name, context: { wasExtended }} = completedPhase;
-
-                                    return (name === "focus" && !wasExtended)
-                                        ? focusPhasesSinceStart + 1
-                                        : focusPhasesSinceStart;
-                                },
-                            }),
-                            assign({
-                                focusPhasesInCycle: (context) => {
-                                    const { focusPhasesInCycle = 0, completedPhase } = context;
-                                    const { name, context: { wasExtended }} = completedPhase;
-
-                                    if (name === "longBreak") return 0;
-                                    if (name !== "focus" || wasExtended) return focusPhasesInCycle;
-
-                                    return focusPhasesInCycle + 1;
-                                },
-                            }),
-                            assign({
-                                focusPhasesUntilLongBreak: (context) => {
-                                    const { focusPhasesInCycle } = context;
-
-                                    return longBreakInterval
-                                        - ((focusPhasesInCycle - 1) % longBreakInterval)
-                                        - 1;
-                                },
-                            }),
-                            assign({
-                                nextPhase: (context) => {
-                                    const { currentPhase, focusPhasesUntilLongBreak } = context;
-
-                                    switch (currentPhase) {
-                                        case "shortBreak":
-                                        case "longBreak":
-                                            return "focus";
-                                        default:
-                                    }
-
-                                    if (longBreakInterval <= 0) {
-                                        return "shortBreak";
-                                    }
-
-                                    if (focusPhasesUntilLongBreak === 0) {
-                                        return "longBreak";
-                                    } else {
-                                        return "shortBreak";
-                                    }
-                                },
-                            }),
-                            sendParent("DONE"),
-                        ],
-                    },
-                },
+                entry: "create_timer_service",
                 on: {
                     "DISABLE": "disabling",
                     "PAUSE.REMIND": {
                         actions: sendParent("PAUSE.REMIND"),
-                    },
-                    "TIMER.UPDATE": {
-                        actions: [
-                            "updateTimerData",
-                            sendParent("TIMER.UPDATE"),
-                        ],
                     },
                     "RESTART": {
                         target: "focus",
@@ -136,8 +41,9 @@ export default function createPhaseMachine(settings, saved_state) {
                         "RESET",
                         "SETTINGS.UPDATE",
                         "WARN_REMAINING.DISMISS",
-                    ], "timerMachine"),
+                    ], "timer_service"),
                 },
+                exit: "destroy_timer_service"
             },
         };
     }
@@ -164,9 +70,21 @@ export default function createPhaseMachine(settings, saved_state) {
         });
     }
 
-    return Machine({
-        initial: initial_phase,
-        context: initial_context,
+    const default_context = {
+        focusPhasesSinceStart: 0,
+        focusPhasesInCycle: 0,
+        focusPhasesUntilLongBreak: longBreakInterval,
+        completedPhase: {
+            name: "",
+            context: {},
+        },
+        currentPhase: "focus",
+        nextPhase: "shortBreak",
+        timerMachine: initialTimerData(settings, "focus"),
+    };
+    const context = JSON.parse(localStorage.getItem("phase-state")) || default_context;
+    const machine = Machine({
+        initial: context.currentPhase,
         states: {
             ...createPhase("focus"),
             ...createPhase("shortBreak"),
@@ -222,11 +140,40 @@ export default function createPhaseMachine(settings, saved_state) {
                 },
             },
         },
+        on: {
+            "TIMER.UPDATE": {
+                actions: assign({
+                    timerMachine: (_, event) => {
+                        console.log("updating timerMachine", { event })
+                        return event.payload
+                    }
+                    ,
+                }),
+            },
+        },
     }, {
         actions: {
-            updateTimerData: assign({
-                timerMachine: (_, event) => event.payload,
+            create_timer_service: assign({
+                timer_service: (context, event) => {
+                    const { currentPhase, timerMachine } = context;
+                    const timer_service = createTimerMachine(currentPhase, settings, timerMachine)
+                    timer_service.onTransition(async (state) => {
+                        if (state.event.type === "xstate.init") return;
+                        console.log("transitioning timer machine", { state, service });
+                        service.send("TIMER.UPDATE", {
+                            payload: state.context,
+                        });
+                    });
+
+                    return timer_service;
+                },
             }),
+            destroy_timer_service: assign({
+                timer_service: (context) => {
+                    context.timer_service.stop();
+                    return null;
+                },
+            })
         },
         guards: {
             focusIsCurrent: (context) => context.currentPhase === "focus",
@@ -243,4 +190,10 @@ export default function createPhaseMachine(settings, saved_state) {
         },
     });
 
+    const service = interpret(machine.withContext(context)).start();
+    service.onTransition((state) => {
+        localStorage.setItem("phase-state", JSON.stringify(state.context));
+    });
+
+    return service;
 }

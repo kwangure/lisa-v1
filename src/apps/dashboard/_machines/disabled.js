@@ -1,7 +1,7 @@
 import { assign, Machine, sendParent } from "xstate";
 import { differenceInMilliseconds, isBefore } from "date-fns";
 
-export default function createDisabledMachine(settings, saved_state) {
+export default function createDisabledMachine(settings) {
     const disabledTimerMachine = Machine({
         initial: "running",
         context: {
@@ -60,13 +60,8 @@ export default function createDisabledMachine(settings, saved_state) {
         },
     });
 
-    let initial_state = "default";
-    if (saved_state.status === "disabled") {
-        initial_state = saved_state.disabled;
-    }
-
     return Machine({
-        initial: initial_state,
+        initial: "default",
         context: {},
         states: {
             default: {

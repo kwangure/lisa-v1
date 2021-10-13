@@ -3,7 +3,7 @@ import { serializeState, stateOrChildStateChanged } from "./xstate.js";
 import chromePersistable from "./storage.js";
 import clone from "just-clone";
 import { defaultSettings } from "~@common/settings";
-import { readable } from "svelte/store";
+import { writable } from "svelte/store";
 
 function serialize(state) {
     return formatLisaData(serializeState(state));
@@ -46,26 +46,19 @@ export function createTimerStore() {
     }
 
     onDone(settingsReadStatus).then(() => {
-        const saved_state = JSON.parse(localStorage.getItem("machine-state"));
-        let initial_state = {
-            status: "setup",
-        };
-        if (saved_state && saved_state.done === false) {
-            initial_state = saved_state;
-        }
-        const lisaService = createLisaMachine(settings.get(), initial_state);
-
-        const state = readable(initial_state, (set) => {
-            lisaService.onTransition((state) => {
-                if (stateOrChildStateChanged(state)) {
-                    const serialized = serialize(state);
-                    localStorage.setItem("machine-state", JSON.stringify(serialized));
-                    set(serialized);
-                }
-            });
+        const lisa_service = createLisaMachine(settings.get());
+        const state = writable(serialize(lisa_service.state));
+        console.log({ machineState: lisa_service.state });
+        lisa_service.onTransition((machineState) => {
+            if (machineState.event.type === "xstate.init") return;
+            console.log({ machineState });
+            if (stateOrChildStateChanged(machineState)) {
+                state.set(serialize(machineState));
+                console.log({ state: machineState });
+            }
         });
 
-        const { send } = lisaService;
+        const { send } = lisa_service;
 
         const timer = {
             state,

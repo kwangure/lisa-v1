@@ -1,34 +1,11 @@
-import { assign, Machine, sendParent } from "xstate";
+import { assign, interpret, Machine, State } from "xstate";
 
-export default function createTimerMachine(phase, settings, saved_state) {
-    let initial_state = "running";
-    let initial_substate = "default";
-    if (saved_state?.state) {
-        if (saved_state.state.paused) {
-            initial_state = "paused";
-            initial_substate = saved_state.state.paused;
-        } else if (saved_state.state.running) {
-            initial_state = "running"
-            initial_substate = saved_state.state.running;
-        }
-    }
-
-    return Machine({
-        initial: initial_state,
+export default function createTimerMachine(phase, settings, context) {
+    const machine = Machine({
+        initial: "running",
         states: {
             running: {
-                initial: initial_state === "running"
-                    ? initial_substate
-                    : "default",
-                invoke: {
-                    src: () => (sendParentEvent) => {
-                        const id = setInterval(() => {
-                            sendParentEvent("TICK");
-                        }, 1000);
-
-                        return () => clearInterval(id);
-                    },
-                },
+                initial: "default",
                 states: {
                     default: {
                         entry: assign({
@@ -38,11 +15,29 @@ export default function createTimerMachine(phase, settings, saved_state) {
                             target: "warnRemaining",
                             cond: "shouldWarn",
                         },
+                        after: {
+                            1000: {
+                                target: "default",
+                                actions: [
+                                    "elapseSecond",
+                                    "calculateRemaining",
+                                ]
+                            }
+                        },
                     },
                     warnRemaining: {
                         entry: assign({
                             state: { running: "warnRemaining" },
                         }),
+                        after: {
+                            1000: {
+                                target: "warnRemaining",
+                                actions: [
+                                    "elapseSecond",
+                                    "calculateRemaining",
+                                ]
+                            }
+                        },
                         on: {
                             "WARN_REMAINING.DISMISS": "default",
                         },
@@ -50,18 +45,10 @@ export default function createTimerMachine(phase, settings, saved_state) {
                             assign({
                                 warnDismissed: true,
                             }),
-                            "sendParentUpdate",
                         ],
                     },
                 },
                 on: {
-                    TICK: {
-                        actions: [
-                            "elapseSecond",
-                            "calculateRemaining",
-                            "sendParentUpdate",
-                        ],
-                    },
                     PAUSE: {
                         target: "paused",
                         cond: "isNotDisabled",
@@ -69,13 +56,12 @@ export default function createTimerMachine(phase, settings, saved_state) {
                     COMPLETE: "completed",
                 },
                 always: [
+                    { target: "paused", cond: "isPaused" },
                     { target: "completed", cond: "isCompleted" },
                 ],
             },
             paused: {
-                initial: initial_state === "paused"
-                    ? initial_substate
-                    : "default",
+                initial: "default",
                 states: {
                     default: {
                         entry: [
@@ -83,12 +69,10 @@ export default function createTimerMachine(phase, settings, saved_state) {
                                 pauseDuration: settings.phaseSettings[phase].pauseDuration,
                                 state: { paused: "default" },
                             }),
-                            "sendParentUpdate",
                         ],
                         after: {
                             PAUSE_DELAY: {
                                 target: "reminding",
-                                actions: sendParent("PAUSE.REMIND"),
                             },
                         },
                     },
@@ -97,13 +81,16 @@ export default function createTimerMachine(phase, settings, saved_state) {
                             assign({
                                 state: { paused: "reminding" },
                             }),
-                            "sendParentUpdate",
                         ],
                         on: {
                             "PAUSE.DEFAULT": "default",
                         },
                     },
                 },
+                always: [
+                    { target: "running", cond: "isRunning" },
+                    { target: "completed", cond: "isCompleted" },
+                ],
                 on: {
                     COMPLETE: "completed",
                     PLAY: "running",
@@ -117,10 +104,10 @@ export default function createTimerMachine(phase, settings, saved_state) {
                     assign({
                         state: "completed",
                     }),
-                    "sendParentUpdate",
                 ],
                 always: [
                     { target: "running", cond: "isRunning" },
+                    { target: "paused", cond: "isPaused" },
                 ],
                 type: "final",
             },
@@ -139,7 +126,6 @@ export default function createTimerMachine(phase, settings, saved_state) {
             "SETTINGS.UPDATE": {
                 actions: [
                     "calculateRemaining",
-                    "sendParentUpdate",
                 ],
             },
         },
@@ -149,6 +135,7 @@ export default function createTimerMachine(phase, settings, saved_state) {
                 elapsed: (context) => {
                     const { duration } = settings.phaseSettings[phase];
                     const { elapsed, extendedDuration } = context;
+                    console.log({ elapsed })
                     return elapsed >= (duration + extendedDuration)
                         ? elapsed
                         : elapsed + 1000 /* one second */;
@@ -158,17 +145,15 @@ export default function createTimerMachine(phase, settings, saved_state) {
                 remaining: (context) => {
                     const { duration } = settings.phaseSettings[phase];
                     const { extendedDuration, elapsed } = context;
+                    console.log({ elapsed })
                     return (duration + extendedDuration) - elapsed;
                 },
             }),
-            sendParentUpdate: sendParent((context) => ({
-                type: "TIMER.UPDATE",
-                payload: context,
-            })),
         },
         guards: {
             isCompleted: (context) => context.remaining <= 0,
-            isRunning: (context) => context.remaining > 0,
+            isRunning: (context) => context.remaining > 0 && context.state.running,
+            isPaused: (context) => context.remaining > 0 && context.state.paused,
             isNotDisabled: () => phase !== "disabled",
             shouldWarn: (context) => {
                 const { remaining, warnDismissed } = context;
@@ -179,4 +164,12 @@ export default function createTimerMachine(phase, settings, saved_state) {
             PAUSE_DELAY: () => settings.phaseSettings[phase].pauseDuration,
         },
     });
+
+    context = JSON.parse(localStorage.getItem("timer-state")) || context;
+    const service = interpret(machine.withContext(context)).start();
+    service.onTransition((state) => {
+        localStorage.setItem("timer-state", JSON.stringify(state.context));
+    });
+
+    return service;
 }

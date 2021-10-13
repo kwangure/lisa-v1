@@ -5,10 +5,11 @@
 
     const state = getContext("timer-state");
 
-    $: ({ phase, status } = $state);
+    $: ({ phaseMachine, status } = $state);
+    $: ({ currentPhase } = phaseMachine);
 </script>
 
-<div class="timer {phase}" class:disabled={status === "disabled"}>
+<div class="timer {currentPhase}" class:disabled={status === "disabled"}>
     {time}
 </div>
 

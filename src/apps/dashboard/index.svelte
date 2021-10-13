@@ -22,7 +22,9 @@
 
     $: isLoading = $timer === null;
     $: ({ state } = $timer || {})
-    $: ({ status, phase, disabled } = $state || {});
+    $: ({ status, phaseMachine, disabledMachine } = $state || {});
+
+    $: console.log({ phaseMachine });
 </script>
 
 {#if isLoading}
@@ -31,17 +33,17 @@
     {#if status === "setup"}
         <Setup timer={$timer}/>
     {:else if  status === "active"}
-        {#if phase === "disabling"}
+        {#if phaseMachine.currentPhase === "disabling"}
             <DisabledSetup timer={$timer}/>
-        {:else if phase === "transition"}
+        {:else if phaseMachine.currentPhase === "transition"}
             <NextPhase/>
         {:else}
             <Running timer={$timer}/>
         {/if}
     {:else if status === "disabled"}
-        {#if disabled == "default"}
+        {#if disabledMachine.currentPhase == "default"}
             <Disabled timer={$timer}/>
-        {:else if disabled == "transition"}
+        {:else if disabledMachine.currentPhase == "transition"}
             <DisabledTransition timer={$timer}/>
         {/if}
     {/if}
