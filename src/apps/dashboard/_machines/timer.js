@@ -1,8 +1,9 @@
 import { assign, interpret, Machine, State } from "xstate";
 
 export default function createTimerMachine(phase, settings, context) {
+    const initial = context.state.paused ? "paused" : "running";
     const machine = Machine({
-        initial: "running",
+        initial,
         states: {
             running: {
                 initial: "default",
